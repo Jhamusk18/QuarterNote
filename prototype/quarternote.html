@@ -12,7 +12,7 @@
   --md-bg:#FFF6E0; --md-fg:#A35F00; --md-bd:#F5D58A; --md-bar:#F2B01E;
   --rt-bg:#E9F7EF; --rt-fg:#0A7C57; --rt-bd:#BFE6D0;
   --rep:#2C5A85;
-  --c-past:#CFDCD7; --c-cur:#0B6B4F; --c-pos:#3A9A78; --c-neg:#C2554F; --c-total:#6B7F8E; --c-oneoff:#B07A1E; --c-oneoff-bg:#FBF3E2; --grid:#EDF1EF; --axis:#C9D3CF; --rep-bg:#EAF1F8;
+  --c-past:#C9CFD2; --c-cur:#3DB872; --c-cur-d:#22894F; --c-pos:#3DB872; --c-neg:#E07070; --c-total:#9AA6AE; --c-line:#2BB0CF; --c-line2:#5B66C9; --c-oneoff:#B07A1E; --c-oneoff-bg:#FBF3E2; --grid:#EDF1EF; --axis:#C9D3CF; --rep-bg:#EAF1F8;
   --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --shadow:0 1px 2px rgba(20,43,58,.04),0 4px 14px rgba(20,43,58,.05);
   color-scheme:light;
@@ -143,6 +143,7 @@ svg.chart{width:100%;height:auto;display:block;margin-top:10px;overflow:visible}
 .sv-lab{font-size:9.5px;fill:var(--slate);letter-spacing:.01em}
 .sv-lab.b{fill:var(--navy);font-weight:700}
 .sv-val{font-size:10px;font-weight:600;fill:var(--navy);font-variant-numeric:tabular-nums}
+.sv-pt{paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;font-size:8.5px;font-weight:600;fill:var(--c-line);font-variant-numeric:tabular-nums}
 .sv-note{font-size:8.5px;fill:#8A99A5;font-variant-numeric:tabular-nums}
 .hit{cursor:pointer}
 .hit:hover rect.b{filter:brightness(.92)}
@@ -157,6 +158,11 @@ svg.chart{width:100%;height:auto;display:block;margin-top:10px;overflow:visible}
 .hb-r{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;font-size:12.5px;text-align:left;width:100%}
 .hb-r .tr{grid-column:1/-1;height:6px;border-radius:1px;background:var(--grid);overflow:hidden}
 .hb-r .fl{height:100%;border-radius:1px;background:var(--c-past)}
+.lg{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;font-size:11px;color:var(--slate);margin-top:12px}
+.lg span{display:inline-flex;align-items:center;gap:5px}
+.lg i{display:inline-block;width:14px;height:9px;border-radius:1px}
+.lg i.ln{height:2px;position:relative}
+.lg i.ln::after{content:"";position:absolute;left:4px;top:-3px;width:6px;height:6px;border-radius:50%;background:inherit;box-shadow:0 0 0 1.5px var(--surface) inset}
 .hb-r.hl .fl{background:var(--c-cur)}
 .hb-r.warn .fl{background:var(--c-oneoff)}
 .hb-r .v{font-weight:600;font-variant-numeric:tabular-nums}
@@ -490,7 +496,7 @@ function barChart({key, vals, sel, fmt, oneOff}){
     const x=pl+i*bw,on=i===sel,bx=x+bw*.27,bwid=bw*.46;
     g+=`<g class="hit" data-act="sel" data-k="${key}" data-i="${i}" tabindex="0" role="button" aria-label="${QF[i]}: ${fmt(v)}">
       <rect x="${x}" y="0" width="${bw}" height="${H}" fill="transparent"/>
-      <rect class="b" x="${bx}" y="${y(v)}" width="${bwid}" height="${pt+ch-y(v)}" rx="1" fill="${on?'var(--c-cur)':'var(--c-past)'}"/>`;
+      <rect class="b" x="${bx}" y="${y(v)}" width="${bwid}" height="${pt+ch-y(v)}" rx="1" fill="${on?'var(--c-cur-d)':'var(--c-cur)'}"/>`;
     if(oneOff&&i===n-1){g+=`<rect x="${bx}" y="${y(v)}" width="${bwid}" height="${oneOff/max*ch}" rx="1" fill="url(#hatch)" stroke="var(--c-oneoff)" stroke-width=".8"/>`}
     if(on)g+=`<text x="${x+bw/2}" y="${y(v)-6}" text-anchor="middle" class="sv-val">${fmt(v)}</text>`;
     g+=`<text x="${x+bw/2}" y="${H-6}" text-anchor="middle" class="sv-lab${on?' b':''}">${Q[i]}</text></g>`;
@@ -513,6 +519,40 @@ function lineChart({key, vals, sel, lo, hi}){
     ${on?`<text x="${x(i)}" y="${y(v)-9}" text-anchor="middle" class="sv-val">${v}%</text>`:''}
     <text x="${x(i)}" y="${H-6}" text-anchor="middle" class="sv-lab${on?' b':''}">${Q[i]}</text></g>`});
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${g}</svg>`;
+}
+
+
+const legend = items => `<div class="lg">${items.map(([l,c,ln])=>`<span><i class="${ln?'ln':''}" style="background:${c}"></i>${l}</span>`).join('')}</div>`;
+function comboChart({key, a, b, line, sel, lo, hi}){
+  const W=340,H=190,pt=24,pb=22,pl=30,pr=30,n=a.length,ch=H-pt-pb,bw=(W-pl-pr)/n;
+  const ticks=niceTicks(0,Math.max(...a)*1.5,4),max=ticks[ticks.length-1];
+  const y=v=>pt+ch-v/max*ch, yr=v=>pt+ch-(v-lo)/(hi-lo)*ch, cx=i=>pl+i*bw+bw/2;
+  const rt=[];for(let k=0;k<ticks.length;k++)rt.push(lo+(hi-lo)*k/(ticks.length-1));
+  let g=ticks.map((t,k)=>`<line x1="${pl}" x2="${W-pr}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)"/><text x="${pl-6}" y="${y(t)+3}" text-anchor="end" class="sv-note">${kfmt(t)}</text><text x="${W-pr+6}" y="${y(t)+3}" class="sv-note">${rt[k].toFixed(0)}%</text>`).join('');
+  a.forEach((v,i)=>{const on=i===sel,x=pl+i*bw,w=bw*.3;
+    g+=`<g class="hit" data-act="sel" data-k="${key}" data-i="${i}" tabindex="0" role="button" aria-label="${QF[i]}">
+    <rect x="${x}" y="0" width="${bw}" height="${H}" fill="${on?'rgba(20,43,58,.04)':'transparent'}"/>
+    <rect class="b" x="${cx(i)-w-1}" y="${y(v)}" width="${w}" height="${pt+ch-y(v)}" rx="1" fill="${on?'var(--c-cur-d)':'var(--c-cur)'}"/>
+    <rect class="b" x="${cx(i)+1}" y="${y(b[i])}" width="${w}" height="${pt+ch-y(b[i])}" rx="1" fill="var(--c-past)"/>
+    <text x="${cx(i)}" y="${H-6}" text-anchor="middle" class="sv-lab${on?' b':''}">${Q[i]}</text></g>`});
+  g+=`<polyline fill="none" stroke="var(--c-line)" stroke-width="1.6" stroke-linejoin="round" points="${line.map((v,i)=>cx(i)+','+yr(v)).join(' ')}" pointer-events="none"/>`;
+  line.forEach((v,i)=>{g+=`<circle cx="${cx(i)}" cy="${yr(v)}" r="${i===sel?3.6:2.6}" fill="var(--surface)" stroke="var(--c-line)" stroke-width="1.5" pointer-events="none"/><text x="${cx(i)}" y="${yr(v)-7}" text-anchor="middle" class="sv-pt" pointer-events="none">${v.toFixed(1)}%</text>`});
+  return legend([['Revenue','var(--c-cur)'],['Net profit','var(--c-past)'],['Operating margin','var(--c-line)',1]])+`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${g}</svg>`;
+}
+function growthChart({key, labels, s1, s2, sel, under}){
+  const W=340,H=180,pt=22,pb=22,pl=30,n=labels.length,ch=H-pt-pb,bw=(W-pl)/n;
+  const all=[...s1,...s2,under||0],ticks=niceTicks(0,Math.max(...all)*1.1,3),max=ticks[ticks.length-1];
+  const y=v=>pt+ch-v/max*ch, cx=i=>pl+i*bw+bw/2;
+  let g=ticks.map(t=>`<line x1="${pl}" x2="${W}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)"/><text x="${pl-6}" y="${y(t)+3}" text-anchor="end" class="sv-note">${t}%</text>`).join('');
+  const area=(arr,c)=>`<path d="M${cx(0)},${y(0)} ${arr.map((v,i)=>'L'+cx(i)+','+y(v)).join(' ')} L${cx(n-1)},${y(0)}Z" fill="${c}" opacity=".08"/>`;
+  g+=area(s1,'var(--c-cur)')+area(s2,'var(--c-line2)');
+  labels.forEach((l,i)=>{const on=i===sel;g+=`<g class="hit" data-act="sel" data-k="${key}" data-i="${i}" tabindex="0" role="button" aria-label="${l}"><rect x="${pl+i*bw}" y="0" width="${bw}" height="${H}" fill="${on?'rgba(20,43,58,.04)':'transparent'}"/><text x="${cx(i)}" y="${H-6}" text-anchor="middle" class="sv-lab${on?' b':''}">${l}</text></g>`});
+  [[s1,'var(--c-cur)',1],[s2,'var(--c-line2)',-1]].forEach(([arr,c,d])=>{
+    g+=`<polyline fill="none" stroke="${c}" stroke-width="1.8" stroke-linejoin="round" points="${arr.map((v,i)=>cx(i)+','+y(v)).join(' ')}" pointer-events="none"/>`;
+    arr.forEach((v,i)=>{const above=d>0?arr[i]>=(d>0?s2:s1)[i]:arr[i]>(d>0?s2:s1)[i];g+=`<circle cx="${cx(i)}" cy="${y(v)}" r="3" fill="var(--surface)" stroke="${c}" stroke-width="1.6" pointer-events="none"/><text x="${cx(i)}" y="${above?y(v)-8:y(v)+14}" text-anchor="middle" class="sv-pt" style="fill:${c}" pointer-events="none">${v.toFixed(1)}%</text>`});
+  });
+  if(under!=null){const i=n-1;g+=`<line x1="${cx(i)}" x2="${cx(i)}" y1="${y(s2[i])+4}" y2="${y(under)-4}" stroke="var(--c-oneoff)" stroke-dasharray="2 2" pointer-events="none"/><circle cx="${cx(i)}" cy="${y(under)}" r="3" fill="var(--c-oneoff-bg)" stroke="var(--c-oneoff)" stroke-width="1.6" pointer-events="none"/><text x="${cx(i)}" y="${y(under)+14}" text-anchor="end" class="sv-pt" style="fill:var(--c-oneoff)" pointer-events="none">${under.toFixed(1)}% ex-refund</text>`}
+  return legend([['Revenue growth','var(--c-cur)',1],['Profit growth','var(--c-line2)',1],['Profit ex one-off','var(--c-oneoff)',1]])+`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${g}</svg>`;
 }
 
 function waterfall({key, steps, sel, base}){
@@ -567,21 +607,25 @@ const block = (h, q, body) => `<section class="card block"><div class="block-h">
 /* ---------- event analysis bodies ---------- */
 const BODY = {
   infy(){
-    const m=S.infyM, k='infy-'+m, sel=S.sel[k]??7;
+    const m=S.infyM, k='infy-'+m;
     let chart, det, take;
-    if(m==='mar'){chart=lineChart({key:k,vals:INFY.mar,sel,lo:19,hi:23});
-      det=detail(QF[sel]+' operating margin', INFY.mar[sel]+'%', 'rep','infy_res','Results p.3');
-      take='Margin of <b>21.1%</b> is in line with the 8-quarter average. No squeeze, no jump.';}
-    else{const v=INFY[m],f=m==='rev'?inr:inr;
-      chart=barChart({key:k,vals:v,sel,fmt:f,oneOff:m==='pat'?420:0});
-      const yoy=sel>=4?sg((v[sel]/v[sel-4]-1)*100)+'% YoY':'';
-      det=detail(QF[sel]+(m==='rev'?' revenue':' net profit'), cr(v[sel]), 'rep','infy_res','Results p.3', yoy?`${yoy} ${tag('calc')}`:'');
-      take=m==='rev'?'Revenue <b>+9.3% YoY</b> to a new quarterly high.':'Reported <b>+12.0%</b>. The striped part is the one-off ₹420 Cr tax refund. Without it, <b>+6.3%</b>.';}
+    if(m==='rev'){const sel=S.sel[k]??7;chart=comboChart({key:k,a:INFY.rev,b:INFY.pat,line:INFY.mar,sel,lo:0,hi:24});
+      const yoy=sel>=4?`${sg((INFY.rev[sel]/INFY.rev[sel-4]-1)*100)}% YoY revenue ${tag('calc')}`:'';
+      det=detail(QF[sel],`${cr(INFY.rev[sel])} · profit ${cr(INFY.pat[sel])} · margin ${INFY.mar[sel]}%`,'rep','infy_res','Results p.3',yoy);
+      take='Revenue <b>+9.3% YoY</b> to a new high. Margin held near <b>21%</b> all year.';}
+    else if(m==='gr'){const L=["Q3'26","Q4'26","Q1'27","Q2'27"],r=[8.9,10.3,10.8,9.3],p=[10.5,5.3,11.1,12.0],sel=S.sel[k]??3;
+      chart=growthChart({key:k,labels:L,s1:r,s2:p,sel,under:6.3});
+      det=detail(['Q3 FY26','Q4 FY26','Q1 FY27','Q2 FY27'][sel]+' YoY growth',`revenue ${sg(r[sel])}% · profit ${sg(p[sel])}%`,'calc','infy_res','Results p.3',sel===3?'Profit growth falls to 6.3% once the one-off tax refund is removed.':'');
+      take='Profit growth jumped above revenue growth this quarter. Strip out the refund and it is <b>below</b> revenue growth.';}
+    else{const sel=S.sel[k]??7,v=INFY.pat;
+      chart=legend([['Net profit','var(--c-cur)'],['One-off tax refund','url(#hatch)']]).replace('background:url(#hatch)','background:repeating-linear-gradient(45deg,var(--c-oneoff) 0 1px,var(--c-oneoff-bg) 1px 4px)')+barChart({key:k,vals:v,sel,fmt:inr,oneOff:420});
+      det=detail(QF[sel]+' net profit',cr(v[sel]),'rep','infy_res','Results p.3',sel>=4?`${sg((v[sel]/v[sel-4]-1)*100)}% YoY ${tag('calc')}`:'');
+      take='Reported <b>+12.0%</b>. The striped part is the one-off ₹420 Cr tax refund. Without it, <b>+6.3%</b>.';}
     const w=S.sel['infy-wf']??4, ws=WF[w];
     const presDone=prepDone('infy_pres');
     return [
       block('Is the growth real?','8 quarters, sample data',
-        `<div class="seg" role="tablist">${[['rev','Revenue'],['pat','Profit'],['mar','Margin']].map(o=>`<button role="tab" aria-selected="${m===o[0]}" class="${m===o[0]?'on':''}" data-act="set" data-k="infyM" data-v="${o[0]}">${o[1]}</button>`).join('')}</div>
+        `<div class="seg" role="tablist">${[['rev','Overview'],['gr','Growth %'],['pat','Profit']].map(o=>`<button role="tab" aria-selected="${m===o[0]}" class="${m===o[0]?'on':''}" data-act="set" data-k="infyM" data-v="${o[0]}">${o[1]}</button>`).join('')}</div>
         ${chart}${det}<p class="take">${take}</p>`),
       block('Why did profit move?','From last year’s ₹7,364 Cr to ₹8,248 Cr',
         waterfall({key:'infy-wf',steps:WF,sel:S.sel['infy-wf'],base:7000})+detail(ws.l, ws.t==='total'?cr(ws.v):sg(ws.v,0)+' Cr', ws.tg, ws.s, 'Source', ws.note)+
