@@ -14,3 +14,11 @@
 [ok]   bts_2023_02.parquet: 502,749 rows, 24.7 MB zip
 [ok]   bts_2023_03.parquet: 580,322 rows, 29.0 MB zip
 [ok]   bts_2023_04.parquet: 561,441 rows, 28.0 MB zip
+[ok]   bts_2023_05.parquet: 579,958 rows, 28.3 MB zip
+[ok]   bts_2023_06.parquet: 577,262 rows, 29.1 MB zip
+[ok]   bts_2023_07.parquet: 601,866 rows, 30.2 MB zip
+[ok]   bts_2023_08.parquet: 602,987 rows, 29.5 MB zip
+[ok]   bts_2023_09.parquet: 569,338 rows, 28.0 MB zip
+[ok]   bts_2023_10.parquet: 598,968 rows, 29.5 MB zip
+[ok]   bts_2023_11.parquet: 563,777 rows, 27.6 MB zip
+[ok]   bts_2023_12.parquet: 570,394 rows, 28.8 MB zip

@@ -1,0 +1,46 @@
+rows_total: 13577024
+date_min: 2022-01-01
+date_max: 2023-12-31
+n_carriers: 17
+n_origin_airports: 372
+n_routes: 7163
+status_pct: {'completed': 97.779, 'cancelled': 1.983, 'diverted': 0.238}
+cancellation_code_pct: {'B': 52.35, 'A': 36.07, 'C': 11.12, 'D': 0.46}
+dup_full_rows: 0
+dup_business_key: 0
+consistency: {'ArrDel15_vs_ArrDelay_mismatch': 2, 'ArrDelayMinutes_vs_clip_mismatch': 2, 'completed_missing_ArrDelay': 2, 'origin_equals_dest': 0, 'nonpositive_distance': 0, 'nonpositive_CRSElapsed': 6, 'invalid_CRSDepTime': 0, 'invalid_CRSArrTime': 0, 'CRSDepTime_eq_2400': 0, 'overnight_sched_arrival': 480908, 'missing_tail_number': 50046, 'cancelled_with_ArrDelay': 0, 'elapsed_ne_air_plus_taxi': 2}
+delay_causes: {'delayed_flights': 2763497, 'delayed_with_causes_pct': 100.0, 'on_time_with_causes': 0, 'cause_sum_eq_ArrDelay_pct': 100.0, 'cause_minutes_share_pct': {'CarrierDelay': 38.08000183105469, 'WeatherDelay': 5.389999866485596, 'NASDelay': 17.459999084472656, 'SecurityDelay': 0.20999999344348907, 'LateAircraftDelay': 38.86000061035156}}
+target_classification: {'ArrDel15_rate_pct': 20.817, 'imbalance_ratio_neg_to_pos': 3.8}
+ArrDelay_quantiles: {'0.0': -119.0, '0.001': -50.0, '0.01': -36.0, '0.05': -27.0, '0.25': -15.0, '0.5': -6.0, '0.75': 10.0, '0.95': 78.0, '0.99': 202.0, '0.999': 754.0, '1.0': 4405.0}
+ArrDelay_mean: 6.83
+ArrDelay_skew: 10.54
+ArrDelay_ge_180_pct: 1.274
+ArrDelay_ge_600_count: 18861
+ArrDelay_le_-60_count: 2577
+delayed_only_ArrDelay_quantiles: {'0.0': 15.0, '0.001': 15.0, '0.01': 15.0, '0.05': 16.0, '0.25': 24.0, '0.5': 40.0, '0.75': 76.0, '0.95': 198.0, '0.99': 450.0, '0.999': 1158.0, '1.0': 4405.0}
+
+Missingness (columns with any missing):
+                    all_%  completed_%
+CancellationCode   98.017      100.000
+NASDelay           79.646       79.183
+LateAircraftDelay  79.646       79.183
+WeatherDelay       79.646       79.183
+CarrierDelay       79.646       79.183
+SecurityDelay      79.646       79.183
+AirTime             2.221        0.000
+ActualElapsedTime   2.221        0.000
+ArrDel15            2.221        0.000
+ArrDelayMinutes     2.221        0.000
+ArrDelay            2.221        0.000
+ArrTime             2.008        0.000
+TaxiIn              2.008        0.000
+WheelsOn            2.008        0.000
+WheelsOff           1.972        0.000
+TaxiOut             1.972        0.000
+DepDelay            1.929        0.000
+DepDelayMinutes     1.929        0.000
+DepDel15            1.929        0.000
+DepTime             1.928        0.000
+Tail_Number         0.369        0.000
+
+Rows per month: {'2022-01': 537902, '2022-02': 495713, '2022-03': 564853, '2022-04': 556502, '2022-05': 578819, '2022-06': 577283, '2022-07': 594957, '2022-08': 589810, '2022-09': 557494, '2022-10': 572287, '2022-11': 546410, '2022-12': 557095, '2023-01': 538837, '2023-02': 502749, '2023-03': 580322, '2023-04': 561441, '2023-05': 579958, '2023-06': 577262, '2023-07': 601866, '2023-08': 602987, '2023-09': 569338, '2023-10': 598968, '2023-11': 563777, '2023-12': 570394}

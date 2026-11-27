@@ -7,7 +7,7 @@ integrated with NOAA hourly weather. It answers three questions:
 2. How many minutes of arrival delay should we expect? (regression)
 3. Which factors drive delay, and which are plausibly airline-controllable? (SHAP + Operational Actionability Score)
 
-> Status: **Phase 1 — data acquisition, verification and integration.** No modelling yet.
+> Status: **Phase 1 complete** — 13,577,024 flights merged with origin + destination weather (99.9 % matched). See `docs/phase1_data_feasibility.md`. No modelling yet.
 > Every number in `docs/` and `reports/` is produced by the scripts here; nothing is hand-entered.
 
 ## Reproduce Phase 1
