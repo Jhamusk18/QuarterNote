@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ExternalLink, Loader2, Sparkles } from 'lucide-react'
 import { api } from '../lib/api'
-import { ComboChart, GrowthChart } from '../components/Charts'
+import { BarChart, ComboChart, GrowthChart, WaterfallChart } from '../components/Charts'
 
 // "Sep 2026" -> "Q2'27" (Indian fiscal year: Apr–Mar)
 const MON = { Mar: 4, Jun: 1, Sep: 2, Dec: 3 }
@@ -64,6 +64,7 @@ export default function TrendPanel({ symbol, onAsk }) {
   const [st, setSt] = useState({ loading: true })
   const [tab, setTab] = useState('overview')
   const [sel, setSel] = useState(null)
+  const [bsel, setBsel] = useState(null)
   useEffect(() => {
     let alive = true
     setSt({ loading: true })
@@ -78,7 +79,7 @@ export default function TrendPanel({ symbol, onAsk }) {
   const read = readOf(s)
   const gi = labels.map((_, i) => i).filter((i) => i >= 4)
   const gr = { labels: gi.map((i) => labels[i]), rev: gi.map((i) => +yoy(q.revenue, i).toFixed(1)), pat: gi.map((i) => +yoy(q.pat, i).toFixed(1)) }
-  const i = tab === 'overview' ? (sel ?? n - 1) : (sel ?? gr.labels.length - 1)
+  const i = tab !== 'growth' ? (sel ?? n - 1) : (sel ?? gr.labels.length - 1)
 
   return (
     <div className="space-y-3" data-testid="trend-panel">
@@ -95,7 +96,7 @@ export default function TrendPanel({ symbol, onAsk }) {
         <h3 className="text-[15.5px] font-bold text-navy">Is the growth real?</h3>
         <p className="text-[12px] text-slate2">Last {n} quarters · {s.latest_quarter?.basis || 'Consolidated'} · ₹ crore</p>
         <div role="tablist" className="mt-3 flex rounded-[10px] border border-line bg-offwhite p-[3px]">
-          {[['overview', 'Overview'], ['growth', 'Growth %']].map(([k, l]) => (
+          {[['overview', 'Overview'], ['growth', 'Growth %'], ['profit', 'Profit']].map(([k, l]) => (
             <button key={k} role="tab" aria-selected={tab === k} onClick={() => { setTab(k); setSel(null) }}
               className={`flex-1 rounded-[7px] py-1.5 text-[12.5px] font-semibold ${tab === k ? 'bg-surface text-forest shadow-sm' : 'text-slate2'}`}>{l}</button>
           ))}
@@ -103,12 +104,14 @@ export default function TrendPanel({ symbol, onAsk }) {
 
         {tab === 'overview'
           ? <ComboChart labels={labels} revenue={q.revenue} profit={q.pat} margin={q.opm} sel={i} onSelect={setSel} />
+          : tab === 'profit'
+            ? <BarChart labels={labels} values={q.pat} sel={i} onSelect={setSel} />
           : gr.labels.length
             ? <GrowthChart labels={gr.labels} rev={gr.rev} pat={gr.pat} sel={i} onSelect={setSel} />
             : <p className="mt-3 text-[13px] text-slate2">Not enough history for year-on-year growth.</p>}
 
         <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-[10px] bg-offwhite px-2.5 py-2 text-[12.5px] text-navy">
-          {tab === 'overview' ? (
+          {tab !== 'growth' ? (
             <>
               <span><b>{labels[i]}</b> · sales <b className="tabular-nums">{cr(q.revenue[i])}</b> · profit <b className="tabular-nums">{cr(q.pat[i])}</b>{q.opm[i] != null && <> · margin <b>{q.opm[i]}%</b></>}</span>
               <Tag kind="rep" />
@@ -133,6 +136,45 @@ export default function TrendPanel({ symbol, onAsk }) {
           </div>
         )}
       </section>
+
+      {s.bridge && (() => {
+        const br = s.bridge, cols = [{ label: br.from.period, value: br.from.value, total: true }, ...br.steps, { label: br.to.period, value: br.to.value, total: true }]
+        const top = [...br.steps].sort((a, b) => Math.abs(b.value) - Math.abs(a.value))[0]
+        const k = bsel ?? cols.indexOf(top)
+        const c = cols[k]
+        const chg = br.to.value - br.from.value
+        return (
+          <section aria-label="Why did profit move" className="card p-3.5">
+            <h3 className="text-[15.5px] font-bold text-navy">Why did profit move?</h3>
+            <p className="text-[12px] text-slate2">Net profit, {br.from.period} → {br.to.period} · ₹ crore</p>
+            <WaterfallChart from={br.from} to={br.to} steps={br.steps} sel={k} onSelect={setBsel} />
+            <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-[10px] bg-offwhite px-2.5 py-2 text-[12.5px] text-navy">
+              <span><b>{c.label}</b> · <b className="tabular-nums">{c.total ? cr(c.value) : `${c.value >= 0 ? '+' : '−'}${cr(Math.abs(c.value))}`}</b></span>
+              <Tag kind={c.total ? 'rep' : 'calc'} />
+            </div>
+            <p className="mt-2 text-[13.5px] leading-snug text-navy">
+              Profit {chg >= 0 ? 'rose' : 'fell'} <b>{cr(Math.abs(chg))}</b>. The biggest driver was <b>{top.label.toLowerCase()}</b> ({top.value >= 0 ? '+' : '−'}{cr(Math.abs(top.value))}).
+            </p>
+            <p className="mt-1 text-[11px] leading-snug text-slate2">{br.note}</p>
+          </section>
+        )
+      })()}
+
+      {s.checks?.length > 0 && (
+        <section aria-label="Quality checks" className="card p-3.5">
+          <h3 className="text-[15.5px] font-bold text-navy">Quality checks</h3>
+          <p className="text-[12px] text-slate2">Signals a headline number can hide</p>
+          <ul className="mt-2 divide-y divide-line">
+            {s.checks.map((k) => (
+              <li key={k.label} className="flex items-center gap-3 py-2">
+                <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-[12px] font-extrabold ${k.status === 'ok' ? 'bg-rt-bg text-rt-fg' : 'bg-md-bg text-md-fg'}`}>{k.status === 'ok' ? '✓' : '!'}</span>
+                <span className="min-w-0 flex-1 text-[13px] text-navy">{k.label}: <b>{k.value}</b><span className="block text-[11.5px] text-slate2">{k.context} · Calculated</span></span>
+                <span className={`rounded-full px-2 py-[2px] text-[11px] font-semibold ${k.status === 'ok' ? 'bg-rt-bg text-rt-fg' : 'bg-md-bg text-md-fg'}`}>{k.status === 'ok' ? 'Normal' : 'Watch'}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   )
 }

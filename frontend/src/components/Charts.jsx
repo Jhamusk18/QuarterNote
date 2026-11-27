@@ -118,3 +118,63 @@ export function GrowthChart({ labels, rev, pat, sel, onSelect }) {
     </>
   )
 }
+
+/** Simple bars for one measure across quarters; the selected bar is dark. */
+export function BarChart({ labels, values, sel, onSelect, unit = '' }) {
+  const W = 340, H = 170, top = 22, bot = 22, pl = 34, n = values.length, ch = H - top - bot, bw = (W - pl) / n
+  const ticks = niceTicks(Math.min(0, ...values), Math.max(...values) * 1.1, 3), lo = ticks[0], hi = ticks[ticks.length - 1]
+  const y = (v) => top + ch - ((v - lo) / (hi - lo)) * ch
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="mt-2 block h-auto w-full overflow-visible" role="img" aria-label="Net profit by quarter">
+      {ticks.map((t) => (
+        <g key={t}><line x1={pl} x2={W} y1={y(t)} y2={y(t)} stroke={t === 0 ? 'var(--ch-axis)' : 'var(--ch-grid)'} /><text x={pl - 6} y={y(t) + 3} textAnchor="end" style={T.note}>{kfmt(t)}</text></g>
+      ))}
+      {values.map((v, i) => {
+        const on = i === sel, x = pl + i * bw, y0 = y(Math.max(0, v)), h = Math.abs(y(v) - y(0))
+        return (
+          <Hit key={i} x={x} w={bw} h={H} on={on} onSelect={() => onSelect(i)} label={`${labels[i]}: ${v}${unit}`}>
+            <rect x={x + bw * 0.25} y={y0} width={bw * 0.5} height={Math.max(1, h)} rx={1} fill={on ? 'var(--ch-green-d)' : 'var(--ch-green)'} />
+            {on && <text x={x + bw / 2} y={y0 - 6} textAnchor="middle" style={{ ...pt, fill: 'var(--ch-navy)' }}>{Math.round(v).toLocaleString('en-IN')}</text>}
+            <text x={x + bw / 2} y={H - 6} textAnchor="middle" style={{ ...T.lab, fontWeight: on ? 700 : 400, fill: on ? 'var(--ch-navy)' : T.lab.fill }}>{labels[i]}</text>
+          </Hit>
+        )
+      })}
+    </svg>
+  )
+}
+
+const SHORT = { 'Other income': 'Oth. inc.', Depreciation: 'Deprec.', Interest: 'Interest', 'Other items': 'Rest' }
+
+/** Profit bridge: last year's profit, each driver as a step, this year's profit. */
+export function WaterfallChart({ from, to, steps, sel, onSelect }) {
+  const cols = [{ label: from.period.replace(' FY', "'"), v: from.value, t: 'total' }, ...steps.map((s) => ({ label: s.label, v: s.value })), { label: to.period.replace(' FY', "'"), v: to.value, t: 'end' }]
+  let run = 0
+  const spans = cols.map((c) => { if (c.t) { run = c.v; return [0, c.v] } const a = run; run += c.v; return [a, run] })
+  const levels = spans.flatMap((sp, i) => (cols[i].t ? [sp[1]] : sp)), mn = Math.min(...levels), mx = Math.max(...levels)
+  const floor = mn > 0 ? Math.max(0, mn - (mx - mn) * 0.6) : mn
+  const ticks = niceTicks(floor, mx * 1.03, 3), lo = ticks[0], hi = ticks[ticks.length - 1]
+  const W = 340, H = 200, top = 26, bot = 34, pl = 34, n = cols.length, ch = H - top - bot, bw = (W - pl) / n
+  const y = (v) => top + ch - ((Math.max(lo, v) - lo) / (hi - lo)) * ch
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="mt-2 block h-auto w-full overflow-visible" role="img" aria-label="What moved profit from last year to this year">
+      {ticks.map((t) => (
+        <g key={t}><line x1={pl} x2={W} y1={y(t)} y2={y(t)} stroke={t === lo ? 'var(--ch-axis)' : 'var(--ch-grid)'} /><text x={pl - 6} y={y(t) + 3} textAnchor="end" style={T.note}>{kfmt(t)}</text></g>
+      ))}
+      {cols.map((c, i) => {
+        const [a, b] = spans[i], x = pl + i * bw, on = i === sel
+        const y1 = y(Math.max(a, b)), h = Math.max(1.5, Math.abs(y(a) - y(b)))
+        const fill = c.t === 'total' ? 'var(--ch-grey)' : c.t === 'end' ? 'var(--ch-green-d)' : c.v >= 0 ? 'var(--ch-green)' : 'var(--ch-red)'
+        const lab = c.t ? Math.round(c.v).toLocaleString('en-IN') : `${c.v >= 0 ? '+' : '−'}${Math.abs(Math.round(c.v)).toLocaleString('en-IN')}`
+        return (
+          <Hit key={i} x={x} w={bw} h={H} on={on} onSelect={() => onSelect(i)} label={`${c.label}: ${lab}`}>
+            {i < n - 1 && <line x1={x + bw * 0.78} x2={x + bw * 1.22} y1={y(b)} y2={y(b)} stroke="var(--ch-axis)" strokeDasharray="2 2" />}
+            <rect x={x + bw * 0.22} y={y1} width={bw * 0.56} height={h} rx={1} fill={fill} />
+            <text x={x + bw / 2} y={y1 - 5} textAnchor="middle" style={{ ...pt, fill: c.t ? 'var(--ch-navy)' : fill, fontSize: 8 }}>{lab}</text>
+            <text x={x + bw / 2} y={H - 18} textAnchor="middle" style={{ ...T.lab, fontSize: 8.5, fontWeight: on ? 700 : 400, fill: on ? 'var(--ch-navy)' : T.lab.fill }}>{SHORT[c.label] || c.label}</text>
+          </Hit>
+        )
+      })}
+      {lo > 0 && <text x={pl} y={H - 2} style={T.note}>₹ cr · axis starts at {kfmt(lo)} so the steps are visible</text>}
+    </svg>
+  )
+}

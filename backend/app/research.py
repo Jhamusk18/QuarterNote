@@ -176,6 +176,57 @@ def snapshot(sym: str) -> dict:
             conv = round(sum(x or 0 for x in cfo[-n:]) / sum(x or 0 for x in pats) * 100) if sum(x or 0 for x in pats) else None
             out["cash"] = {"periods": cf["periods"][-n:], "cfo": cfo[-n:], "pat": pats, "conversion_pct_5y": conv,
                            "cfi": (cfi or [])[-n:]}
+    if rev and q.get("periods"):
+        out.update(_profit_analysis(q, rev, pat, op, out.get("cash")))
+    return out
+
+
+def _profit_analysis(q: dict, rev, pat, op, cash) -> dict:
+    """Year-on-year profit bridge and quality checks from the standardised quarterly rows.
+    Every step is arithmetic on reported rows; 'Other items' is the balancing figure
+    (exceptional items, minority interest, rounding of the printed tax rate)."""
+    from .push import quarter_label
+    oi, intr, dep = _row(q, "Other Income"), _row(q, "Interest"), _row(q, "Depreciation")
+    pbt, taxp = _row(q, "Profit before tax"), _row(q, "Tax %")
+    rows = [rev, pat, op, oi, intr, dep, pbt, taxp]
+    out: dict = {}
+    if not q.get("rows", {}).get("Sales"):
+        return out  # banks and lenders report differently; a sales-based bridge would mislead
+    if all(r and len(r) >= 5 and r[-1] is not None and r[-5] is not None for r in rows) and rev[-5]:
+        i, j = -1, -5
+        sales_eff = (rev[i] - rev[j]) * (op[j] / rev[j])
+        margin_eff = (op[i] - op[j]) - sales_eff
+        tax_now, tax_prev = pbt[i] * taxp[i] / 100, pbt[j] * taxp[j] / 100
+        steps = [("Sales", sales_eff), ("Margin", margin_eff), ("Other income", oi[i] - oi[j]),
+                 ("Interest", -(intr[i] - intr[j])), ("Depreciation", -(dep[i] - dep[j])), ("Tax", -(tax_now - tax_prev))]
+        resid = (pat[i] - pat[j]) - sum(v for _, v in steps)
+        steps.append(("Other items", resid))
+        out["bridge"] = {
+            "from": {"period": quarter_label(q["periods"][j]), "value": pat[j]},
+            "to": {"period": quarter_label(q["periods"][i]), "value": pat[i]},
+            "steps": [{"label": k, "value": round(v)} for k, v in steps],
+            "note": "Sales effect = change in sales at last year's operating margin; Other items is the balancing figure.",
+        }
+    checks = []
+    if oi and pbt and len(pbt) >= 8:
+        share = [o / p * 100 for o, p in zip(oi[-8:], pbt[-8:]) if o is not None and p]
+        if len(share) >= 4:
+            now, avg = share[-1], sum(share[:-1]) / (len(share) - 1)
+            checks.append({"label": "Other income as a share of pre-tax profit", "value": f"{now:.0f}%",
+                           "context": f"{len(share) - 1}-quarter average {avg:.0f}%",
+                           "status": "watch" if now > avg + 5 else "ok"})
+    if taxp and len(taxp) >= 8:
+        t = [x for x in taxp[-8:] if x is not None]
+        if len(t) >= 4:
+            now, avg = t[-1], sum(t[:-1]) / (len(t) - 1)
+            checks.append({"label": "Tax rate", "value": f"{now:.0f}%", "context": f"{len(t) - 1}-quarter average {avg:.0f}%",
+                           "status": "watch" if abs(now - avg) > 5 else "ok"})
+    if cash and cash.get("conversion_pct_5y") is not None:
+        c = cash["conversion_pct_5y"]
+        checks.append({"label": "Cash from operations vs profit (5 years)", "value": f"{c}%",
+                       "context": "Above 80% means profit is backed by cash", "status": "ok" if c >= 80 else "watch"})
+    if checks:
+        out["checks"] = checks
     return out
 
 
