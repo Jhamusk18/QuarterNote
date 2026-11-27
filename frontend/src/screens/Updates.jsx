@@ -87,7 +87,7 @@ export default function Updates() {
           <button onClick={() => openSheet('companies')} className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald px-3.5 py-2 text-[13.5px] font-semibold text-navy ${filters.companies.length ? 'bg-mint' : 'bg-surface'}`}>
             {filters.companies.length ? L.companies : `Following · ${following}`}<ChevronDown size={15} className="text-slate2" />
           </button>
-          <button onClick={() => openSheet('window')} className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13.5px] font-semibold text-navy ${filters.window !== '24h' ? 'border-emerald bg-mint' : 'border-line bg-surface'}`}>
+          <button onClick={() => openSheet('window')} className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13.5px] font-semibold text-navy ${filters.window !== DEFAULT_FILTERS.window ? 'border-emerald bg-mint' : 'border-line bg-surface'}`}>
             {L.window}<ChevronDown size={15} className="text-slate2" />
           </button>
           {filters.priority !== 'all' && (

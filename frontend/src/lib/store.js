@@ -31,4 +31,4 @@ export const CATEGORIES = [
 export const MARKET_SIGNALS = [['price_movement', 'Price movement'], ['volume_surge', 'Volume surge']]
 export const CAT_LABEL = Object.fromEntries([...CATEGORIES, ...MARKET_SIGNALS])
 
-export const DEFAULT_FILTERS = { priority: 'all', companies: [], window: '24h', from: '', to: '', categories: [] }
+export const DEFAULT_FILTERS = { priority: 'all', companies: [], window: '7d', from: '', to: '', categories: [] }
