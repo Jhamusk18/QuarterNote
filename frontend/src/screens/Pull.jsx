@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Search, ChevronDown, Bot, User, Paperclip, Send, Loader2, CheckCircle2, AlertTriangle, FileText, Target, X } from 'lucide-react'
-import { LogoTile } from '../components/Logo'
+import { Search, ChevronDown, Bot, User, Paperclip, Send, Loader2, CheckCircle2, AlertTriangle, FileText, Target, X, Building2, MessageCircle, ArrowLeft } from 'lucide-react'
+import { BrandRow } from '../components/Logo'
 import { ModeBadge } from '../components/Badges'
 import { api } from '../lib/api'
 import { useApp } from '../lib/ctx'
@@ -124,6 +124,60 @@ function Bubble({ m, saved, onSave }) {
   )
 }
 
+const IN = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 })
+
+function Tile({ label, value, yoy }) {
+  return (
+    <div className="rounded-2xl bg-surface p-2.5">
+      <div className="text-[11.5px] font-semibold text-slate2">{label}</div>
+      <div className="mt-0.5 text-[19px] font-extrabold tabular-nums text-navy">{value == null ? '—' : `₹${IN.format(value)} cr`}</div>
+      {yoy != null && <div className={`text-[11.5px] font-semibold ${yoy >= 0 ? 'text-rt-fg' : 'text-hi-fg'}`}>{yoy >= 0 ? '▲' : '▼'} {Math.abs(yoy).toFixed(1)}% vs year ago</div>}
+    </div>
+  )
+}
+
+function CompanySnapshot({ sym, quote, status }) {
+  const [s, setS] = useState(null)
+  useEffect(() => {
+    let alive = true
+    setS(null)
+    api.snapshot(sym).then((r) => alive && setS(r)).catch((e) => alive && setS({ error: e.message }))
+    return () => { alive = false }
+  }, [sym])
+  const lq = s?.latest_quarter
+  return (
+    <section aria-label="Company snapshot" className="rounded-3xl border border-[#CFE9DC] bg-mint/60 p-3">
+      <div className="flex items-center gap-2">
+        <Building2 size={17} className="text-emerald" />
+        <h2 className="flex-1 text-[15px] font-extrabold text-navy">Company snapshot</h2>
+        {quote && !quote.error && (
+          <span className="flex items-center gap-1.5 text-[12px] tabular-nums text-navy"><b>₹{num2(quote.close)}</b>
+            <span className={quote.change_pct >= 0 ? 'font-semibold text-emerald' : 'font-semibold text-hi-fg'}>{pct(quote.change_pct, 2)}</span>
+          </span>
+        )}
+      </div>
+      {!s && <p className="mt-2 inline-flex items-center gap-2 text-[12.5px] text-slate2"><Loader2 size={14} className="animate-spin" />Loading latest results…</p>}
+      {s?.error && <p className="mt-2 text-[12.5px] text-slate2">Latest results unavailable: {s.error}</p>}
+      {lq && (
+        <>
+          <div className="mt-2 text-[12.5px] font-bold text-navy">Latest results · {lq.period_label} · {lq.basis}</div>
+          <div className="mt-1.5 grid grid-cols-2 gap-2">
+            <Tile label={lq.revenue_label} value={lq.revenue} yoy={lq.revenue_yoy} />
+            {lq.operating_profit != null
+              ? <Tile label="Operating profit" value={lq.operating_profit} yoy={lq.operating_profit_yoy} />
+              : <Tile label="Net profit" value={lq.pat} yoy={lq.pat_yoy} />}
+          </div>
+          <p className="mt-2 text-[11px] leading-snug text-slate2">
+            From <a href={s.source.url} target="_blank" rel="noreferrer" className="font-semibold text-emerald underline">screener.in</a>’s standardised table, not verified against the filing.
+            {quote && !quote.error && <> Price: <ModeBadge mode="EOD" asOf={quote.as_of} /></>}
+          </p>
+        </>
+      )}
+      {status?.state === 'ready' && <p className="mt-1 text-[11px] text-slate2">{(status.indexed_docs || []).length} primary documents ready to search.</p>}
+    </section>
+  )
+}
+
 export default function Pull() {
   const loc = useLocation()
   const nav = useNavigate()
@@ -137,8 +191,10 @@ export default function Pull() {
   const scroller = useRef(null)
   const fileRef = useRef(null)
   const pendingQ = useRef(null)
+  const [context, setContext] = useState(null)
   const sym = company?.symbol
   const msgs = threads[sym] || []
+  const suggestion = 'What drove the change in operating profit last quarter?'
 
   const setMsgs = (fn) => setThreads((t) => ({ ...t, [sym]: fn(t[sym] || []) }))
   const patch = (id, p) => setThreads((t) => ({ ...t, [sym]: (t[sym] || []).map((m) => (m.id === id ? { ...m, ...p } : m)) }))
@@ -148,7 +204,13 @@ export default function Pull() {
     const st = loc.state
     if (st?.symbol) {
       setCompany({ symbol: st.symbol, name: st.name || st.symbol })
-      pendingQ.current = st.question || null
+      if (st.period) {
+        setContext({ symbol: st.symbol, period: st.period, question: st.question })
+        setInput(st.question || '')
+      } else {
+        setContext(null)
+        pendingQ.current = st.question || null
+      }
       nav('/research', { replace: true, state: null })
     }
   }, [loc.state]) // eslint-disable-line
@@ -251,29 +313,29 @@ export default function Pull() {
   return (
     <div className="flex h-full flex-col">
       <header className="shrink-0 space-y-3 bg-gradient-to-b from-[#E4F4EC] to-offwhite px-4 pb-2 pt-[max(16px,env(safe-area-inset-top))]">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2.5">
-            <LogoTile size={44} />
-            <div className="leading-tight"><div className="text-[20px] font-extrabold text-navy">FINN AI Agent</div><div className="text-[12.5px] text-slate2">Financial Investment Intelligence</div></div>
-          </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#BFE6D0] bg-mint px-3 py-1.5 text-[13px] font-semibold text-navy"><span className="h-2 w-2 rounded-full bg-emerald" />EOD Data</span>
-        </div>
+        <BrandRow right={<span className="inline-flex items-center gap-2 rounded-full border border-[#BFE6D0] bg-surface px-3 py-1.5 text-[12.5px] font-semibold text-navy"><span className="h-2 w-2 rounded-full bg-emerald" />EOD Data</span>} />
+        <h1 className="text-[24px] font-extrabold leading-tight tracking-tight text-navy">Research</h1>
         <CompanyPicker company={company} portfolio={companies.portfolio} adhoc={companies.adhoc}
-          onPick={(c) => { if (c.symbol !== sym) setThreads((t) => ({ ...t, [c.symbol]: t[c.symbol] || [] })); setCompany({ symbol: c.symbol, name: c.name }) }} />
-        <div className="flex items-center justify-between text-[12px]">
-          {quote && !quote.error ? (
-            <span className="flex items-center gap-2 text-navy tnum"><b>₹{num2(quote.close)}</b>
-              <span className={quote.change_pct >= 0 ? 'font-semibold text-emerald' : 'font-semibold text-hi-fg'}>{pct(quote.change_pct, 2)}</span>
-              <ModeBadge mode="EOD" asOf={quote.as_of} />
-            </span>
-          ) : <span className="text-slate2">{quote?.error ? 'No reliable EOD price for this listing' : 'Loading price…'}</span>}
-          {status?.state === 'ready' && <span className="whitespace-nowrap text-slate2">{(status.indexed_docs || []).length} sources</span>}
-        </div>
+          onPick={(c) => { if (c.symbol !== sym) { setThreads((t) => ({ ...t, [c.symbol]: t[c.symbol] || [] })); setContext(null) } setCompany({ symbol: c.symbol, name: c.name }) }} />
       </header>
 
       <div ref={scroller} className="flex-1 space-y-4 overflow-y-auto px-3.5 pb-4 pt-2 no-scrollbar">
-        <div className="text-center"><span className="rounded-full bg-offwhite px-4 py-1 text-[13px] text-slate2">Today</span></div>
-        <Bubble m={{ role: 'finn', time: nowT(), text: `Hello! What financial filing or portfolio metric would you like to interrogate today${company ? ` for ${company.name}` : ''}? I answer only from primary documents and cite every claim.` }} />
+        {context && context.symbol === sym && (
+          <button onClick={() => nav(-1)} className="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-[12.5px] font-semibold text-navy shadow-card">
+            <ArrowLeft size={14} className="text-emerald" />From update · {sym} {context.period} results
+          </button>
+        )}
+        {sym && <CompanySnapshot sym={sym} quote={quote} status={status} />}
+        {!msgs.length && (
+          <button disabled={busy} onClick={() => send(context?.symbol === sym && context.question ? context.question : suggestion)}
+            className="flex w-full items-center gap-3 rounded-2xl border border-line bg-surface px-3 py-3 text-left shadow-card">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-mint text-emerald"><MessageCircle size={18} /></span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[11.5px] font-semibold text-slate2">Suggested question</span>
+              <span className="block text-[14px] font-semibold text-navy">{context?.symbol === sym && context.question ? context.question : suggestion}</span>
+            </span>
+          </button>
+        )}
         <IndexProgress st={status} />
         <div className="-mx-3.5 flex gap-2 overflow-x-auto px-3.5 no-scrollbar">
           {CHIPS.map(([k, l, star]) => (
@@ -289,8 +351,8 @@ export default function Pull() {
       <div className="shrink-0 px-3 pb-2.5 pt-1.5">
         <div className="flex items-center gap-2 rounded-[22px] border border-line bg-surface p-2 shadow-card">
           <input ref={fileRef} type="file" accept="application/pdf" className="hidden" onChange={onFile} />
-          <button onClick={() => fileRef.current?.click()} className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-2xl bg-mint px-3 text-[14px] font-semibold text-navy">
-            <Paperclip size={17} className="text-emerald" />Drop PDF
+          <button onClick={() => fileRef.current?.click()} title="Add your own PDF (annual report, filing, transcript)" className="inline-flex h-10 shrink-0 items-center gap-1 rounded-xl border border-line px-2.5 text-[12.5px] font-semibold text-slate2">
+            <Paperclip size={15} className="text-emerald" />Add documents
           </button>
           <div className="h-7 w-px bg-line" />
           <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && send()}

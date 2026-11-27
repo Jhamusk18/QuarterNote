@@ -138,8 +138,15 @@ def snapshot(sym: str) -> dict:
     rev = _row(q, "Sales", "Revenue")
     pat = _row(q, "Net Profit")
     opm = _row(q, "OPM %", "Financing Margin %")
+    op = _row(q, "Operating Profit")
     if rev and q.get("periods"):
-        out["latest_quarter"] = {"period": q["periods"][-1], "revenue": rev[-1], "pat": pat[-1] if pat else None,
+        from .push import quarter_label
+        out["latest_quarter"] = {"period": q["periods"][-1], "period_label": quarter_label(q["periods"][-1]),
+                                 "basis": "Consolidated" if "/consolidated" in c["url"] else "Standalone",
+                                 "revenue_label": "Sales" if q.get("rows", {}).get("Sales") else "Revenue",
+                                 "operating_profit": op[-1] if op else None,
+                                 "operating_profit_yoy": round((op[-1] / op[-5] - 1) * 100, 1) if op and len(op) > 4 and op[-5] and op[-5] > 0 else None,
+                                 "revenue": rev[-1], "pat": pat[-1] if pat else None,
                                  "opm": opm[-1] if opm else None,
                                  "revenue_yoy": round((rev[-1] / rev[-5] - 1) * 100, 1) if len(rev) > 4 and rev[-5] else None,
                                  "pat_yoy": round((pat[-1] / pat[-5] - 1) * 100, 1) if pat and len(pat) > 4 and pat[-5] else None}
