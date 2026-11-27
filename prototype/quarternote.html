@@ -1,0 +1,973 @@
+<title>QuarterNote Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+<style>
+/* Layout: a phone frame centred on a mint page, with a short tour beside it on wide screens.
+   Single light theme on purpose: this mirrors QuarterNote's original light look. */
+:root{
+  --forest:#075B43; --emerald:#0D9367; --emerald-2:#2FB57F; --mint:#E7F5EF; --mint-2:#D3EEE2;
+  --page:#E9EFEC; --surface:#FFFFFF; --offwhite:#F6F9F8; --navy:#142B3A; --slate:#536273; --line:#E2E9E6;
+  --bar:#BFE6D0; --hi-bg:#FDECEC; --hi-fg:#C81E1E; --hi-bd:#F5B5B5; --hi-bar:#E5484D;
+  --md-bg:#FFF6E0; --md-fg:#A35F00; --md-bd:#F5D58A; --md-bar:#F2B01E;
+  --rt-bg:#E9F7EF; --rt-fg:#0A7C57; --rt-bd:#BFE6D0;
+  --rep:#2C5A85; --rep-bg:#EAF1F8;
+  --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --shadow:0 1px 2px rgba(20,43,58,.04),0 4px 14px rgba(20,43,58,.05);
+  color-scheme:light;
+}
+html,body{height:100%}
+body{background:var(--page);color:var(--navy);font-family:var(--font);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+button:focus-visible,[tabindex]:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--emerald);outline-offset:2px;border-radius:6px}
+.tnum{font-variant-numeric:tabular-nums}
+
+.stage{min-height:100%;display:flex;align-items:center;justify-content:center;gap:48px;padding-block:24px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));box-sizing:border-box}
+.tour{width:300px;display:flex;flex-direction:column;gap:14px}
+.tour .eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--emerald)}
+.tour h1{font-size:26px;line-height:1.2;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.tour p{margin:0;color:var(--slate);line-height:1.5;font-size:14px}
+.tour ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;counter-reset:t}
+.tour li button{width:100%;text-align:left;display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.4;box-shadow:var(--shadow)}
+.tour li button:hover{border-color:var(--emerald)}
+.tour li b{display:block}
+.tour .n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--mint);color:var(--forest);font-weight:800;font-size:12px;display:grid;place-items:center}
+.tour .fine{font-size:12px;color:var(--slate)}
+
+.phone{position:relative;width:390px;height:min(844px,calc(100vh - 48px));min-height:640px;background:var(--offwhite);border-radius:38px;
+  box-shadow:0 0 0 10px #fff,0 0 0 11px var(--line),0 30px 60px rgba(20,43,58,.18);overflow:hidden;display:flex;flex-direction:column}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.pad{padding:18px 16px 28px}
+@media (max-width:860px){
+  .stage{flex-direction:column;padding:0;gap:24px;justify-content:flex-start}
+  .phone{width:100%;height:100vh;height:100dvh;min-height:0;border-radius:0;box-shadow:none}
+  .tour{width:auto;padding:0 max(16px,env(safe-area-inset-left,0px)) 32px max(16px,env(safe-area-inset-right,0px))}
+}
+
+/* Brand + common */
+.brand{display:flex;align-items:center;justify-content:space-between}
+.brand-l{display:flex;align-items:center;gap:10px}
+.brand-n{font-weight:800;font-size:18px;letter-spacing:-.01em;line-height:1.1}
+.brand-s{font-size:12px;color:var(--slate)}
+.eod{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 11px;font-size:12px;font-weight:600}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--emerald)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 9px;font-size:11px;font-weight:600;line-height:16px;white-space:nowrap}
+.p-tick{background:var(--mint);color:var(--forest);font-weight:700}
+.p-type{background:var(--offwhite);color:var(--slate);border:1px solid var(--line)}
+.p-hi{background:var(--hi-bg);color:var(--hi-fg)} .p-md{background:var(--md-bg);color:var(--md-fg)} .p-rt{background:var(--rt-bg);color:var(--rt-fg)}
+.p-ok{background:var(--rt-bg);color:var(--rt-fg)} .p-watch{background:var(--md-bg);color:var(--md-fg)} .p-bad{background:var(--hi-bg);color:var(--hi-fg)}
+.label{font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--emerald)}
+.muted{color:var(--slate)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:12px;font-weight:600;font-size:14px;padding:10px 12px;transition:transform .1s}
+.btn:active{transform:scale(.98)}
+.btn-p{background:var(--emerald);color:#fff}
+.btn-g{background:var(--offwhite);border:1px solid var(--line)}
+.btn-dark{background:var(--forest);color:#fff}
+
+/* Updates */
+h1.page{font-size:24px;letter-spacing:-.02em;margin:16px 0 2px;line-height:1.15}
+.sub{font-size:13.5px;color:var(--slate);margin:0}
+.upd{font-size:12px;color:var(--slate);margin-top:2px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.tile{border-radius:14px;padding:10px 6px;text-align:center;border:1px solid}
+.tile b{display:block;font-size:24px;font-weight:800;line-height:1.1}
+.tile span{font-size:11px;font-weight:600;letter-spacing:.04em}
+.tile.hi{background:var(--hi-bg);border-color:var(--hi-bd);color:var(--hi-fg)}
+.tile.md{background:var(--md-bg);border-color:var(--md-bd);color:var(--md-fg)}
+.tile.rt{background:var(--rt-bg);border-color:var(--rt-bd);color:var(--rt-fg)}
+.tile.on{box-shadow:0 0 0 2px var(--navy) inset}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:12px -16px 0;padding:0 16px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:500;white-space:nowrap}
+.chip.on{border-color:var(--emerald);background:var(--mint);color:var(--forest);font-weight:600}
+.prep{margin-top:14px;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--surface);border:1px dashed var(--mint-2);font-size:12.5px;text-align:left;width:100%}
+.prep .spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--mint-2);border-top-color:var(--emerald);animation:spin 1s linear infinite;flex:none}
+.prep .ok{width:16px;height:16px;border-radius:50%;background:var(--emerald);color:#fff;display:grid;place-items:center;font-size:10px;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.feed{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.fc{position:relative;padding:12px 12px 12px 16px;overflow:hidden}
+.fc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
+.fc.hi::before{background:var(--hi-bar)} .fc.md::before{background:var(--md-bar)} .fc.rt::before{background:var(--emerald-2)}
+.fc-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.fc-ago{margin-left:auto;font-size:11.5px;color:var(--slate)}
+.fc-body{display:flex;gap:10px;margin-top:8px;align-items:center}
+.fc-t{font-weight:700;font-size:15px;line-height:1.3;margin:0;text-wrap:pretty}
+.fc-s{font-size:12.5px;color:var(--slate);margin:3px 0 0;line-height:1.4}
+.fc-viz{flex:none;width:64px;height:44px;border-radius:10px;background:var(--mint);display:grid;place-items:center}
+.fc-btns{display:grid;grid-template-columns:1.25fr 1fr;gap:8px;margin-top:10px}
+.fc-btns .btn{padding:8px 10px;font-size:13.5px}
+.quick{margin-top:10px;padding:10px 12px;background:var(--offwhite);border-radius:12px;font-size:13px;line-height:1.45}
+.quick ul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px}
+.askbox{margin-top:16px;padding:14px}
+.askbox h3{margin:0;font-size:16px}
+.askbox .row{display:flex;gap:10px;align-items:center}
+.spark{width:38px;height:38px;border-radius:12px;background:var(--mint);display:grid;place-items:center;flex:none}
+.empty{padding:22px;text-align:center;color:var(--slate);font-size:13.5px}
+
+/* EVENT */
+.ev-head{position:sticky;top:0;z-index:5;background:rgba(246,249,248,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:10px 12px;display:flex;align-items:center;gap:8px}
+.back{width:34px;height:34px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;flex:none}
+.ev-head .nm{font-weight:700;font-size:14px;line-height:1.1}
+.ev-head .nm small{display:block;font-weight:500;color:var(--slate);font-size:11.5px}
+.ev-title{font-size:20px;line-height:1.25;letter-spacing:-.015em;margin:4px 0 12px;text-wrap:balance}
+.read{padding:14px;background:linear-gradient(180deg,var(--mint) 0%,var(--surface) 100%);border-color:var(--mint-2)}
+.read-h{font-size:17px;font-weight:800;line-height:1.3;margin:6px 0 10px;text-wrap:balance}
+.meter{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.meter div{height:6px;border-radius:4px;background:var(--line)}
+.meter.lv1 div:nth-child(1){background:var(--emerald-2)}
+.meter.lv2 div:nth-child(-n+2){background:var(--md-bar)}
+.meter.lv3 div{background:var(--hi-bar)}
+.meter-l{display:flex;justify-content:space-between;font-size:11px;color:var(--slate);margin-top:4px}
+.meter-l b{color:var(--navy)}
+.read-why{font-size:13px;color:var(--slate);margin:10px 0 0;line-height:1.45}
+.legend{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:12px 0 4px;font-size:11.5px;color:var(--slate)}
+.legend button{display:inline-flex}
+.tag{display:inline-flex;align-items:center;gap:4px;border-radius:6px;padding:1px 6px;font-size:10.5px;font-weight:600;line-height:16px;white-space:nowrap;vertical-align:1px}
+.tag::before{content:"";width:6px;height:6px;border-radius:2px;background:currentColor}
+.t-rep{background:var(--rep-bg);color:var(--rep)}
+.t-calc{background:var(--mint);color:var(--forest)}
+.t-unk{background:var(--md-bg);color:var(--md-fg)}
+.t-view{background:#F1EEF8;color:#5B4A8B}
+.block{margin-top:12px;padding:14px}
+.block-h{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.block h2{font-size:15.5px;margin:0;line-height:1.3}
+.block .q{font-size:12px;color:var(--slate);margin-top:2px}
+.seg{display:flex;background:var(--offwhite);border:1px solid var(--line);border-radius:10px;padding:3px;margin-top:12px}
+.seg button{flex:1;padding:6px 4px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--slate)}
+.seg button.on{background:var(--surface);color:var(--forest);box-shadow:0 1px 3px rgba(20,43,58,.12)}
+svg.chart{width:100%;height:auto;display:block;margin-top:10px;overflow:visible}
+.sv-lab{font-size:9.5px;fill:var(--slate)}
+.sv-lab.b{fill:var(--navy);font-weight:700}
+.sv-val{font-size:10.5px;font-weight:700;fill:var(--navy)}
+.sv-note{font-size:9px;fill:var(--slate)}
+.hit{cursor:pointer}
+.hit:hover rect.b{opacity:.85}
+.detail{margin-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:var(--offwhite);border-radius:10px;padding:8px 10px;font-size:12.5px;line-height:1.4}
+.detail .src{margin-left:auto;color:var(--emerald);font-weight:600;font-size:12px;white-space:nowrap}
+.detail p{margin:0;flex-basis:100%;color:var(--slate)}
+.take{margin:10px 0 0;font-size:13.5px;line-height:1.45}
+.take b{color:var(--forest)}
+.hint{font-size:11px;color:var(--slate);margin-top:6px;display:flex;align-items:center;gap:4px}
+/* horizontal compare bars */
+.hb{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.hb-r{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;font-size:12.5px;text-align:left;width:100%}
+.hb-r .tr{grid-column:1/-1;height:10px;border-radius:6px;background:var(--offwhite);overflow:hidden}
+.hb-r .fl{height:100%;border-radius:6px;background:var(--bar)}
+.hb-r.hl .fl{background:var(--emerald)}
+.hb-r.warn .fl{background:var(--md-bar)}
+.hb-r .v{font-weight:700}
+/* range */
+.rng{margin-top:14px}
+.rng-h{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:600}
+.rng-tr{position:relative;height:28px;margin-top:6px}
+.rng-tr .ax{position:absolute;left:0;right:0;top:12px;height:4px;border-radius:2px;background:var(--line)}
+.rng-tr .band{position:absolute;top:6px;height:16px;border-radius:6px;background:var(--mint-2);border:1px solid var(--bar)}
+.rng-tr .mk{position:absolute;top:0;width:4px;height:28px;margin-left:-2px;border-radius:2px;background:var(--forest)}
+.rng-tr .mk span{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;white-space:nowrap;color:var(--forest)}
+.rng-sc{display:flex;justify-content:space-between;font-size:10.5px;color:var(--slate)}
+/* checks */
+.checks{display:flex;flex-direction:column;margin-top:8px}
+.ck{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:13px;text-align:left;width:100%}
+.ck:first-child{border-top:0}
+.ck .ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800}
+.ck .ic.ok{background:var(--rt-bg);color:var(--rt-fg)} .ck .ic.w{background:var(--md-bg);color:var(--md-fg)}
+.ck small{display:block;color:var(--slate);font-size:11.5px}
+/* steps */
+.steps{margin-top:12px;display:flex;flex-direction:column}
+.st{display:grid;grid-template-columns:22px 1fr;gap:10px;text-align:left;width:100%}
+.st .rail{display:flex;flex-direction:column;align-items:center}
+.st .bul{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:10px;color:#fff;flex:none;margin-top:2px}
+.st.done .bul{background:var(--emerald);border-color:var(--emerald)}
+.st.now .bul{border-color:var(--md-bar);background:var(--md-bg)}
+.st .ln{width:2px;flex:1;background:var(--line);min-height:14px}
+.st.done .ln{background:var(--emerald-2)}
+.st:last-child .ln{display:none}
+.st .c{padding-bottom:12px}
+.st .c b{font-size:13.5px}
+.st .c .d{font-size:11.5px;color:var(--slate)}
+.st .more{margin-top:6px;background:var(--offwhite);border-radius:10px;padding:8px 10px;font-size:12.5px;line-height:1.45}
+.st .more .src{color:var(--emerald);font-weight:600;font-size:12px;display:inline-block;margin-top:4px}
+/* dumbbell before/after */
+.ba{margin-top:12px;display:flex;flex-direction:column;gap:12px}
+.ba-h{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;gap:8px}
+.ba-tr{position:relative;height:18px;margin-top:4px}
+.ba-tr .ax{position:absolute;left:0;right:0;top:8px;height:2px;background:var(--line)}
+.ba-tr .seg2{position:absolute;top:7px;height:4px;background:var(--emerald-2);border-radius:2px}
+.ba-tr .p{position:absolute;top:2px;width:14px;height:14px;margin-left:-7px;border-radius:50%;border:2px solid var(--surface)}
+.ba-tr .p.a{background:#9AB0BF}.ba-tr .p.b{background:var(--forest)}
+.ba-l{display:flex;justify-content:space-between;font-size:11px;color:var(--slate)}
+/* facts */
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.fact{background:var(--offwhite);border-radius:12px;padding:10px;text-align:left;display:flex;flex-direction:column;gap:3px}
+.fact small{font-size:11px;color:var(--slate);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.fact b{font-size:14px;line-height:1.3}
+.fact .tag{align-self:flex-start;margin-top:2px}
+/* months strip */
+.months{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:12px}
+.months div{height:26px;border-radius:5px;background:var(--offwhite);border:1px solid var(--line);display:grid;place-items:center;font-size:12px}
+.months div.x{background:var(--md-bg);border-color:var(--md-bd);color:var(--md-fg);font-weight:800}
+.months div.n{background:var(--mint);border-color:var(--bar);color:var(--forest);font-weight:800}
+.mlab{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;font-size:9px;color:var(--slate);text-align:center;margin-top:3px}
+/* history */
+.hist{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.hs{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;font-size:13px}
+.hs .y{font-weight:700;color:var(--slate)}
+.hs .tr{height:8px;border-radius:4px;background:var(--offwhite);overflow:hidden}
+.hs .tr div{height:100%;border-radius:4px}
+/* calc */
+.calc{margin-top:12px;background:var(--offwhite);border-radius:12px;padding:12px}
+.calc label{font-size:12.5px;font-weight:600;display:flex;justify-content:space-between}
+.calc input[type=range]{width:100%;accent-color:var(--emerald);margin:8px 0 4px}
+.out{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.out div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.out small{display:block;font-size:11px;color:var(--slate)}
+.out b{font-size:17px}
+/* lists */
+.kp{margin-top:12px;padding:14px}
+.kp ul{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px}
+.kp li{display:grid;grid-template-columns:auto 1fr;gap:9px;font-size:13.5px;line-height:1.45}
+.kp li::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--emerald);margin-top:7px}
+.unk{margin-top:12px;padding:14px}
+.uk{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:13px;line-height:1.4}
+.uk:first-of-type{border-top:0}
+.uk .ic{width:22px;height:22px;border-radius:50%;background:var(--md-bg);color:var(--md-fg);font-weight:800;display:grid;place-items:center;font-size:12px}
+.uk .ic.ok{background:var(--rt-bg);color:var(--rt-fg)}
+.uk small{display:block;color:var(--slate);font-size:12px;margin-top:2px}
+.bar-p{height:5px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:6px}
+.bar-p div{height:100%;background:var(--emerald);transition:width .4s}
+.askrow{margin-top:12px;padding:14px}
+.askchips{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.askchip{display:flex;align-items:center;gap:8px;text-align:left;border:1px solid var(--mint-2);background:var(--mint);border-radius:12px;padding:9px 12px;font-size:13.5px;font-weight:500;color:var(--forest)}
+.askchip svg{flex:none}
+.srcs{margin-top:12px;padding:6px 14px}
+.sr{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line);text-align:left;width:100%;font-size:13px}
+.sr:first-of-type{border-top:0}
+.sr small{display:block;color:var(--slate);font-size:11.5px}
+.sr .go{color:var(--emerald);font-weight:600;font-size:12px}
+.sr .ico{width:30px;height:30px;border-radius:8px;background:var(--mint);display:grid;place-items:center}
+.sample{font-size:11px;color:var(--slate);text-align:center;margin-top:16px;line-height:1.4}
+
+/* Research */
+.cobar{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:14px -16px 0;padding:0 16px}
+.thread{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.msg{display:flex;gap:8px;align-items:flex-start}
+.msg.u{justify-content:flex-end}
+.av{width:32px;height:32px;border-radius:10px;background:var(--mint);display:grid;place-items:center;flex:none}
+.bub{max-width:86%;border-radius:16px;padding:10px 12px;font-size:13.5px;line-height:1.45}
+.msg.b .bub{background:var(--surface);border:1px solid var(--line);border-top-left-radius:4px;max-width:calc(100% - 40px);flex:1;min-width:0}
+.msg.u .bub{background:var(--forest);color:#fff;border-top-right-radius:4px}
+.bub .pts{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.bub .pts li{display:grid;grid-template-columns:auto 1fr;gap:8px}
+.bub .pts li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--emerald);margin-top:7px}
+.bub .cite{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+.cite button{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--forest);background:var(--mint);border-radius:8px;padding:4px 8px}
+.typing{display:inline-flex;gap:4px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--emerald);animation:pd 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes pd{0%,100%{opacity:.3}50%{opacity:1}}
+.composer{border-top:1px solid var(--line);background:var(--surface);padding:10px 12px;display:flex;gap:8px;align-items:center}
+.composer input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;font-size:14px;background:var(--offwhite);color:var(--navy)}
+.composer .send{width:42px;height:42px;border-radius:12px;background:var(--forest);display:grid;place-items:center;flex:none}
+.composer .clip{height:42px;padding:0 10px;border-radius:12px;background:var(--mint);color:var(--forest);font-size:12.5px;font-weight:600;flex:none;display:flex;align-items:center;gap:4px}
+
+/* PROFILE */
+.prof{display:flex;gap:12px;align-items:center;padding:14px;margin-top:16px}
+.prof .av2{width:52px;height:52px;border-radius:50%;background:var(--mint);display:grid;place-items:center}
+.sect{margin-top:14px;padding:4px 14px}
+.sect h3{font-size:13px;margin:12px 0 4px;color:var(--slate);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.row2{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid var(--line);font-size:14px}
+.row2:first-of-type{border-top:0}
+.row2 small{display:block;color:var(--slate);font-size:12px}
+.tg{width:44px;height:26px;border-radius:999px;background:var(--line);position:relative;flex:none;transition:background .2s}
+.tg::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .2s}
+.tg.on{background:var(--emerald)}
+.tg.on::after{left:21px}
+.wl{display:flex;flex-wrap:wrap;gap:8px;padding:10px 0 12px}
+
+/* Tab bar */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);background:rgba(255,255,255,.96);flex:none}
+.tabs button{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 10px;font-size:12px;font-weight:600;color:var(--slate)}
+.tabs button.on{color:var(--emerald)}
+.tabs button.on::after{content:"";position:absolute;bottom:0;width:56px;height:3px;border-radius:3px;background:var(--emerald)}
+
+/* Sheet + toast */
+.ov{position:absolute;inset:0;background:rgba(20,43,58,.35);z-index:20;display:flex;align-items:flex-end;animation:fi .2s}
+.sheet{background:var(--surface);width:100%;max-height:86%;border-radius:22px 22px 0 0;box-shadow:0 -10px 40px rgba(20,43,58,.18);display:flex;flex-direction:column;animation:su .28s cubic-bezier(.2,.8,.2,1)}
+.sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:8px auto 0;flex:none}
+.sheet .sh-h{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 8px;gap:10px}
+.sheet .sh-h h3{margin:0;font-size:16px;line-height:1.3}
+.sheet .sh-b{overflow-y:auto;padding:0 16px 20px}
+.x{width:32px;height:32px;border-radius:50%;background:var(--offwhite);display:grid;place-items:center;flex:none}
+@keyframes su{from{transform:translateY(100%)}to{transform:none}}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.doc{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:6px}
+.doc-h{background:var(--offwhite);padding:10px 12px;font-size:12px;color:var(--slate);display:flex;justify-content:space-between;gap:8px}
+.doc-b{padding:12px;font-family:ui-serif,Georgia,serif;font-size:12.5px;line-height:1.5}
+.doc-b table{width:100%;border-collapse:collapse;font-family:var(--font);font-size:12px}
+.doc-b td{padding:6px 6px;border-bottom:1px solid var(--line)}
+.doc-b td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.doc-b tr.hl td{background:#FFF7D6}
+.doc-b tr.hl td:first-child{box-shadow:inset 3px 0 0 var(--md-bar)}
+.doc-b .quote{background:#FFF7D6;box-shadow:inset 3px 0 0 var(--md-bar);padding:8px 10px;border-radius:4px}
+.used{font-size:11.5px;color:var(--md-fg);font-weight:600;margin-top:8px;font-family:var(--font)}
+.toast{position:absolute;left:12px;right:12px;bottom:76px;z-index:30;background:var(--navy);color:#fff;border-radius:14px;padding:11px 14px;font-size:13px;line-height:1.4;display:flex;gap:10px;align-items:center;box-shadow:0 10px 30px rgba(20,43,58,.3);animation:su .3s}
+.toast button{color:#7FE0B5;font-weight:700;margin-left:auto;white-space:nowrap}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="stage">
+  <aside class="tour" aria-label="Prototype tour">
+    <div class="eyebrow">QuarterNote · Part 1 prototype</div>
+    <h1>What changed, how much does it matter, and where can I check it?</h1>
+    <p>When a company you follow makes an announcement, QuarterNote analyses it first, then shows the answer as a chart and three short points. Every number links back to the filing.</p>
+    <ol>
+      <li><button data-act="go" data-r="e-infy"><span class="n">1</span><span><b>Results: Infosys</b>Tap bars, then see what the one-off tax refund did to profit.</span></button></li>
+      <li><button data-act="go" data-r="e-tatasteel"><span class="n">2</span><span><b>Acquisition: Tata Steel</b>A timeline of done and pending steps, sized against the company.</span></button></li>
+      <li><button data-act="go" data-r="e-itc"><span class="n">3</span><span><b>Legal order: ITC</b>Switch scenarios to see the hit if the order is upheld.</span></button></li>
+      <li><button data-act="go" data-r="e-tcs"><span class="n">4</span><span><b>Buyback: TCS</b>Enter your shares to estimate what you could get back.</span></button></li>
+      <li><button data-act="go" data-r="pull"><span class="n">5</span><span><b>Ask QuarterNote in Research</b>Answers come as a chart, a few points and their sources.</span></button></li>
+    </ol>
+    <p class="fine">All company figures are sample data made up for this prototype. They are not taken from the real filings.</p>
+  </aside>
+
+  <div class="phone" id="phone">
+    <div class="scroll" id="scroll"></div>
+    <div id="composer"></div>
+    <nav class="tabs" id="tabs" aria-label="Main"></nav>
+    <div id="sheet"></div>
+    <div id="toast"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const inr = n => Math.round(n).toLocaleString('en-IN');
+const cr = n => '₹' + inr(n) + ' Cr';
+const sg = (n, d = 1) => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n).toFixed(d);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TAGS = { rep:['Company said','t-rep'], calc:['Calculated','t-calc'], unk:['Not known yet','t-unk'], view:['Our view','t-view'] };
+const tag = t => `<span class="tag ${TAGS[t][1]}">${TAGS[t][0]}</span>`;
+const I = {
+  bell:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
+  search:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>',
+  user:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+  back:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
+  x:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  arrow:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  doc:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D9367" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>',
+  spark:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0D9367" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>',
+  send:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>',
+  ext:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>',
+  bot:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0D9367" stroke-width="2" stroke-linecap="round"><rect x="4" y="8" width="16" height="12" rx="4"/><path d="M12 4v4M9 14h.01M15 14h.01"/></svg>'
+};
+const logo = (s = 40) => `<svg width="${s}" height="${s}" viewBox="0 0 64 64" aria-label="QuarterNote logo"><defs><linearGradient id="lg${s}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0FA36F"/><stop offset="1" stop-color="#075B43"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#lg${s})"/><text x="9" y="30" font-family="Inter,Arial" font-weight="900" font-size="22" fill="#fff">QN</text><path d="M10 42 C 26 40, 40 34, 54 18" stroke="#3BE39A" stroke-width="3" fill="none" stroke-linecap="round"/><g fill="#3BE39A"><rect x="12" y="47" width="6" height="7" rx="1"/><rect x="21" y="44" width="6" height="10" rx="1"/><rect x="30" y="40" width="6" height="14" rx="1"/><rect x="39" y="34" width="6" height="20" rx="1"/><rect x="48" y="27" width="6" height="27" rx="1"/></g></svg>`;
+const NSE = 'https://www.nseindia.com/companies-listing/corporate-filings-announcements';
+
+/* ---------- state ---------- */
+const S = {
+  tab:'push', pr:'All', type:'All', quick:{}, sel:{}, sheet:null, toast:null,
+  infyM:'rev', itcSc:1, tcsQty:60, tcsRatio:18,
+  follow:{INFY:1,TATASTEEL:1,ITC:1,HDFCBANK:1,TCS:1},
+  alerts:{Results:1,Deal:1,Legal:1,Leadership:1,Buyback:1}, notify:'hm', chartsFirst:true, simple:true,
+  prep:[
+    {id:'infy_pres', co:'INFY', label:'Infosys Q2 investor presentation', pages:38, p:34, msg:'Infosys presentation read. Attrition figures added to the INFY analysis.'},
+    {id:'ts_ar', co:'TATASTEEL', label:'Tata Steel FY26 annual report', pages:412, p:71, msg:'Tata Steel annual report read. Deal sizing now uses audited cash.'}
+  ],
+  pull:{co:'INFY', thread:[], busy:false}
+};
+const prepDone = id => S.prep.find(p => p.id === id).p >= 100;
+
+/* ---------- sources (sample) ---------- */
+const SRC = {
+  infy_res:{co:'Infosys', doc:'Q2 FY27 financial results', kind:'Exchange filing · Reg. 33', filed:'16 Oct 2026, 16:42', page:3, of:14,
+    rows:[['Revenue from operations','48,620',1],['Other income, net','612'],['Total expenses','37,992'],['Profit before tax','11,240'],['Tax expense','2,992'],['Net profit for the period','8,248',1]], used:'QuarterNote used the highlighted rows for revenue and profit.'},
+  infy_note:{co:'Infosys', doc:'Q2 FY27 financial results, notes', kind:'Exchange filing · Reg. 33', filed:'16 Oct 2026, 16:42', page:9, of:14,
+    quote:'Note 6: Tax expense for the quarter is net of a reversal of ₹420 crore relating to earlier years, following completion of assessments.', used:'QuarterNote treats this ₹420 Cr as a one-off and removes it for underlying profit.'},
+  infy_call:{co:'Infosys', doc:'Q2 FY27 earnings call transcript', kind:'Company website', filed:'17 Oct 2026', page:11, of:28,
+    quote:'We are maintaining our revenue growth guidance of 8 to 10% in constant currency and operating margin guidance of 20 to 22% for the full year.', used:'QuarterNote compares H1 actuals with these two ranges.'},
+  infy_pres:{co:'Infosys', doc:'Q2 FY27 investor presentation', kind:'Company website', filed:'16 Oct 2026', page:21, of:38,
+    rows:[['Headcount','3,24,180'],['Attrition (LTM)','13.1%',1],['Attrition, previous quarter','13.7%',1],['Utilisation','85.2%']], used:'QuarterNote read this in the background and added attrition to the analysis.'},
+  ts_board:{co:'Tata Steel', doc:'Outcome of board meeting: acquisition of stake', kind:'Exchange filing · Reg. 30', filed:'12 Aug 2026, 18:10', page:2, of:6,
+    rows:[['Stake to be acquired','50.01%',1],['Total consideration','₹1,250 Cr',1],['Tranche 1','26.00% · ₹650 Cr'],['Tranche 2','24.01% · ₹600 Cr'],['Approvals needed','CCI, lenders']], used:'QuarterNote used the deal size and tranche split.'},
+  ts_t1:{co:'Tata Steel', doc:'Completion of tranche 1', kind:'Exchange filing · Reg. 30', filed:'25 Nov 2026, 19:05', page:1, of:2,
+    quote:'The Company has completed acquisition of 26.00% equity of the target for a consideration of ₹650 crore. Acquisition of the balance 24.01% is subject to approval of the Competition Commission of India and consent of lenders.', used:'QuarterNote marks step 3 as done and steps 4 and 5 as pending.'},
+  ts_ar:{co:'Tata Steel', doc:'FY26 annual report, consolidated balance sheet', kind:'Annual report', filed:'Jul 2026', page:286, of:412,
+    rows:[['Cash and bank balances','10,400',1],['Net profit for the year','4,030',1],['Net debt','82,500'],['EBITDA','27,500']], used:'QuarterNote sizes the deal against cash and yearly profit.'},
+  itc_order:{co:'ITC', doc:'Disclosure of tax demand order', kind:'Exchange filing · Reg. 30', filed:'24 Nov 2026, 20:15', page:1, of:2,
+    rows:[['Authority','GST, Commissioner (Appeals)'],['Tax demanded','₹362 Cr',1],['Penalty','₹36 Cr',1],['Company view','Strong case on merits; will appeal']], used:'QuarterNote adds tax and penalty for the total of ₹398 Cr.'},
+  itc_res:{co:'ITC', doc:'Q2 FY27 financial results', kind:'Exchange filing · Reg. 33', filed:'30 Oct 2026', page:4, of:12,
+    rows:[['Net profit for the quarter','4,980',1],['Total equity (net worth)','76,200',1],['Cash and current investments','30,100',1]], used:'QuarterNote sizes the demand against these three figures.'},
+  itc_hist:{co:'ITC', doc:'Annual reports FY22–FY26, contingent liabilities', kind:'Annual reports', filed:'2022–2026', page:'various', of:'',
+    rows:[['FY22: demand ₹210 Cr','Set aside on appeal'],['FY24: demand ₹145 Cr','Set aside on appeal'],['FY26: demand ₹260 Cr','Pending at tribunal',1]], used:'QuarterNote built the history from the contingent liability notes.'},
+  hdfc_disc:{co:'HDFC Bank', doc:'Change in key managerial personnel', kind:'Exchange filing · Reg. 30', filed:'26 Nov 2026, 17:30', page:1, of:3,
+    quote:'The Chief Financial Officer will retire on superannuation on 31 March 2027. The Board has approved the appointment of the Deputy CFO as Chief Financial Officer with effect from 1 April 2027.', used:'QuarterNote pulled the who, why and when from this paragraph.'},
+  hdfc_kmp:{co:'HDFC Bank', doc:'Reg. 30 disclosures, last 12 months', kind:'Exchange filings', filed:'Dec 2025 – Nov 2026', page:'—', of:'',
+    rows:[['Mar 2026','Group head, retail lending resigned',1],['Nov 2026','CFO retirement announced',1]], used:'QuarterNote counts senior exits disclosed in the last 12 months.'},
+  tcs_bb:{co:'TCS', doc:'Outcome of board meeting: buyback', kind:'Exchange filing · Reg. 30', filed:'20 Nov 2026, 15:50', page:2, of:5,
+    rows:[['Buyback size','₹18,000 Cr',1],['Price per share','₹4,500',1],['Method','Tender offer'],['Reserved for small shareholders','15%'],['Record date','12 Dec 2026',1]], used:'QuarterNote used the price, size and record date.'},
+  tcs_hist:{co:'TCS', doc:'Letters of offer, past buybacks', kind:'SEBI filings', filed:'2022, 2023', page:'—', of:'',
+    rows:[['2022 buyback, small shareholders accepted','11%'],['2023 buyback, small shareholders accepted','22%'],['QuarterNote middle estimate','18%',1]], used:'QuarterNote uses these as a range for the acceptance estimate. The real figure is known only after the offer closes.'},
+  tcs_tax:{co:'Income-tax Act', doc:'Finance (No. 2) Act, 2024: buyback taxation', kind:'Law', filed:'From 1 Oct 2024', page:'—', of:'',
+    quote:'From 1 October 2024, the amount received on a buyback is taxed as dividend income in the shareholder’s hands, at their slab rate. The cost of the shares can be claimed as a capital loss.', used:'QuarterNote shows proceeds before tax and links this rule.'}
+};
+
+/* ---------- sample datasets ---------- */
+const Q = ["Q3'25","Q4'25","Q1'26","Q2'26","Q3'26","Q4'26","Q1'27","Q2'27"];
+const QF = ['Q3 FY25','Q4 FY25','Q1 FY26','Q2 FY26','Q3 FY26','Q4 FY26','Q1 FY27','Q2 FY27'];
+const INFY = {
+  rev:[41764,40925,42279,44490,45480,45120,46850,48620],
+  pat:[6806,7038,6921,7364,7520,7410,7690,8248],
+  mar:[21.3,21.0,20.8,21.0,21.2,20.9,20.7,21.1]
+};
+const WF = [
+  {l:'Q2 FY26', v:7364, t:'total', note:'Net profit a year ago.', tg:'rep', s:'infy_res'},
+  {l:'Sales', v:610, note:'Extra profit from higher revenue at last year’s margin.', tg:'calc', s:'infy_res'},
+  {l:'Margin', v:45, note:'Margin up 0.1 points: better utilisation, partly offset by wage hikes.', tg:'calc', s:'infy_call'},
+  {l:'Other inc.', v:-120, note:'Lower treasury income after a large dividend payout.', tg:'rep', s:'infy_res'},
+  {l:'Refund', v:420, one:1, note:'One-off reversal of tax for earlier years. It will not repeat.', tg:'rep', s:'infy_note'},
+  {l:'Tax etc.', v:-71, note:'Normal tax and minority items, the balancing figure.', tg:'calc', s:'infy_res'},
+  {l:'Q2 FY27', v:8248, t:'total', note:'Net profit this quarter, as reported.', tg:'rep', s:'infy_res'}
+];
+
+/* ---------- events ---------- */
+const EV = {
+  infy:{co:'INFY', name:'Infosys', type:'Results', pr:'hi', ago:'2 days ago',
+    title:'Profit up 12%, but about half is a one-off tax refund',
+    sub:'Revenue ₹48,620 Cr (+9.3% YoY) · Underlying profit +6.3%',
+    read:'Reported profit +12.0%. Underlying profit +6.3%.', lv:2,
+    why:'A one-time tax refund flatters the headline. The core business is growing in line with guidance.',
+    kp:['Without the ₹420 Cr tax refund, profit grew about 6%, not 12%.','Revenue reached a new high and is inside the FY27 guidance range.','Watch receivables: customers took 4 days longer to pay than a year ago.'],
+    srcs:['infy_res','infy_note','infy_call','infy_pres']},
+  tatasteel:{co:'TATASTEEL', name:'Tata Steel', type:'Deal', pr:'md', ago:'2 days ago',
+    title:'First tranche done in pellet-maker deal; two approvals pending',
+    sub:'₹650 Cr of ₹1,250 Cr paid · CCI and lender approvals pending',
+    read:'Step 3 of 5 done. About half the money is paid.', lv:1,
+    why:'The deal is small next to Tata Steel’s cash and value. The payoff is a steadier supply of iron-ore pellets.',
+    kp:['26% of the target is now owned. The rest needs CCI and lender approval.','The full deal costs about 12% of cash, so funding is not a strain.','In-house pellet supply rises from 62% to 70% of needs, the company says.'],
+    srcs:['ts_board','ts_t1','ts_ar']},
+  itc:{co:'ITC', name:'ITC', type:'Legal', pr:'md', ago:'3 days ago',
+    title:'GST demand of ₹398 Cr; ITC says it will appeal',
+    sub:'Tax ₹362 Cr + penalty ₹36 Cr · Equal to 8% of one quarter’s profit',
+    read:'₹398 Cr demand equals 8% of one quarter’s profit.', lv:1,
+    why:'Small against ITC’s size. Two of its last three similar demands were set aside on appeal.',
+    kp:['Even if fully upheld, it is a one-time hit of about 2% of yearly profit.','ITC has 92 days to appeal, until 24 Feb 2027.','No provision yet. Watch the Q3 results for any change.'],
+    srcs:['itc_order','itc_res','itc_hist']},
+  hdfcbank:{co:'HDFCBANK', name:'HDFC Bank', type:'Leadership', pr:'rt', ago:'1 day ago',
+    title:'CFO to retire in March; deputy CFO named successor',
+    sub:'Planned retirement · Internal successor · Effective 1 Apr 2027',
+    read:'Planned handover to an internal successor.', lv:1,
+    why:'Announced four months ahead with a named successor from inside the bank. That is the low-risk pattern.',
+    kp:['Retirement, not resignation, with four months of overlap.','The successor has 18 years at the bank and is the current deputy CFO.','One other senior exit in 12 months, which is within the normal range.'],
+    srcs:['hdfc_disc','hdfc_kmp']},
+  tcs:{co:'TCS', name:'TCS', type:'Buyback', pr:'rt', ago:'1 week ago',
+    title:'₹18,000 Cr buyback at ₹4,500, an 11% premium',
+    sub:'Record date 12 Dec · Tender offer · 15% reserved for small holders',
+    read:'Buyback price is 11.1% above the market price.', lv:1,
+    why:'Funded from less than half of one year’s free cash flow. For you, the gain depends on how many shares are accepted.',
+    kp:['Hold shares by 11 Dec to be eligible (record date 12 Dec).','At an 18% acceptance, 60 shares would earn about ₹4,860 more than selling in the market.','Buyback money is now taxed as dividend at your slab rate.'],
+    srcs:['tcs_bb','tcs_hist','tcs_tax']}
+};
+const ORDER = ['infy','tatasteel','itc','hdfcbank','tcs'];
+const PRL = {hi:'High', md:'Medium', rt:'Routine'};
+const TYPES = [['All','All types'],['Results','Results'],['Deal','Deals'],['Legal','Legal'],['Leadership','Leadership'],['Buyback','Buybacks']];
+
+/* ---------- small vizzes ---------- */
+function hatchDefs(){return `<defs><pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="#FFF0C2"/><rect width="2.2" height="5" fill="#F2B01E"/></pattern></defs>`}
+
+function barChart({key, vals, sel, fmt, oneOff}){
+  const W=340,H=160,pt=22,pb=22,n=vals.length,max=Math.max(...vals)*1.1,bw=W/n,ch=H-pt-pb;
+  let g=`<line x1="0" x2="${W}" y1="${pt+ch}" y2="${pt+ch}" stroke="var(--line)"/>`;
+  vals.forEach((v,i)=>{
+    const h=v/max*ch,x=i*bw,y=pt+ch-h,on=i===sel;
+    const fill=on?'var(--forest)':(i===n-1?'var(--emerald)':'var(--bar)');
+    g+=`<g class="hit" data-act="sel" data-k="${key}" data-i="${i}" tabindex="0" role="button" aria-label="${QF[i]}: ${fmt(v)}">
+      <rect x="${x}" y="0" width="${bw}" height="${H}" fill="transparent"/>
+      <rect class="b" x="${x+bw*.18}" y="${y}" width="${bw*.64}" height="${h}" rx="3" fill="${fill}"/>`;
+    if(oneOff&&i===n-1){const oh=oneOff/max*ch;g+=`<rect x="${x+bw*.18}" y="${y}" width="${bw*.64}" height="${oh}" rx="2" fill="url(#hatch)"/>`}
+    if(on)g+=`<text x="${x+bw/2}" y="${y-6}" text-anchor="middle" class="sv-val">${fmt(v)}</text>`;
+    g+=`<text x="${x+bw/2}" y="${H-6}" text-anchor="middle" class="sv-lab${on?' b':''}">${Q[i]}</text></g>`;
+  });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${hatchDefs()}${g}</svg>`;
+}
+
+function lineChart({key, vals, sel, lo, hi}){
+  const W=340,H=160,pt=22,pb=22,pl=26,n=vals.length,ch=H-pt-pb,bw=(W-pl)/n;
+  const y=v=>pt+ch-(v-lo)/(hi-lo)*ch, x=i=>pl+i*bw+bw/2;
+  const avg=vals.reduce((a,b)=>a+b,0)/n;
+  let g='';
+  [lo,(lo+hi)/2,hi].forEach(t=>{g+=`<line x1="${pl}" x2="${W}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="0" y="${y(t)+3}" class="sv-note">${t.toFixed(0)}%</text>`});
+  g+=`<line x1="${pl}" x2="${W}" y1="${y(avg)}" y2="${y(avg)}" stroke="var(--md-bar)" stroke-dasharray="4 3"/><text x="${W}" y="${y(avg)-4}" text-anchor="end" class="sv-note">8-qtr avg ${avg.toFixed(1)}%</text>`;
+  g+=`<polyline fill="none" stroke="var(--emerald)" stroke-width="2.2" points="${vals.map((v,i)=>x(i)+','+y(v)).join(' ')}"/>`;
+  vals.forEach((v,i)=>{const on=i===sel;
+    g+=`<g class="hit" data-act="sel" data-k="${key}" data-i="${i}" tabindex="0" role="button" aria-label="${QF[i]}: ${v}%"><rect x="${x(i)-bw/2}" y="0" width="${bw}" height="${H}" fill="transparent"/>
+    <circle cx="${x(i)}" cy="${y(v)}" r="${on?5.5:3.5}" fill="${on?'var(--forest)':'#fff'}" stroke="var(--emerald)" stroke-width="2"/>
+    ${on?`<text x="${x(i)}" y="${y(v)-10}" text-anchor="middle" class="sv-val">${v}%</text>`:''}
+    <text x="${x(i)}" y="${H-6}" text-anchor="middle" class="sv-lab${on?' b':''}">${Q[i]}</text></g>`});
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${g}</svg>`;
+}
+
+function waterfall({key, steps, sel, base}){
+  const W=340,H=180,pt=24,pb=30,n=steps.length,bw=W/n,ch=H-pt-pb;
+  let run=0,top=0;const bars=steps.map(s=>{let a,b;if(s.t==='total'){a=base;b=s.v;run=s.v}else{a=run;b=run+s.v;run=b}top=Math.max(top,a,b);return [a,b]});
+  top*=1.015;const y=v=>pt+ch-(v-base)/(top-base)*ch;
+  let g=`<line x1="0" x2="${W}" y1="${pt+ch}" y2="${pt+ch}" stroke="var(--line)"/>`;
+  steps.forEach((s,i)=>{
+    const [a,b]=bars[i],x=i*bw,on=i===sel,y1=y(Math.max(a,b)),h=Math.max(2,Math.abs(y(a)-y(b)));
+    let fill=s.t==='total'?(i===n-1?'var(--emerald)':'#9AB0BF'):s.one?'url(#hatch)':s.v>=0?'var(--emerald-2)':'var(--hi-bar)';
+    if(i<n-1){g+=`<line x1="${x+bw*.82}" x2="${x+bw*1.18}" y1="${y(b)}" y2="${y(b)}" stroke="var(--slate)" stroke-dasharray="2 2"/>`}
+    const lab=s.t==='total'?inr(s.v):sg(s.v,0);
+    g+=`<g class="hit" data-act="sel" data-k="${key}" data-i="${i}" tabindex="0" role="button" aria-label="${s.l}: ${lab}">
+      <rect x="${x}" y="0" width="${bw}" height="${H}" fill="transparent"/>
+      <rect class="b" x="${x+bw*.18}" y="${y1}" width="${bw*.64}" height="${h}" rx="3" fill="${fill}" ${on?'stroke="var(--navy)" stroke-width="2"':''}/>
+      <text x="${x+bw/2}" y="${y1-6}" text-anchor="middle" class="sv-val" style="font-size:${s.t==='total'?9.5:10.5}px">${lab}</text>
+      <text x="${x+bw/2}" y="${H-14}" text-anchor="middle" class="sv-lab${on?' b':''}">${s.l}</text></g>`;
+  });
+  g+=`<text x="0" y="${H-1}" class="sv-note">₹ Cr · axis starts at ₹${inr(base)} Cr so the changes are visible</text>`;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${hatchDefs()}${g}</svg>`;
+}
+
+function hbars(rows, max){
+  max = max || Math.max(...rows.map(r=>r.v));
+  return `<div class="hb">${rows.map(r=>`<${r.s?'button data-act="src" data-s="'+r.s+'"':'div'} class="hb-r ${r.cls||''}"><span>${r.l} ${r.t?tag(r.t):''}</span><span class="v tnum">${r.txt}</span><div class="tr"><div class="fl" style="width:${Math.max(1.5,r.v/max*100)}%"></div></div></${r.s?'button':'div'}>`).join('')}</div>`;
+}
+
+function range({l, lo, hi, a, b, act, unit, verdict, cls, s}){
+  const p=v=>(v-lo)/(hi-lo)*100;
+  return `<div class="rng"><div class="rng-h"><span>${l}</span><span class="pill ${cls}">${verdict}</span></div>
+  <div class="rng-tr"><div class="ax"></div><div class="band" style="left:${p(a)}%;width:${p(b)-p(a)}%"></div><div class="mk" style="left:${p(act)}%"><span>${act}${unit}</span></div></div>
+  <div class="rng-sc"><span>${lo}${unit}</span><span>Guided ${a}–${b}${unit}</span><span>${hi}${unit}</span></div>
+  <div class="detail"><span>H1 actual <b>${act}${unit}</b> ${tag('rep')}</span><button class="src" data-act="src" data-s="${s}">Guidance p.11 ↗</button></div></div>`;
+}
+
+function steps(key, list){
+  const sel=S.sel[key];
+  return `<div class="steps">${list.map((s,i)=>`<button class="st ${s.st}" data-act="sel" data-k="${key}" data-i="${i}" aria-expanded="${sel===i}">
+    <div class="rail"><div class="bul">${s.st==='done'?'✓':''}</div><div class="ln"></div></div>
+    <div class="c"><b>${s.l}</b> ${s.st==='done'?tag('rep'):s.st==='now'?'<span class="pill p-watch">Next</span>':tag('unk')}<div class="d">${s.d}</div>
+    ${sel===i?`<div class="more">${s.more}${s.s?`<br><span class="src" data-act="src" data-s="${s.s}">Open source ↗</span>`:''}</div>`:''}</div></button>`).join('')}</div>`;
+}
+
+function detail(label, val, tg, s, sLabel, note){
+  return `<div class="detail"><span>${label} <b class="tnum">${val}</b></span>${tg?tag(tg):''}${s?`<button class="src" data-act="src" data-s="${s}">${sLabel||'Source'} ↗</button>`:''}${note?`<p>${note}</p>`:''}</div>`;
+}
+const tapHint = '<div class="hint">Tap any bar to see the figure and its source</div>';
+const block = (h, q, body) => `<section class="card block"><div class="block-h"><div><h2>${h}</h2>${q?`<div class="q">${q}</div>`:''}</div></div>${body}</section>`;
+
+/* ---------- event analysis bodies ---------- */
+const BODY = {
+  infy(){
+    const m=S.infyM, k='infy-'+m, sel=S.sel[k]??7;
+    let chart, det, take;
+    if(m==='mar'){chart=lineChart({key:k,vals:INFY.mar,sel,lo:19,hi:23});
+      det=detail(QF[sel]+' operating margin', INFY.mar[sel]+'%', 'rep','infy_res','Results p.3');
+      take='Margin of <b>21.1%</b> is in line with the 8-quarter average. No squeeze, no jump.';}
+    else{const v=INFY[m],f=m==='rev'?inr:inr;
+      chart=barChart({key:k,vals:v,sel,fmt:f,oneOff:m==='pat'?420:0});
+      const yoy=sel>=4?sg((v[sel]/v[sel-4]-1)*100)+'% YoY':'';
+      det=detail(QF[sel]+(m==='rev'?' revenue':' net profit'), cr(v[sel]), 'rep','infy_res','Results p.3', yoy?`${yoy} ${tag('calc')}`:'');
+      take=m==='rev'?'Revenue <b>+9.3% YoY</b> to a new quarterly high.':'Reported <b>+12.0%</b>. The striped part is the one-off ₹420 Cr tax refund. Without it, <b>+6.3%</b>.';}
+    const w=S.sel['infy-wf']??4, ws=WF[w];
+    const presDone=prepDone('infy_pres');
+    return [
+      block('Is the growth real?','8 quarters, sample data',
+        `<div class="seg" role="tablist">${[['rev','Revenue'],['pat','Profit'],['mar','Margin']].map(o=>`<button role="tab" aria-selected="${m===o[0]}" class="${m===o[0]?'on':''}" data-act="set" data-k="infyM" data-v="${o[0]}">${o[1]}</button>`).join('')}</div>
+        ${chart}${det}<p class="take">${take}</p>`),
+      block('Why did profit move?','From last year’s ₹7,364 Cr to ₹8,248 Cr',
+        waterfall({key:'infy-wf',steps:WF,sel:w,base:7000})+detail(ws.l, ws.t==='total'?cr(ws.v):sg(ws.v,0)+' Cr', ws.tg, ws.s, 'Source', ws.note)+
+        `<p class="take">The biggest single push came from the <b>one-off tax refund</b>, not from operations.</p>`),
+      block('Are they delivering on guidance?','FY27 ranges given on the earnings call',
+        range({l:'Revenue growth',lo:6,hi:12,a:8,b:10,act:8.9,unit:'%',verdict:'On track',cls:'p-ok',s:'infy_call'})+
+        range({l:'Operating margin',lo:19,hi:23,a:20,b:22,act:20.9,unit:'%',verdict:'On track',cls:'p-ok',s:'infy_call'})),
+      block('Quality checks','Signals that headline numbers can hide',
+        `<div class="checks">
+          <button class="ck" data-act="src" data-s="infy_res"><span class="ic ok">✓</span><span>Other income is 5.4% of pre-tax profit<small>Normal range 4–8% · ${TAGS.calc[0]}</small></span><span class="pill p-ok">Normal</span></button>
+          <button class="ck" data-act="src" data-s="infy_res"><span class="ic ok">✓</span><span>Cash from operations is 104% of profit<small>Profit is backed by cash · ${TAGS.calc[0]}</small></span><span class="pill p-ok">Good</span></button>
+          <button class="ck" data-act="src" data-s="infy_res"><span class="ic w">!</span><span>Receivable days 68, up from 64<small>Customers are paying slower · ${TAGS.calc[0]}</small></span><span class="pill p-watch">Watch</span></button>
+          ${presDone?`<button class="ck" data-act="src" data-s="infy_pres"><span class="ic ok">✓</span><span>Attrition 13.1%, down from 13.7%<small>Added from the investor presentation · ${TAGS.rep[0]}</small></span><span class="pill p-ok">New</span></button>`:''}
+        </div>`)
+    ];
+  },
+  tatasteel(){
+    const list=[
+      {l:'Board approves deal',d:'12 Aug 2026',st:'done',more:'Buy 50.01% of a pellet maker in two tranches for ₹1,250 Cr.',s:'ts_board'},
+      {l:'Agreement signed',d:'3 Sep 2026',st:'done',more:'Share purchase agreement signed with the sellers.',s:'ts_board'},
+      {l:'Tranche 1 complete: 26%',d:'25 Nov 2026 · ₹650 Cr paid',st:'done',more:'Tata Steel now owns 26% of the target.',s:'ts_t1'},
+      {l:'CCI and lender approvals',d:'Company expects by Mar 2027',st:'now',more:'Competition Commission approval and lender consent are both needed before tranche 2. No date has been given beyond “by March”.',s:'ts_t1'},
+      {l:'Tranche 2: 24.01%',d:'After approvals · ₹600 Cr',st:'',more:'Completes the purchase. QuarterNote will update this when the company files completion.'}
+    ];
+    const cashTag=prepDone('ts_ar')?'rep':'calc';
+    return [
+      block('Where is the deal now?','Tap a step for details',`<div class="bar-p" style="margin-top:12px"><div style="width:60%"></div></div><div class="hint">3 of 5 steps done · ₹650 Cr of ₹1,250 Cr paid</div>`+steps('ts-steps',list)),
+      block('How big is it for Tata Steel?','Total deal value of ₹1,250 Cr as a share of…',
+        hbars([{l:'Market value',v:0.7,txt:'0.7%',t:'calc',s:'ts_board'},{l:'Cash in hand',v:12,txt:'12%',t:'calc',s:'ts_ar',cls:'hl'},{l:'One year’s profit',v:31,txt:'31%',t:'calc',s:'ts_ar',cls:'warn'}],40)+
+        `<div class="hint">Scale 0–40% · cash and profit from the FY26 annual report${prepDone('ts_ar')?' (read)':' (QuarterNote still reading)'}</div>
+        <p class="take">Affordable from cash. It looks larger against profit only because FY26 profit was low.</p>`),
+      block('What does it change?','Before and after the full deal',
+        `<div class="ba">
+          <div><div class="ba-h"><span>Pellets supplied in-house ${tag('rep')}</span><span class="tnum">62% → 70%</span></div><div class="ba-tr"><div class="ax"></div><div class="seg2" style="left:62%;width:8%"></div><div class="p a" style="left:62%"></div><div class="p b" style="left:70%"></div></div><div class="ba-l"><span>0%</span><span>100%</span></div></div>
+          <div><div class="ba-h"><span>Net debt ÷ EBITDA ${tag('calc')}</span><span class="tnum">3.00x → 3.02x</span></div><div class="ba-tr"><div class="ax"></div><div class="seg2" style="left:60%;width:0.4%"></div><div class="p a" style="left:60%"></div><div class="p b" style="left:60.4%"></div></div><div class="ba-l"><span>0x</span><span>5x</span></div></div>
+        </div><p class="take">More raw-material security for almost <b>no change in debt</b>.</p>`)
+    ];
+  },
+  itc(){
+    const sc=S.itcSc, sv=[{l:'Overturned',v:0,amt:0},{l:'Partly upheld',v:1.0,amt:199},{l:'Fully upheld',v:2.0,amt:398}][sc];
+    return [
+      block('How big is the demand?','₹398 Cr as a share of…',
+        hbars([{l:'One quarter’s profit',v:8,txt:'8.0%',t:'calc',s:'itc_res',cls:'warn'},{l:'Cash and investments',v:1.3,txt:'1.3%',t:'calc',s:'itc_res'},{l:'Net worth',v:0.5,txt:'0.5%',t:'calc',s:'itc_res'}],20)+
+        `<div class="hint">Scale 0–20%</div>`+detail('Tax ₹362 Cr + penalty ₹36 Cr =','₹398 Cr','rep','itc_order','Order p.1')),
+      block('What if it is upheld?','Pick an outcome',
+        `<div class="seg" role="tablist">${['Overturned','Partly','Fully upheld'].map((l,i)=>`<button role="tab" aria-selected="${sc===i}" class="${sc===i?'on':''}" data-act="set" data-k="itcSc" data-v="${i}">${l}</button>`).join('')}</div>`+
+        hbars([{l:'One-time hit to yearly profit',v:sv.v,txt:sv.v.toFixed(1)+'%',t:'calc',cls:sc?'warn':''},{l:'Cash paid out',v:sv.amt/398*2,txt:cr(sv.amt)}],2.5)+
+        `<p class="take">${sc===0?'Nothing to pay. This is how two of the last three cases ended.':sc===1?'About <b>1% of yearly profit</b>, paid once.':'Worst case is about <b>2% of yearly profit</b>, paid once. No provision has been made yet.'}</p>`),
+      block('What happens next?','Order date and deadlines',steps('itc-steps',[
+        {l:'Order received',d:'24 Nov 2026',st:'done',more:'GST order for ₹362 Cr tax plus ₹36 Cr penalty.',s:'itc_order'},
+        {l:'Appeal deadline',d:'24 Feb 2027 · 92 days left',st:'now',more:'ITC says it will appeal. Filing an appeal usually needs a pre-deposit of 10% of the tax, about ₹36 Cr.',s:'itc_order'},
+        {l:'Provision decision',d:'Q3 results, late Jan 2027',st:'',more:'If ITC books a provision, it will show up in the Q3 results.'},
+        {l:'Tribunal outcome',d:'No date',st:'',more:'Tax appeals can take years. QuarterNote will alert you on any new filing.'}])),
+      block('Has this happened before?','Similar tax demands, last 5 years',
+        `<div class="hist">
+          <div class="hs"><span class="y">FY22</span><div class="tr"><div style="width:53%;background:var(--bar)"></div></div><span class="pill p-ok">Set aside</span></div>
+          <div class="hs"><span class="y">FY24</span><div class="tr"><div style="width:36%;background:var(--bar)"></div></div><span class="pill p-ok">Set aside</span></div>
+          <div class="hs"><span class="y">FY26</span><div class="tr"><div style="width:65%;background:var(--md-bar)"></div></div><span class="pill p-watch">Pending</span></div>
+          <div class="hs"><span class="y">Now</span><div class="tr"><div style="width:100%;background:var(--hi-bar)"></div></div><span class="pill p-bad">₹398 Cr</span></div>
+        </div>`+detail('Track record','2 of 3 set aside','calc','itc_hist','History'))
+    ];
+  },
+  hdfcbank(){
+    return [
+      block('The facts','From the company’s disclosure',
+        `<div class="facts">
+          <button class="fact" data-act="src" data-s="hdfc_disc"><small>Who</small><b>CFO, in role since 2017</b>${tag('rep')}</button>
+          <button class="fact" data-act="src" data-s="hdfc_disc"><small>Why</small><b>Retirement</b>${tag('rep')}</button>
+          <button class="fact" data-act="src" data-s="hdfc_disc"><small>Successor</small><b>Deputy CFO, 18 years at the bank</b>${tag('rep')}</button>
+          <button class="fact" data-act="src" data-s="hdfc_disc"><small>Effective</small><b>1 Apr 2027</b>${tag('rep')}</button>
+        </div>`),
+      block('Planned or sudden?','Notice given before the handover',
+        hbars([{l:'This change',v:126,txt:'126 days',t:'calc',cls:'hl',s:'hdfc_disc'},{l:'Typical sudden exit',v:30,txt:'≤ 30 days',t:'view'}],140)+
+        `<p class="take">Long notice and a named internal successor point to a <b>planned succession</b>.</p>`),
+      block('Other senior exits','Last 12 months, from exchange filings',
+        `<div class="months">${['','','','x','','','','','','','','n'].map(c=>`<div class="${c}">${c==='x'?'1':c==='n'?'★':''}</div>`).join('')}</div>
+        <div class="mlab">${['D','J','F','M','A','M','J','J','A','S','O','N'].map(m=>`<span>${m}</span>`).join('')}</div>`+
+        detail('Mar 2026','Retail lending head left','rep','hdfc_kmp','Filings')+
+        `<p class="take">One other exit in a year. QuarterNote would flag a cluster of three or more.</p>`)
+    ];
+  },
+  tcs(){
+    const n=S.tcsQty, r=S.tcsRatio, acc=Math.floor(n*r/100), extra=acc*450;
+    return [
+      block('Buyback price vs market','Closing price on 26 Nov 2026',
+        hbars([{l:'Market price',v:4050,txt:'₹4,050',t:'rep'},{l:'Buyback price',v:4500,txt:'₹4,500',t:'rep',cls:'hl',s:'tcs_bb'}],4800)+
+        detail('Premium','+11.1%','calc')),
+      block('What could I get?','Estimate for a small shareholder',
+        `<div class="calc">
+          <label for="qty"><span>Shares you hold</span><span class="tnum">${n}</span></label>
+          <input id="qty" type="range" min="1" max="200" value="${n}" data-act="qty" aria-label="Shares you hold">
+          <label style="margin-top:8px"><span>Acceptance ratio ${tag('calc')}</span><span class="tnum">${r}%</span></label>
+          <div class="seg" style="margin-top:6px">${[[11,'Low 11%'],[18,'Mid 18%'],[22,'High 22%']].map(o=>`<button class="${r===o[0]?'on':''}" data-act="set" data-k="tcsRatio" data-v="${o[0]}">${o[1]}</button>`).join('')}</div>
+          <div class="out"><div><small>Shares accepted</small><b class="tnum" id="o-acc">${acc}</b></div><div><small>Extra vs selling in market</small><b class="tnum" id="o-ext">₹${inr(extra)}</b></div></div>
+        </div>
+        <div class="hint">Range from the last two TCS buybacks. The real ratio is known only after the offer closes.</div>`+
+        detail('Tax','Taxed as dividend at your slab','rep','tcs_tax','Rule')),
+      block('Can TCS afford it?','Buyback size against cash it generates',
+        hbars([{l:'Buyback',v:18000,txt:'₹18,000 Cr',t:'rep',cls:'hl',s:'tcs_bb'},{l:'FY26 free cash flow',v:44000,txt:'₹44,000 Cr',t:'rep'},{l:'Cash and investments',v:52000,txt:'₹52,000 Cr',t:'rep'}])+
+        `<p class="take">Uses about <b>41% of one year’s free cash flow</b>. Comfortable.</p>`)
+    ];
+  }
+};
+
+const UNK = {
+  infy:()=>[
+    prepDone('infy_pres')
+      ?{ok:1,t:'Attrition and headcount',w:'Added from the investor presentation: attrition 13.1%.'}
+      :{prep:'infy_pres',t:'Attrition and headcount',w:'In the investor presentation. QuarterNote is reading it now.'},
+    {t:'New deal wins for Q3',w:'Not disclosed until the Q3 results, around 15 Jan 2027.'}],
+  tatasteel:()=>[{t:'Exact approval date',w:'The company only says “by March 2027”.'},{t:'Target’s profit',w:'Not disclosed. QuarterNote cannot judge the price paid against earnings.'}],
+  itc:()=>[{t:'Will ITC book a provision?',w:'Shows up in the Q3 results, late Jan 2027.'},{t:'Will the tax be paused during appeal?',w:'Depends on the appeal filing. Not yet made.'}],
+  hdfcbank:()=>[{t:'Successor’s pay and contract',w:'Usually in the next annual report.'},{t:'Wider reshuffle',w:'No other role changes disclosed so far.'}],
+  tcs:()=>[{t:'Final acceptance ratio',w:'Announced after the tender window closes.'},{t:'Tender window dates',w:'Comes with the letter of offer, expected mid-Dec.'}]
+};
+
+/* ---------- Ask QuarterNote answers (sample) ---------- */
+const ASK = {
+  INFY:[
+    {q:'How much did the tax refund add to profit?', viz:()=>hbars([{l:'Reported profit',v:8248,txt:'₹8,248 Cr',t:'rep',cls:'hl'},{l:'Without refund',v:7828,txt:'₹7,828 Cr',t:'calc'},{l:'Same quarter last year',v:7364,txt:'₹7,364 Cr',t:'rep'}],9000),
+      pts:['The ₹420 Cr refund is for earlier years and will not repeat.','Without it, profit grew 6.3%, slower than revenue, because other income fell.'], src:['infy_note','infy_res']},
+    {q:'Is growth on track with guidance?', viz:()=>range({l:'Revenue growth',lo:6,hi:12,a:8,b:10,act:8.9,unit:'%',verdict:'On track',cls:'p-ok',s:'infy_call'}),
+      pts:['H1 growth of 8.9% sits in the middle of the 8–10% range.','To hit 10%, H2 would need about 11%, which is above the run-rate.'], src:['infy_call','infy_res']},
+    {q:'Why did margin barely move?', viz:()=>hbars([{l:'Utilisation and pricing',v:0.6,txt:'+0.6 pts',t:'rep',cls:'hl'},{l:'Wage hikes from 1 Sep',v:0.5,txt:'−0.5 pts',t:'rep',cls:'warn'}],0.8),
+      pts:['Gains from better utilisation were mostly used up by wage hikes.','Net change is +0.1 points, to 21.1%.'], src:['infy_call']}
+  ],
+  TATASTEEL:[
+    {q:'How big is this deal for Tata Steel?', viz:()=>hbars([{l:'Market value',v:0.7,txt:'0.7%',t:'calc'},{l:'Cash in hand',v:12,txt:'12%',t:'calc',cls:'hl'},{l:'One year’s profit',v:31,txt:'31%',t:'calc',cls:'warn'}],40),
+      pts:['Small next to cash and market value.','It looks bigger against profit because FY26 profit was weak.'], src:['ts_board','ts_ar']},
+    {q:'What could stop tranche 2?', viz:()=>steps('ask-ts',[{l:'CCI approval',d:'Pending',st:'now',more:'Competition review of the 50.01% stake.'},{l:'Lender consent',d:'Pending',st:'',more:'The target’s lenders must agree to the change in control.'}]),
+      pts:['Two approvals are needed: CCI and the target’s lenders.','If either is refused, Tata Steel keeps only its 26% stake.'], src:['ts_t1']}
+  ],
+  ITC:[
+    {q:'What happens if the order is upheld?', viz:()=>hbars([{l:'Fully upheld',v:2,txt:'2.0% of yearly profit',t:'calc',cls:'warn'},{l:'Partly upheld',v:1,txt:'1.0%',t:'calc'},{l:'Overturned',v:0,txt:'0%',t:'calc'}],2.5),
+      pts:['Worst case is a one-time hit of about 2% of yearly profit.','No provision has been made yet.'], src:['itc_order','itc_res']},
+    {q:'Has ITC faced similar orders before?', viz:()=>hbars([{l:'FY22 · ₹210 Cr',v:210,txt:'Set aside',t:'rep'},{l:'FY24 · ₹145 Cr',v:145,txt:'Set aside',t:'rep'},{l:'FY26 · ₹260 Cr',v:260,txt:'Pending',t:'rep',cls:'warn'}],400),
+      pts:['Two of the last three demands were set aside on appeal.','One is still pending at the tribunal.'], src:['itc_hist']}
+  ],
+  HDFCBANK:[
+    {q:'Was this change planned?', viz:()=>hbars([{l:'Notice given',v:126,txt:'126 days',t:'calc',cls:'hl'},{l:'Typical sudden exit',v:30,txt:'≤ 30 days',t:'view'}],140),
+      pts:['Retirement with four months of notice.','The successor is internal and already deputy CFO.'], src:['hdfc_disc']},
+    {q:'Who else has left recently?', viz:()=>hbars([{l:'Senior exits, last 12 months',v:1,txt:'1',t:'rep',cls:'hl'},{l:'QuarterNote flags a cluster at',v:3,txt:'3+',t:'view'}],4),
+      pts:['The retail lending head left in March 2026.','One exit in a year is within the normal range.'], src:['hdfc_kmp']}
+  ],
+  TCS:[
+    {q:'How much would I get back on my shares?', viz:()=>hbars([{l:'60 shares, 18% accepted',v:10,txt:'10 shares',t:'calc',cls:'hl'},{l:'Extra vs market',v:4500,txt:'₹4,500',t:'calc'}],12000),
+      pts:['At ₹4,500 per accepted share, 10 shares bring ₹45,000.','The gain over the market price is about ₹4,500 before tax.'], src:['tcs_bb','tcs_hist','tcs_tax']},
+    {q:'Is the buyback affordable?', viz:()=>hbars([{l:'Buyback',v:18000,txt:'₹18,000 Cr',t:'rep',cls:'hl'},{l:'FY26 free cash flow',v:44000,txt:'₹44,000 Cr',t:'rep'}],52000),
+      pts:['It uses about 41% of one year’s free cash flow.','Cash and investments stay above ₹30,000 Cr after the buyback.'], src:['tcs_bb']}
+  ]
+};
+const EVBYCO = {INFY:'infy',TATASTEEL:'tatasteel',ITC:'itc',HDFCBANK:'hdfcbank',TCS:'tcs'};
+
+/* ---------- mini previews on Updates cards ---------- */
+const MINI = {
+  infy:()=>`<svg width="52" height="30" viewBox="0 0 52 30">${INFY.pat.map((v,i)=>{const h=(v-6000)/2400*26;return `<rect x="${i*6.5}" y="${30-h}" width="4.5" height="${h}" rx="1" fill="${i===7?'#0D9367':'#BFE6D0'}"/>`}).join('')}<rect x="45.5" y="${30-(8248-6000)/2400*26}" width="4.5" height="${420/2400*26}" fill="#F2B01E"/></svg>`,
+  tatasteel:()=>`<svg width="54" height="14" viewBox="0 0 54 14"><line x1="5" x2="49" y1="7" y2="7" stroke="#BFE6D0" stroke-width="2"/>${[0,1,2,3,4].map(i=>`<circle cx="${5+i*11}" cy="7" r="4.5" fill="${i<3?'#0D9367':i===3?'#FFF6E0':'#fff'}" stroke="${i<3?'#0D9367':i===3?'#F2B01E':'#BFE6D0'}" stroke-width="1.5"/>`).join('')}</svg>`,
+  itc:()=>`<svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="16" fill="none" stroke="#fff" stroke-width="6"/><circle cx="22" cy="22" r="16" fill="none" stroke="#F2B01E" stroke-width="6" stroke-dasharray="${0.08*100.5} 100.5" transform="rotate(-90 22 22)"/><text x="22" y="26" text-anchor="middle" font-size="10" font-weight="800" fill="#142B3A">8%</text></svg>`,
+  hdfcbank:()=>`<svg width="48" height="30" viewBox="0 0 24 24" fill="none" stroke="#0D9367" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 11h6M19 8l3 3-3 3"/></svg>`,
+  tcs:()=>`<svg width="48" height="32" viewBox="0 0 48 32"><rect x="6" y="${32-4050/4800*28}" width="14" height="${4050/4800*28}" rx="2" fill="#BFE6D0"/><rect x="26" y="${32-4500/4800*28}" width="14" height="${4500/4800*28}" rx="2" fill="#0D9367"/></svg>`
+};
+
+/* ---------- screens ---------- */
+function brand(sub='Investment Intelligence', right=`<span class="eod"><span class="dot"></span>EOD Data</span>`){
+  return `<div class="brand"><div class="brand-l">${logo(40)}<div><div class="brand-n">QuarterNote</div><div class="brand-s">${sub}</div></div></div>${right}</div>`;
+}
+function prepStrip(){
+  const live=S.prep.filter(p=>p.p<100);
+  if(!live.length)return `<div class="prep"><span class="ok">✓</span><span><b>All filings read.</b> <span class="muted">Analyses are up to date.</span></span></div>`;
+  const p=live[0];
+  return `<button class="prep" data-act="sheet" data-v="prep"><span class="spin"></span><span style="flex:1;min-width:0"><b>Reading ${live.length} filing${live.length>1?'s':''} in the background</b><span class="muted" style="display:block;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.label} · <span data-prog-t="${p.id}">${Math.floor(p.p)}%</span></span><span class="bar-p"><span data-prog="${p.id}" style="display:block;height:100%;background:var(--emerald);width:${p.p}%"></span></span></span></button>`;
+}
+function visibleEvents(){
+  return ORDER.filter(id=>{const e=EV[id];return S.follow[e.co]&&(S.pr==='All'||PRL[e.pr]===S.pr)&&(S.type==='All'||e.type===S.type)});
+}
+function renderPush(){
+  const fol=ORDER.filter(id=>S.follow[EV[id].co]);
+  const cnt=k=>fol.filter(id=>EV[id].pr===k).length;
+  const list=visibleEvents();
+  return `<div class="pad">
+    ${brand()}
+    <h1 class="page">Today’s Intelligence</h1>
+    <p class="sub">What changed at the companies you follow?</p>
+    <div class="upd">Last updated: 27 Nov, 08:05 PM</div>
+    <div class="tiles">
+      ${[['hi','High'],['md','Medium'],['rt','Routine']].map(([k,l])=>`<button class="tile ${k} ${S.pr===l?'on':''}" data-act="pr" data-v="${l}" aria-pressed="${S.pr===l}"><b class="tnum">${cnt(k)}</b><span>${l.toUpperCase()}</span></button>`).join('')}
+    </div>
+    <div class="chips">${TYPES.map(([k,l])=>`<button class="chip ${S.type===k?'on':''}" data-act="type" data-v="${k}">${l}</button>`).join('')}</div>
+    ${prepStrip()}
+    <div class="feed">
+      ${list.length?list.map(id=>{const e=EV[id];return `<article class="card fc ${e.pr}">
+        <div class="fc-top"><span class="pill p-tick">${e.co}</span><span class="pill p-type">${e.type}</span><span class="pill p-${e.pr}">${PRL[e.pr]}</span><span class="fc-ago">${e.ago}</span></div>
+        <div class="fc-body"><div style="flex:1;min-width:0"><h3 class="fc-t">${e.title}</h3><p class="fc-s">${e.sub}</p></div><div class="fc-viz" aria-hidden="true">${MINI[id]()}</div></div>
+        ${S.quick[id]?`<div class="quick"><ul>${e.kp.map(k=>`<li>${k}</li>`).join('')}</ul></div>`:''}
+        <div class="fc-btns"><button class="btn btn-p" data-act="go" data-r="e-${id}">See analysis ${I.arrow}</button><button class="btn btn-g" data-act="quick" data-v="${id}" aria-expanded="${!!S.quick[id]}">${S.quick[id]?'Hide points':'3 key points'}</button></div>
+      </article>`}).join(''):`<div class="card empty">No updates match these filters.<br><button class="btn btn-g" style="margin-top:10px" data-act="clear">Clear filters</button></div>`}
+    </div>
+    <section class="card askbox">
+      <div class="row"><span class="spark">${I.spark}</span><div><h3>Ask QuarterNote about the evidence</h3><div class="muted" style="font-size:12.5px">Answers come with a chart and the filing page.</div></div></div>
+      <div class="askchips">${['How much did the tax refund add to profit?','What happens if the order is upheld?'].map((q,i)=>`<button class="askchip" data-act="pullask" data-co="${i?'ITC':'INFY'}" data-q="${i?0:0}">${I.spark}${q}</button>`).join('')}</div>
+      <button class="btn btn-dark" style="width:100%;margin-top:10px" data-act="go" data-r="pull">${I.search} Open Research</button>
+    </section>
+    <p class="sample">Prototype. All company figures are sample data.</p>
+  </div>`;
+}
+
+function renderEvent(id){
+  const e=EV[id], body=BODY[id](), unk=UNK[id]();
+  const kp=`<section class="card kp"><div class="label">Key points</div><ul>${e.kp.map(k=>`<li>${k}</li>`).join('')}</ul></section>`;
+  const asks=(ASK[e.co]||[]);
+  return `<div class="ev-head"><button class="back" data-act="back" aria-label="Back">${I.back}</button><div class="nm">${e.name}<small>${e.co} · ${e.type} · ${e.ago}</small></div><span class="pill p-${e.pr}" style="margin-left:auto">${PRL[e.pr]}</span></div>
+  <div class="pad" style="padding-top:12px">
+    <h1 class="ev-title">${e.title}</h1>
+    <section class="card read">
+      <div class="label">QuarterNote’s read</div>
+      <div class="read-h">${e.read}</div>
+      <div class="meter lv${e.lv}"><div></div><div></div><div></div></div>
+      <div class="meter-l"><span>Impact on the company: <b>${['','Low','Moderate','High'][e.lv]}</b></span><span>Low · Moderate · High</span></div>
+      <p class="read-why">${e.why}</p>
+    </section>
+    <div class="legend"><span>Labels:</span>${tag('rep')}${tag('calc')}${tag('unk')}<button data-act="sheet" data-v="legend" style="color:var(--emerald);font-weight:600;font-size:11.5px">What do these mean?</button></div>
+    ${S.chartsFirst?'':kp}
+    ${body.join('')}
+    ${S.chartsFirst?kp:''}
+    <section class="card unk"><div class="label">Still unknown</div>
+      ${unk.map(u=>`<div class="uk"><span class="ic ${u.ok?'ok':''}">${u.ok?'✓':'?'}</span><div><b>${u.t}</b><small>${u.w}</small>${u.prep?`<div class="bar-p"><div data-prog="${u.prep}" style="width:${S.prep.find(p=>p.id===u.prep).p}%"></div></div>`:''}</div></div>`).join('')}
+    </section>
+    <section class="card askrow"><div class="row" style="display:flex;gap:10px;align-items:center"><span class="spark">${I.spark}</span><div><b>Ask QuarterNote</b><div class="muted" style="font-size:12.5px">Follow-ups based on this analysis</div></div></div>
+      <div class="askchips">${asks.map((a,i)=>`<button class="askchip" data-act="ask" data-co="${e.co}" data-q="${i}">${I.spark}${a.q}</button>`).join('')}</div></section>
+    <section class="card srcs"><div class="label" style="padding-top:10px">Sources (${e.srcs.length})</div>
+      ${e.srcs.map(s=>{const d=SRC[s];const reading=S.prep.some(p=>p.id===s&&p.p<100);return `<button class="sr" data-act="src" data-s="${s}"><span class="ico">${I.doc}</span><span><b>${d.doc}</b><small>${d.kind} · ${reading?'QuarterNote is reading this':'p.'+d.page}</small></span><span class="go">${reading?'Reading…':'Open'}</span></button>`}).join('')}
+    </section>
+    <p class="sample">Sample figures for this prototype. QuarterNote shows analysis, not buy or sell advice.</p>
+  </div>`;
+}
+
+function answerCard(co, qi){
+  const a=ASK[co][qi];
+  return `<div style="font-weight:700">${a.q}</div>${a.viz()}<ul class="pts">${a.pts.map(p=>`<li>${p}</li>`).join('')}</ul>
+  <div class="cite">${a.src.map(s=>`<button data-act="src" data-s="${s}">${I.doc}${SRC[s].doc.split(',')[0]}${SRC[s].page&&SRC[s].page!=='—'&&SRC[s].page!=='various'?' p.'+SRC[s].page:''}</button>`).join('')}</div>`;
+}
+function renderPull(){
+  const co=S.pull.co, th=S.pull.thread;
+  const asked=new Set(th.filter(m=>m.ans&&m.ans.co===co).map(m=>m.ans.qi));
+  const sugg=ASK[co].map((a,i)=>[a,i]).filter(([a,i])=>!asked.has(i));
+  return `<div class="pad">
+    ${brand('Ask about any company you follow',`<span class="eod"><span class="dot"></span>Evidence-backed</span>`)}
+    <div class="cobar" role="tablist">${Object.keys(ASK).map(c=>`<button class="chip ${c===co?'on':''}" data-act="pullco" data-v="${c}" role="tab" aria-selected="${c===co}">${c}</button>`).join('')}</div>
+    <div class="thread">
+      <div class="msg b"><span class="av">${I.bot}</span><div class="bub">Ask about <b>${EV[EVBYCO[co]].name}</b>. I answer with a chart, a few points, and the exact page each number comes from.</div></div>
+      ${th.map(m=>m.role==='u'?`<div class="msg u"><div class="bub">${esc(m.text)}</div></div>`:
+        m.typing?`<div class="msg b"><span class="av">${I.bot}</span><div class="bub"><span class="typing"><i></i><i></i><i></i></span> <span class="muted" style="font-size:12px">Checking the filings…</span></div></div>`:
+        m.ans?`<div class="msg b"><span class="av">${I.bot}</span><div class="bub">${answerCard(m.ans.co,m.ans.qi)}</div></div>`:
+        `<div class="msg b"><span class="av">${I.bot}</span><div class="bub">${m.text}</div></div>`).join('')}
+      ${sugg.length?`<div class="askchips" style="margin-left:40px">${sugg.map(([a,i])=>`<button class="askchip" data-act="pullask" data-co="${co}" data-q="${i}">${I.spark}${a.q}</button>`).join('')}</div>`:''}
+      <button class="btn btn-g" style="margin-left:40px" data-act="go" data-r="e-${EVBYCO[co]}">See the latest ${EV[EVBYCO[co]].type.toLowerCase()} analysis ${I.arrow}</button>
+    </div>
+  </div>`;
+}
+function composer(){
+  return `<form class="composer" id="cmp"><button type="button" class="clip" data-act="toast" data-v="Uploads stay private to this device and can be deleted any time. (Not active in this prototype.)">+ PDF</button><input id="q" autocomplete="off" placeholder="Ask about ${S.pull.co}…" aria-label="Ask QuarterNote"><button class="send" aria-label="Send">${I.send}</button></form>`;
+}
+function toggle(on, act, k){return `<button class="tg ${on?'on':''}" role="switch" aria-checked="${!!on}" data-act="${act}" data-v="${k}"></button>`}
+function renderProfile(){
+  return `<div class="pad">
+    ${brand('Your preferences')}
+    <section class="card prof"><span class="av2">${I.user}</span><div><b style="font-size:16px">Guest investor</b><div class="muted" style="font-size:12.5px">No sign-up. Settings stay on this device.</div></div></section>
+    <section class="card sect"><h3>Companies you follow</h3><div class="muted" style="font-size:12.5px">Tap to follow or unfollow. Updates only shows these.</div>
+      <div class="wl">${Object.keys(S.follow).map(c=>`<button class="chip ${S.follow[c]?'on':''}" data-act="follow" data-v="${c}" aria-pressed="${!!S.follow[c]}">${S.follow[c]?'✓ ':''}${c}</button>`).join('')}<button class="chip" data-act="toast" data-v="Search and add any NSE-listed company. (Not active in this prototype.)">+ Add</button></div></section>
+    <section class="card sect"><h3>Alert me about</h3>
+      ${Object.keys(S.alerts).map(k=>`<div class="row2"><span>${({Results:'Quarterly results',Deal:'Deals and acquisitions',Legal:'Legal and tax orders',Leadership:'Leadership changes',Buyback:'Dividends and buybacks'})[k]}</span>${toggle(S.alerts[k],'alert',k)}</div>`).join('')}
+      <div class="row2" style="display:block"><span>Send a phone alert for</span><div class="seg">${[['h','High only'],['hm','High + Medium'],['all','Everything']].map(o=>`<button class="${S.notify===o[0]?'on':''}" data-act="set" data-k="notify" data-v="${o[0]}">${o[1]}</button>`).join('')}</div></div>
+    </section>
+    <section class="card sect"><h3>How analysis looks</h3>
+      <div class="row2"><span>Charts before key points<small>Turn off to read the 3 points first</small></span>${toggle(S.chartsFirst,'pref','chartsFirst')}</div>
+      <div class="row2"><span>Explain terms in plain words<small>Shows short notes under charts</small></span>${toggle(S.simple,'pref','simple')}</div>
+    </section>
+    <section class="card sect"><h3>Data and privacy</h3>
+      <button class="row2" style="width:100%;text-align:left" data-act="sheet" data-v="prep"><span>Background document reading<small>${S.prep.filter(p=>p.p<100).length?S.prep.filter(p=>p.p<100).length+' in progress':'Up to date'}</small></span><span style="color:var(--emerald);font-weight:600;font-size:13px">View</span></button>
+      <div class="row2"><span>Sources<small>NSE and BSE filings, company PDFs, earnings call transcripts</small></span></div>
+      <div class="row2"><span>Advice<small>QuarterNote explains filings. It does not give buy or sell calls.</small></span></div>
+      <button class="row2" style="width:100%;text-align:left" data-act="toast" data-v="All device data cleared. (Demo only.)"><span style="color:var(--hi-fg)">Delete my data from this device</span></button>
+    </section>
+    <p class="sample">Prototype. All company figures are sample data.</p>
+  </div>`;
+}
+
+/* ---------- sheets ---------- */
+function renderSheet(){
+  const sh=S.sheet, el=$('#sheet');
+  if(!sh){el.innerHTML='';return}
+  let h='', b='';
+  if(sh.kind==='src'){const d=SRC[sh.id];h=`${d.co}: ${d.doc}`;
+    b=`<div class="muted" style="font-size:12.5px">${d.kind} · Filed ${d.filed}</div>
+    <div class="doc"><div class="doc-h"><span>${d.doc}</span><span>${d.page!=='—'&&d.page!=='various'?`Page ${d.page}${d.of?' of '+d.of:''}`:d.page==='various'?'Several pages':'Summary'}</span></div>
+      <div class="doc-b">${d.rows?`<table>${d.rows.map(r=>`<tr class="${r[2]?'hl':''}"><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>`:`<div class="quote">${d.quote}</div>`}
+      <div class="used">▲ ${d.used}</div></div></div>
+    <p class="muted" style="font-size:12px;line-height:1.45">In the live app this opens the original PDF at this page. Here the page is a sample.</p>
+    <a class="btn btn-p" style="width:100%;box-sizing:border-box;text-decoration:none" href="${NSE}" target="_blank" rel="noopener">Open filings on NSE ${I.ext}</a>`;}
+  if(sh.kind==='ask'){h='Ask QuarterNote';b=`<div class="msg b" style="margin-top:4px"><span class="av">${I.bot}</span><div class="bub">${answerCard(sh.co,sh.qi)}</div></div>
+    <button class="btn btn-g" style="width:100%;margin-top:14px;box-sizing:border-box" data-act="topull" data-co="${sh.co}" data-q="${sh.qi}">Continue in Research ${I.arrow}</button>`;}
+  if(sh.kind==='legend'){h='How to read QuarterNote';b=`<div class="checks">
+    <div class="ck"><span>${tag('rep')}</span><span>Taken directly from a filing, call or report. Tap to see the page.</span><span></span></div>
+    <div class="ck"><span>${tag('calc')}</span><span>QuarterNote worked it out from company figures with a fixed formula, such as growth or a share of profit. AI does not invent these numbers.</span><span></span></div>
+    <div class="ck"><span>${tag('unk')}</span><span>Not disclosed yet. QuarterNote says when it expects to know.</span><span></span></div>
+    <div class="ck"><span>${tag('view')}</span><span>A benchmark or judgment from QuarterNote. Treat it as context, not fact.</span><span></span></div></div>`;}
+  if(sh.kind==='prep'){h='Background document reading';b=`<p class="muted" style="font-size:13px;margin-top:0">QuarterNote reads long PDFs in the background. You can keep using the app. Analyses update when reading finishes.</p>
+    ${S.prep.map(p=>`<div class="uk"><span class="ic ${p.p>=100?'ok':''}">${p.p>=100?'✓':'…'}</span><div><b>${p.label}</b><small>${p.pages} pages · ${p.co} · <span data-prog-t="${p.id}">${p.p>=100?'Done':Math.floor(p.p)+'%'}</span></small><div class="bar-p"><div data-prog="${p.id}" style="width:${p.p}%"></div></div></div></div>`).join('')}`;}
+  el.innerHTML=`<div class="ov" data-act="close"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(h)}"><div class="grab"></div><div class="sh-h"><h3>${h}</h3><button class="x" data-act="close" aria-label="Close">${I.x}</button></div><div class="sh-b">${b}</div></div></div>`;
+}
+
+/* ---------- render + routing ---------- */
+function route(){const h=(location.hash||'#push').slice(1);return ['push','pull','profile'].includes(h)||(h.startsWith('e-')&&EV[h.slice(2)])?h:'push'}
+function render(keepScroll){
+  const r=route(), sc=$('#scroll'), top=sc.scrollTop;
+  if(['push','pull','profile'].includes(r))S.tab=r;
+  sc.innerHTML = r==='push'?renderPush():r==='pull'?renderPull():r==='profile'?renderProfile():renderEvent(r.slice(2));
+  $('#composer').innerHTML = r==='pull'?composer():'';
+  const tabOn = r.startsWith('e-')?'push':r;
+  $('#tabs').innerHTML=[['push','Updates',I.bell],['pull','Research',I.search],['profile','Profile',I.user]].map(([k,l,ic])=>`<button class="${tabOn===k?'on':''}" data-act="go" data-r="${k}" aria-current="${tabOn===k?'page':'false'}">${ic}<span>${l}</span></button>`).join('');
+  if(keepScroll)sc.scrollTop=top;else if(r==='pull')sc.scrollTop=sc.scrollHeight;else sc.scrollTop=0;
+  renderSheet();
+}
+function go(r){S.sheet=null;if(location.hash==='#'+r)render();else location.hash=r}
+window.addEventListener('hashchange',()=>render());
+
+function toast(msg, action){
+  S.toast={msg,action};const el=$('#toast');
+  el.innerHTML=`<div class="toast" role="status"><span>${msg}</span>${action?`<button data-act="go" data-r="${action[1]}">${action[0]}</button>`:''}</div>`;
+  clearTimeout(toast.t);toast.t=setTimeout(()=>{el.innerHTML=''},4200);
+}
+
+function askPull(co, qi, text){
+  S.pull.co=co;
+  S.pull.thread.push({role:'u',text:text||ASK[co][qi].q},{role:'b',typing:true});
+  S.pull.busy=true;
+  if(route()!=='pull')go('pull');else render();
+  setTimeout(()=>{S.pull.thread.pop();S.pull.thread.push(qi==null?{role:'b',text:`In this prototype I can answer these questions about ${co}. Pick one below.`}:{role:'b',ans:{co,qi}});S.pull.busy=false;if(route()==='pull')render()},900);
+}
+function matchQ(co, text){
+  const w=text.toLowerCase().match(/[a-z]+/g)||[];let best=null,score=0;
+  ASK[co].forEach((a,i)=>{const s=w.filter(x=>x.length>3&&a.q.toLowerCase().includes(x)).length;if(s>score){score=s;best=i}});
+  return score>=1?best:null;
+}
+
+document.addEventListener('click',ev=>{
+  const t=ev.target.closest('[data-act]');if(!t)return;
+  const a=t.dataset.act, v=t.dataset.v;
+  if(a==='close'){if(t.classList.contains('ov')&&ev.target!==t)return;S.sheet=null;renderSheet();return}
+  if(t.closest('.sheet')&&a!=='src'&&a!=='topull'&&a!=='go'&&a!=='sel')ev.stopPropagation();
+  switch(a){
+    case 'go': go(t.dataset.r);break;
+    case 'back': history.length>1&&document.referrer!==undefined?go(S.tab):go('push');break;
+    case 'pr': S.pr=S.pr===v?'All':v;render(true);break;
+    case 'type': S.type=v;render(true);break;
+    case 'clear': S.pr='All';S.type='All';render(true);break;
+    case 'quick': S.quick[v]=!S.quick[v];render(true);break;
+    case 'sel': {const k=t.dataset.k,i=+t.dataset.i;S.sel[k]=(k.endsWith('steps')||k.startsWith('ask-'))&&S.sel[k]===i?null:i;
+      if(t.closest('.sheet')){renderSheet()}else render(true);break}
+    case 'set': {const n=Number(v);S[t.dataset.k]=isNaN(n)?v:n;render(true);break}
+    case 'src': ev.stopPropagation();S.sheet={kind:'src',id:t.dataset.s};renderSheet();break;
+    case 'sheet': S.sheet={kind:v};renderSheet();break;
+    case 'ask': S.sheet={kind:'ask',co:t.dataset.co,qi:+t.dataset.q};renderSheet();break;
+    case 'topull': S.sheet=null;askPull(t.dataset.co,+t.dataset.q);break;
+    case 'pullask': askPull(t.dataset.co,+t.dataset.q);break;
+    case 'pullco': S.pull.co=v;render(true);break;
+    case 'follow': S.follow[v]=S.follow[v]?0:1;render(true);toast(S.follow[v]?`Following ${v}.`:`Unfollowed ${v}. Its updates are hidden in Updates.`);break;
+    case 'alert': S.alerts[v]=S.alerts[v]?0:1;render(true);break;
+    case 'pref': S[v]=!S[v];render(true);break;
+    case 'toast': toast(v);break;
+  }
+});
+document.addEventListener('keydown',ev=>{
+  if(ev.key==='Escape'&&S.sheet){S.sheet=null;renderSheet()}
+  if((ev.key==='Enter'||ev.key===' ')&&ev.target.matches('g[data-act]')){ev.preventDefault();ev.target.dispatchEvent(new MouseEvent('click',{bubbles:true}))}
+});
+document.addEventListener('input',ev=>{
+  if(ev.target.id==='qty'){S.tcsQty=+ev.target.value;const acc=Math.floor(S.tcsQty*S.tcsRatio/100);
+    ev.target.previousElementSibling.lastElementChild.textContent=S.tcsQty;$('#o-acc').textContent=acc;$('#o-ext').textContent='₹'+inr(acc*450)}
+});
+document.addEventListener('submit',ev=>{
+  if(ev.target.id!=='cmp')return;ev.preventDefault();const q=$('#q').value.trim();if(!q||S.pull.busy)return;
+  askPull(S.pull.co,matchQ(S.pull.co,q),q);
+});
+
+/* background reading simulation */
+setInterval(()=>{
+  let finished=null;
+  S.prep.forEach(p=>{if(p.p<100){p.p=Math.min(100,p.p+2+Math.random()*3);if(p.p>=100)finished=p}});
+  document.querySelectorAll('[data-prog]').forEach(el=>{const p=S.prep.find(x=>x.id===el.dataset.prog);el.style.width=p.p+'%'});
+  document.querySelectorAll('[data-prog-t]').forEach(el=>{const p=S.prep.find(x=>x.id===el.dataset.progT);el.textContent=p.p>=100?'Done':Math.floor(p.p)+'%'});
+  if(finished){render(true);toast(finished.msg,['View','e-'+EVBYCO[finished.co]])}
+},900);
+
+render();
+</script>
