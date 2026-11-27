@@ -1,0 +1,63 @@
+{
+  "id": "8ae9fc9b3017",
+  "layout": "earnings",
+  "symbol": "ITC",
+  "company": "ITC Ltd",
+  "sector": "FMCG",
+  "category": "results",
+  "category_label": "Results",
+  "title": "ITC Limited has submitted to the Exchange, the financial results for the period ended Jun 30, 2026.",
+  "subject": "Outcome of Board Meeting",
+  "datetime": "2026-07-31T16:31:22+05:30",
+  "url": "https://nsearchives.nseindia.in/corporate/ITC_31072026162945_Results.pdf",
+  "feed": "NSE",
+  "publisher": "ITC Ltd (filed with NSE)",
+  "period_label": "Q1 FY27 · quarter ended 30 Jun 2026",
+  "basis": "Consolidated",
+  "unit": "₹ crore",
+  "text_layer": "ocr_scan",
+  "statement": {
+    "page": 6,
+    "title": "Statement of Unaudited Consolidated Financial Results for the Quarter ended 30th June, 2026",
+    "units_printed": "(₹ in Crores)"
+  },
+  "columns": {
+    "cur": {"period": "Q1 FY27", "printed": "3 Months ended 30.06.2026 (Unaudited)"},
+    "yoy": {"period": "Q1 FY26", "printed": "Corresponding 3 Months ended 30.06.2025 (Unaudited)"},
+    "qoq": {"period": "Q4 FY26", "printed": "Preceding 3 Months ended 31.03.2026 (Audited)"}
+  },
+  "rows": {
+    "revenue_from_operations": {"label": "REVENUE FROM OPERATIONS [(i)+(ii)]", "line": "1", "values": {"cur": 29523.30, "yoy": 23129.35, "qoq": 23821.48},
+      "definitions": {
+        "cur": "Revenue from operations, including excise duty at post-1-Feb-2026 rates",
+        "yoy": "Revenue from operations, including excise duty at pre-1-Feb-2026 rates",
+        "qoq": "Revenue from operations, including excise duty at pre- and post-1-Feb-2026 rates (rates changed mid-quarter)"
+      }},
+    "excise_duty": {"label": "Excise duty", "line": "4 d)", "values": {"cur": 10408.93, "yoy": 1634.56, "qoq": 5996.80}},
+    "finance_costs": {"label": "Finance costs", "line": "4 f)", "values": {"cur": 39.78, "yoy": 16.47, "qoq": 29.18}},
+    "depreciation": {"label": "Depreciation and amortization expense", "line": "4 g)", "values": {"cur": 427.73, "yoy": 422.96, "qoq": 421.95}},
+    "total_expenses": {"label": "TOTAL EXPENSES", "line": "4", "values": {"cur": 24809.95, "yoy": 16752.31, "qoq": 17348.38}},
+    "pbt": {"label": "PROFIT BEFORE TAX (6+7)", "line": "8", "values": {"cur": 5860.85, "yoy": 7128.01, "qoq": 7172.62},
+            "note": "Q1 FY27 includes an exceptional gain of ₹405.88 crore on re-measuring the existing interest in Sproutlife (line 7, Note 4)."},
+    "pat": {"label": "PROFIT FOR THE PERIOD (8-9)", "line": "10", "values": {"cur": 4508.79, "yoy": 5343.41, "qoq": 5469.74}}
+  },
+  "notes": [
+    {"ref": "Note 5", "page": 7, "applies_to": ["revenue_from_operations", "excise_duty"],
+     "excerpt": "Consequently, Gross Revenue from sale of products and services and Excise duty for the quarters ended 30th June, 2026 and 31st March, 2026 reflects the impact of sharp increase in Excise duty and are not strictly comparable with those of the previous periods."},
+    {"ref": "Note 4", "page": 7, "applies_to": ["all"],
+     "excerpt": "Accordingly, financial results of the Group and 'FMCG-Others' segment for the quarter ended 30th June, 2026 include those of Sproutlife from 1st April, 2026 and hence are not comparable with previous periods."}
+  ],
+  "verified_by": "Manual check of the original PDF (page images of p.6 and p.7), 27 Nov 2026: metric label, column period, units (₹ in Crores), basis (consolidated) and value for every row above. The PDF is a scan; values were read from the page image, not the OCR text layer. Every Q1 FY27 value also matches the 'Preceding 3 Months' column of the Q2 FY27 filing (p.9), so the quarter was not restated.",
+  "third_party_check": {
+    "source": "screener.in standardised quarterly P&L (consolidated)",
+    "url": "https://www.screener.in/company/ITC/consolidated/",
+    "values": {
+      "Sales": {"cur": 19114, "yoy": 21495, "qoq": 17825},
+      "Expenses": {"cur": 13934, "yoy": 14678, "qoq": 10900},
+      "Operating Profit": {"cur": 5181, "yoy": 6816, "qoq": 6924},
+      "Profit before tax": {"cur": 5861, "yoy": 7128, "qoq": 7173},
+      "Net Profit": {"cur": 4509, "yoy": 5343, "qoq": 5470}
+    },
+    "retrieved": "2026-11-27"
+  }
+}

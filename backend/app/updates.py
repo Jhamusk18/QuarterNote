@@ -80,11 +80,7 @@ def _earnings_from_record(r: dict) -> dict:
     caveat = (f"Not like-for-like. The company says acquisitions make these results not comparable with previous periods "
               f"({', '.join(n['ref'] for n in general)}, p.{general[0]['page']}).") if general else None
 
-    reg = r.get("excise_regime")
-    gross_defs = None
-    if reg:
-        post, pre = "Revenue from operations, including excise duty at post-1-Feb-2026 rates", "Revenue from operations, including excise duty at pre-1-Feb-2026 rates"
-        gross_defs = {"cur": post, "qoq": post, "yoy": pre}
+    gross_defs = rows["revenue_from_operations"].get("definitions")
 
     F = {
         "gross_revenue": reported("revenue_from_operations", "Revenue from operations (gross)", defs_by_col=gross_defs),

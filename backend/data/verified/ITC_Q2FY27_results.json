@@ -26,7 +26,12 @@
     "qoq": {"period": "Q1 FY27", "printed": "Preceding 3 Months ended 30.06.2026 (Unaudited)"}
   },
   "rows": {
-    "revenue_from_operations": {"label": "REVENUE FROM OPERATIONS [(i)+(ii)]", "line": "1", "values": {"cur": 30578.40, "yoy": 21255.86, "qoq": 29523.30}},
+    "revenue_from_operations": {"label": "REVENUE FROM OPERATIONS [(i)+(ii)]", "line": "1", "values": {"cur": 30578.40, "yoy": 21255.86, "qoq": 29523.30},
+      "definitions": {
+        "cur": "Revenue from operations, including excise duty at post-1-Feb-2026 rates",
+        "yoy": "Revenue from operations, including excise duty at pre-1-Feb-2026 rates",
+        "qoq": "Revenue from operations, including excise duty at post-1-Feb-2026 rates"
+      }},
     "excise_duty": {"label": "Excise duty", "line": "4 d)", "values": {"cur": 10309.77, "yoy": 1754.23, "qoq": 10408.93}},
     "finance_costs": {"label": "Finance costs", "line": "4 f)", "values": {"cur": 38.27, "yoy": 20.05, "qoq": 39.78}},
     "depreciation": {"label": "Depreciation and amortization expense", "line": "4 g)", "values": {"cur": 490.60, "yoy": 434.80, "qoq": 427.73}},

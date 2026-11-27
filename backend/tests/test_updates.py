@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from app import llm, push, rag, updates
 from app.main import app
 
-ITC, TATA = "8dccbd03b4cb", "b4145d9c3838"
+ITC, TATA, ITC_Q1 = "8dccbd03b4cb", "b4145d9c3838", "8ae9fc9b3017"
 
 
 def _norm(s):
@@ -85,14 +85,30 @@ def test_passages_refuse_unresolved_urls(monkeypatch):
     assert updates.passages("x2")["state"] == "unavailable"
 
 
+def test_itc_q1_not_restated_in_q2_filing():
+    q1, q2 = updates.RECORDS[ITC_Q1], updates.RECORDS[ITC]
+    assert q2["columns"]["qoq"]["period"] == q1["columns"]["cur"]["period"]
+    for k, row in q1["rows"].items():
+        assert q2["rows"][k]["values"]["qoq"] == row["values"]["cur"], k
+
+
+def test_gross_revenue_qoq_cannot_compare_across_excise_change():
+    m = {x["key"]: x for x in updates.detail_from_record(updates.RECORDS[ITC_Q1], in_feed=False)["earnings"]["metrics"]}
+    assert not m["gross_revenue"]["changes"]["qoq"]["comparable"]
+    assert not m["gross_revenue"]["changes"]["yoy"]["comparable"]
+    assert m["sales"]["changes"]["qoq"]["comparable"]
+
+
 def test_unknown_id_404():
     assert TestClient(app).get("/api/updates/doesnotexist").status_code == 404
 
 
 @pytest.mark.network
-@pytest.mark.parametrize("rid", [ITC, TATA])
+@pytest.mark.parametrize("rid", sorted(updates.RECORDS))
 def test_record_excerpts_are_on_cited_pages(rid):
     r = updates.RECORDS[rid]
+    if r.get("text_layer") == "ocr_scan":
+        pytest.skip("scanned PDF: values were read from page images; covered by test_itc_q1_not_restated_in_q2_filing")
     urls = {None: r["url"], **{f["id"]: f["url"] for f in r.get("related_filings", [])}}
     cache = {}
 
