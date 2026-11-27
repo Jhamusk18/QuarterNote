@@ -19,7 +19,7 @@ function Box({ on, label, onClick }) {
   )
 }
 
-export default function FilterSheet({ open, onClose, applied, onApply, focus, companies }) {
+export default function FilterSheet({ open, onClose, applied, onApply, focus, companies, counts, thresholds, onEditThresholds }) {
   const [d, setD] = useState(applied)
   const [q, setQ] = useState('')
   const [allCats, setAllCats] = useState(false)
@@ -42,7 +42,7 @@ export default function FilterSheet({ open, onClose, applied, onApply, focus, co
     <Sheet
       open={open}
       onClose={onClose}
-      title="Filter alerts"
+      title="Filter updates"
       maxH="90%"
       right={<button className="text-[15px] font-semibold text-emerald" onClick={() => { onApply(DEFAULT_FILTERS); onClose() }}>Reset</button>}
       footer={
@@ -57,9 +57,12 @@ export default function FilterSheet({ open, onClose, applied, onApply, focus, co
           <div className="section-label">1. Priority</div>
           <div className="mt-2.5 flex flex-wrap gap-2">
             {[['all', 'All priorities'], ['high', 'High'], ['medium', 'Medium'], ['routine', 'Routine']].map(([k, l]) => (
-              <Opt key={k} on={d.priority === k} onClick={() => setD({ ...d, priority: k })}>{l}</Opt>
+              <Opt key={k} on={d.priority === k} onClick={() => setD({ ...d, priority: k })}>
+                {l}{counts && k !== 'all' ? ` · ${counts[k]}` : ''}
+              </Opt>
             ))}
           </div>
+          {counts && <p className="mt-2 text-[11.5px] text-slate2">Counts use the current company, time and category filters.</p>}
         </section>
 
         <section ref={refs.companies} className="scroll-mt-2 py-4">
@@ -109,6 +112,16 @@ export default function FilterSheet({ open, onClose, applied, onApply, focus, co
             {allCats ? <>Show fewer <ChevronUp size={15} /></> : <>Show all 17 categories <ChevronDown size={15} /></>}
           </button>
         </section>
+
+        {onEditThresholds && thresholds && (
+          <section className="py-4">
+            <div className="section-label">5. Price &amp; volume alerts</div>
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <p className="text-[13.5px] text-navy">Alert when volume is ≥{thresholds.volume_multiple}× the 20-day average or price moves ±{thresholds.price_move_pct}%.</p>
+              <button type="button" onClick={onEditThresholds} className="btn-ghost h-9 shrink-0 px-3 text-[13px]">Edit thresholds</button>
+            </div>
+          </section>
+        )}
       </div>
     </Sheet>
   )

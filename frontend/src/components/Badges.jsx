@@ -18,8 +18,8 @@ export function ModeBadge({ mode, asOf, compact = false }) {
 
 export function DataModePill({ mode }) {
   const map = {
-    LIVE_FEEDS: ['EOD Data', 'bg-emerald'],
-    PARTIAL: ['EOD · Partial', 'bg-[#F2B01E]'],
+    LIVE_FEEDS: ['Live filings', 'bg-emerald'],
+    PARTIAL: ['Filings · partial', 'bg-[#F2B01E]'],
     SIMULATED: ['Simulated data', 'bg-[#B54708]'],
     LOADING: ['Connecting…', 'bg-slate2 animate-pulsedot'],
   }

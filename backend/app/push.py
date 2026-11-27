@@ -145,13 +145,16 @@ def _company_items(sym: str, name: str, sector: str) -> tuple[list[dict], str]:
         except ValueError:
             continue
         cl = classify.classify(a)
+        cl["priority"], why = classify.explain(a, cl["category"])
+        if cl["method"] == "llm-fast":
+            why += " (category assigned by AI)"
         it = {
             "id": rag.doc_id(a["url"]), "kind": "announcement", "symbol": sym, "company": name, "sector": sector,
             "title": a["title"], "subject": a.get("subject"), "summary": a.get("summary"),
             "summary_source": a.get("summary_source") or ("screener.in auto-summary" if a.get("summary") else None),
             "datetime": dt.isoformat(), "url": a["url"], "feed": feed,
             **cl, "category_label": dict(classify.CATEGORIES).get(cl["category"], cl["category"]),
-            "simulated": False, "details": None,
+            "simulated": False, "details": None, "why": why,
         }
         if cl["category"] == "results" and c and cl["priority"] == "high":
             it["details"] = {"type": "results", **(results_card(sym, c, dt) or {})}
@@ -185,16 +188,22 @@ def _market_items(th: dict) -> tuple[list[dict], dict]:
                 "data_mode": "EOD", "feed": "Yahoo Finance", "url": f"https://finance.yahoo.com/quote/{sym}.NS",
                 "alert": True, "method": "threshold"}
         if abs(s["change_pct"]) >= pm:
+            hi = abs(s["change_pct"]) >= 2 * pm
             items.append({**base, "id": f"px-{sym}-{s['session_date']}", "kind": "market", "category": "price_movement",
                           "category_label": "Price movement",
-                          "priority": "high" if abs(s["change_pct"]) >= 2 * pm else "medium",
+                          "priority": "high" if hi else "medium",
+                          "why": f"Price moved {s['change_pct']:+.1f}%, beyond your ±{pm:g}% threshold"
+                                 + (f" (at least 2× the threshold, so High)" if hi else ""),
                           "title": f"{'Up' if s['change_pct'] > 0 else 'Down'} {abs(s['change_pct']):.1f}% at ₹{s['close']:,.2f}",
                           "summary": f"Moved beyond your ±{pm:g}% threshold · prev close ₹{s['prev_close']:,.2f}",
                           "details": {"type": "market", **s, "threshold": pm}})
         if s["volume_multiple"] and s["volume_multiple"] >= vm:
+            hi = s["volume_multiple"] >= 2 * vm
             items.append({**base, "id": f"vol-{sym}-{s['session_date']}", "kind": "market", "category": "volume_surge",
                           "category_label": "Volume surge",
-                          "priority": "high" if s["volume_multiple"] >= 2 * vm else "medium",
+                          "priority": "high" if hi else "medium",
+                          "why": f"Volume {s['volume_multiple']:.1f}× its 20-day average, above your {vm:g}× threshold"
+                                 + (" (at least 2× the threshold, so High)" if hi else ""),
                           "title": f"Volume {s['volume_multiple']:.1f}× its 20-day average",
                           "summary": f"{s['volume']:,} shares vs 20D avg {s['avg_volume_20d']:,} · close {s['change_pct']:+.1f}%",
                           "details": {"type": "market", **s, "threshold": vm}})
@@ -207,8 +216,57 @@ def _sample_items() -> list[dict]:
     out = []
     for r in rows:
         dt = now - timedelta(minutes=r.pop("minutes_ago"))
-        out.append({**r, "datetime": dt.isoformat(), "simulated": True, "feed": "SIMULATED"})
+        pr, why = classify.explain(r, r["category"])
+        out.append({**r, "priority": pr, "why": why, "datetime": dt.isoformat(), "simulated": True, "feed": "SIMULATED"})
     return out
+
+
+_GENERIC_TITLE = re.compile(
+    r"^(general updates?|updates?|disclosure under regulation|'?disclosure under regulation|outcome of board meeting|"
+    r"press release|intimation|announcement under regulation|.*has (submitted|informed) (to )?the exchange)", re.I)
+
+
+_ABBREV = re.compile(r"\b(mr|ms|mrs|dr|rs|no|ltd|pvt|co|inc|i\.e|e\.g|viz|w\.e\.f|st|sr|jr|inr)\.$", re.I)
+
+
+def _sentence(s: str, n: int = 120) -> str:
+    s = re.sub(r"\s+", " ", s or "").strip()
+    cut = s
+    for m in re.finditer(r"[.;]\s", s):
+        if not _ABBREV.search(s[: m.start() + 1]):
+            cut = s[: m.start() + 1]
+            break
+    return cut if len(cut) <= n else cut[: n - 1].rsplit(" ", 1)[0] + "…"
+
+
+def results_headline(d: dict) -> str | None:
+    """Direction-only sentence from comparable figures (same source, same basis, YoY)."""
+    m = {x["metric"]: x for x in d.get("metrics") or []}
+    sales = m.get("Revenue", {}).get("yoy")
+    prof = (m.get("EBITDA") or {}).get("yoy")
+    plabel = "operating profit"
+    if prof is None:
+        prof, plabel = (m.get("PAT") or {}).get("yoy"), "net profit"
+    if sales is None or prof is None:
+        return None
+    up = lambda v: "rose" if v > 0 else "fell" if v < 0 else "was flat"
+    if (sales > 0) == (prof > 0):
+        return f"Sales {up(sales)} and {plabel} {up(prof)} year on year."
+    return f"Sales {up(sales)}, but {plabel} {up(prof)} year on year."
+
+
+def plain_headline(it: dict) -> str:
+    d = it.get("details") or {}
+    if d.get("type") == "results" and d.get("metrics"):
+        h = results_headline(d)
+        if h:
+            return h
+    if d.get("type") == "management" and d.get("name"):
+        return f"{d['role'] + ': ' if d.get('role') else ''}{d['name']}"
+    title = re.sub(r"&#8377;", "₹", it.get("title") or "").strip(" '\"")
+    if _GENERIC_TITLE.search(title) and it.get("summary"):
+        return _sentence(it["summary"])
+    return _sentence(title, 140)
 
 
 def digest(thresholds: dict | None = None) -> dict:
@@ -247,6 +305,8 @@ def digest(thresholds: dict | None = None) -> dict:
         if it["kind"] == "announcement":
             it["alert"] = it["category"] in material and it["priority"] != "routine"
     items = [i for i in items if datetime.fromisoformat(i["datetime"]) >= cutoff]
+    for it in items:
+        it["headline"] = plain_headline(it)
     rank = {"high": 0, "medium": 1, "routine": 2}
     items.sort(key=lambda i: (rank[i["priority"]], -datetime.fromisoformat(i["datetime"]).timestamp()))
     mode = "SIMULATED" if simulated else ("PARTIAL" if failed else "LIVE_FEEDS")

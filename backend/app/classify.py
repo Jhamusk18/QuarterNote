@@ -90,25 +90,61 @@ def rule_category(text: str) -> str | None:
     return None
 
 
-def priority_for(cat: str, text: str) -> str:
-    p = BASE_PRIORITY.get(cat, "routine")
+BASE_REASON = {
+    "results": "Results filing",
+    "M&A": "Acquisition, merger, divestment or restructuring",
+    "management_change": "Board or management change",
+    "litigation": "Legal or regulatory matter",
+    "fund_raise": "Equity fund-raise or buyback (QIP, rights, preferential, buyback)",
+    "pledging": "Promoter pledge or encumbrance",
+    "credit_rating": "Credit rating update",
+    "dividend": "Dividend announcement",
+    "bonus_split": "Bonus issue or stock split",
+    "capex": "Capacity expansion or capex",
+    "insider_trading": "Insider or substantial-holding disclosure",
+    "earnings_call": "Earnings-call transcript filed",
+    "press_release": "Press release",
+    "investor_meetings": "Analyst or investor meeting schedule",
+    "agm_egm": "General meeting notice",
+    "postal_ballot": "Postal ballot or e-voting notice",
+    "unclassified": "Routine compliance filing",
+}
+
+
+def priority_rule(cat: str, text: str) -> tuple[str, str]:
+    """(priority, reason). The reason names the exact branch that set the priority, so the
+    "Why flagged" line in the app can never drift from the prioritisation logic."""
+    p, why = BASE_PRIORITY.get(cat, "routine"), BASE_REASON.get(cat, "Routine compliance filing")
     if cat == "management_change":
         if _SENIOR.search(text) and not _NOISE_MGMT.search(text):
-            return "high"
-        return "medium"
+            return "high", "Senior management change (CEO, CFO, MD, chair or whole-time director)"
+        return "medium", "Board or management change below the top roles"
     if cat == "earnings_call" and not re.search(r"transcript", text, re.I):
-        return "routine"
-    if cat == "litigation" and not re.search(r"insolvency|nclt|nclat|sebi|penalt|fraud|ban|suspend|warning|import alert|483", text, re.I):
-        return "medium"
+        return "routine", "Earnings-call schedule or recording, not a transcript"
+    if cat == "litigation":
+        if not re.search(r"insolvency|nclt|nclat|sebi|penalt|fraud|ban|suspend|warning|import alert|483", text, re.I):
+            return "medium", "Legal or regulatory matter without insolvency, SEBI, penalty or regulator-action terms"
+        return "high", "Legal matter mentioning insolvency, SEBI, a penalty or regulator action"
     if cat == "credit_rating" and re.search(r"downgrad|negative|watch", text, re.I):
-        return "high"
+        return "high", "Credit rating downgrade or negative watch"
     if cat == "press_release" and _BIG_PR.search(text):
-        return "medium"
+        return "medium", "Order, contract, acquisition, partnership or launch announced"
     if cat == "results" and re.search(r"presentation|newspaper|press release|fact ?sheet", text, re.I) and not re.search(r"outcome of board|financial result", text, re.I):
-        return "medium"
+        return "medium", "Results-related document (presentation or press release), not the results statement"
     if cat == "fund_raise" and not re.search(r"qip|qualified institution|rights|buy-?back|preferential|warrant", text, re.I):
-        return "medium"
-    return p
+        return "medium", "Debt or other fund-raising (not QIP, rights, preferential or buyback)"
+    return p, why
+
+
+def priority_for(cat: str, text: str) -> str:
+    return priority_rule(cat, text)[0]
+
+
+def explain(item: dict, cat: str) -> tuple[str, str]:
+    """Re-run the priority rule for a (possibly cached) classification, using the same text
+    that classify() used, and return (priority, reason)."""
+    text = f"{item.get('subject') or ''} {item.get('title') or ''} {item.get('summary') or ''}"
+    return priority_rule(cat, text)
 
 
 def classify(item: dict) -> dict:

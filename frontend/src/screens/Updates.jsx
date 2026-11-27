@@ -1,39 +1,41 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Search, SlidersHorizontal, Settings2, ChevronDown, ChevronRight, ArrowRight, Sparkles, ShieldCheck, Building2,
-  Bell, BarChart3, UserRound, AlertTriangle, RefreshCw, Zap, X, Inbox,
+  Search, SlidersHorizontal, ChevronDown, ChevronRight, ArrowRight, Sparkles, ShieldCheck, Building2,
+  Bell, BarChart3, UserRound, AlertTriangle, RefreshCw, X, Inbox,
 } from 'lucide-react'
 import { BrandRow } from '../components/Logo'
 import { DataModePill, ModeBadge } from '../components/Badges'
 import Sparkline from '../components/Sparkline'
 import FilterSheet from './FilterSheet'
-import FeedCard, { RoutineRow } from './FeedCard'
+import UpdateRow from './UpdateRow'
 import { api } from '../lib/api'
 import { useApp } from '../lib/ctx'
 import { DEFAULT_FILTERS, useLocal } from '../lib/store'
 import { applyFilters, isDefault, labels } from '../lib/filters'
 import { stamp, num2, pct } from '../lib/format'
 
-const PCARDS = [
-  ['high', 'HIGH', 'bg-hi-bg border-hi-bd text-hi-fg'],
-  ['medium', 'MEDIUM', 'bg-md-bg border-md-bd text-md-fg'],
-  ['routine', 'ROUTINE', 'bg-rt-bg border-rt-bd text-rt-fg'],
-]
+export const DISCLAIMER = 'Summaries are automated. Always check the filing. Not investment advice.'
+const PAGE = 12
 
-export default function Push() {
-  const { thresholds, followedSet, portfolio, companies, setThresholdsOpen, prefs, digest, reloadDigest } = useApp()
+export default function Updates() {
+  const { followedSet, portfolio, companies, setThresholdsOpen, thresholds, digest, reloadDigest, updatesScroll } = useApp()
   const { data, err, loading } = digest
   const [market, setMarket] = useState(null)
   const [filters, setFilters] = useLocal('filters', DEFAULT_FILTERS)
   const [sheet, setSheet] = useState({ open: false, focus: null })
-  const [showAll, setShowAll] = useState(false)
-  const [routineOpen, setRoutineOpen] = useState(false)
+  const [showAll, setShowAll] = useLocal('updates:showAll', false)
+  const [routineOpen, setRoutineOpen] = useLocal('updates:routineOpen', false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [text, setText] = useState('')
-  const load = () => reloadDigest()
+  const scroller = useRef(null)
+  const firstFilters = useRef(true)
+
   useEffect(() => { api.market().then(setMarket).catch(() => setMarket({ tiles: [], error: true })) }, [])
-  useEffect(() => { setShowAll(false); setRoutineOpen(filters.priority === 'routine') }, [filters])
+  useEffect(() => {
+    if (firstFilters.current) { firstFilters.current = false; return }
+    setShowAll(false); setRoutineOpen(filters.priority === 'routine')
+  }, [filters]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const items = data?.items || []
   const opts = { followed: portfolio.length ? followedSet : null, text }
@@ -43,27 +45,32 @@ export default function Push() {
   const visible = filters.priority === 'all' ? base : base.filter((i) => i.priority === filters.priority)
   const material = visible.filter((i) => i.priority !== 'routine')
   const routine = visible.filter((i) => i.priority === 'routine')
-  const alerts = visible.filter((i) => i.alert)
-  const shownMaterial = showAll ? material : material.slice(0, 5)
+  const shownMaterial = showAll ? material : material.slice(0, PAGE)
   const L = labels(filters)
   const active = !isDefault(filters)
   const openSheet = (focus = null) => setSheet({ open: true, focus })
+  const following = portfolio.length ? followedSet.size : 0
+
+  // Restore the reader's place once the list for the saved filters is rendered.
+  useLayoutEffect(() => {
+    if (data && scroller.current && updatesScroll.current) scroller.current.scrollTop = updatesScroll.current
+  }, [data]) // eslint-disable-line react-hooks/exhaustive-deps
+  const remember = () => { updatesScroll.current = scroller.current?.scrollTop || 0 }
 
   return (
-    <div className="h-full overflow-y-auto no-scrollbar">
+    <div ref={scroller} onScroll={remember} className="h-full overflow-y-auto no-scrollbar" data-testid="updates-scroller">
       <header className="bg-gradient-to-b from-[#E4F4EC] to-offwhite px-4 pt-[max(16px,env(safe-area-inset-top))]">
         <BrandRow right={<DataModePill mode={loading && !data ? 'LOADING' : data?.data_mode} />} />
         <div className="mt-4 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="text-[24px] font-extrabold leading-tight tracking-tight text-navy whitespace-nowrap">Today’s Intelligence</h1>
-            <p className="text-[14px] text-slate2">What changed across your portfolio and the market?</p>
-            <p className="mt-0.5 text-[12.5px] text-slate2">Last updated: {data ? stamp(data.generated_at) : '…'}{loading && data ? ' · refreshing' : ''}</p>
+            <h1 className="text-[24px] font-extrabold leading-tight tracking-tight text-navy">Company updates</h1>
+            <p className="text-[13.5px] text-slate2">Material disclosures from companies you follow.</p>
           </div>
           <div className="flex shrink-0 gap-2 pt-1">
-            <button aria-label="Search feed" onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) setText('') }} className="grid h-11 w-11 place-items-center rounded-full border border-line bg-surface shadow-card">
+            <button aria-label={searchOpen ? 'Close search' : 'Search updates'} onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) setText('') }} className="grid h-11 w-11 place-items-center rounded-full border border-line bg-surface shadow-card">
               {searchOpen ? <X size={19} /> : <Search size={19} />}
             </button>
-            <button aria-label="Filters" onClick={() => openSheet()} className="relative grid h-11 w-11 place-items-center rounded-full border border-line bg-surface shadow-card">
+            <button aria-label="Filters, priority and thresholds" onClick={() => openSheet()} className="relative grid h-11 w-11 place-items-center rounded-full border border-line bg-surface shadow-card">
               <SlidersHorizontal size={19} />
               {active && <span className="absolute right-0.5 top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald" />}
             </button>
@@ -72,39 +79,39 @@ export default function Push() {
         {searchOpen && (
           <div className="mt-3 flex items-center gap-2 rounded-xl border border-line bg-surface px-3 py-2.5 animate-fadein">
             <Search size={17} className="text-slate2" />
-            <input autoFocus value={text} onChange={(e) => setText(e.target.value)} placeholder="Search filings, companies, categories…" className="w-full bg-transparent text-[14px] outline-none" />
+            <input autoFocus value={text} onChange={(e) => setText(e.target.value)} placeholder="Search updates, companies, event types…" aria-label="Search updates" className="w-full bg-transparent text-[14px] outline-none" />
           </div>
         )}
 
-        <div className="mt-4 grid grid-cols-3 gap-2.5">
-          {PCARDS.map(([k, label, cls]) => {
-            const on = filters.priority === k
-            return (
-              <button key={k} onClick={() => setFilters({ ...filters, priority: on ? 'all' : k })}
-                className={`rounded-2xl border py-2.5 text-center transition ${cls} ${on ? 'ring-2 ring-offset-1 ring-current' : ''} ${filters.priority !== 'all' && !on ? 'opacity-55' : ''}`}>
-                <div className="text-[30px] font-extrabold leading-none tnum">{data ? counts[k] : '–'}</div>
-                <div className="mt-1 text-[12px] font-semibold tracking-wide text-[#142B3A]">{label}</div>
-              </button>
-            )
-          })}
-        </div>
-
-        <div className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-3 no-scrollbar">
-          {[['priority', L.priority, filters.priority !== 'all'], ['companies', L.companies, filters.companies.length > 0],
-            ['window', L.window, filters.window !== '24h'], ['categories', L.categories, filters.categories.length > 0]].map(([k, l, on]) => (
-            <button key={k} onClick={() => openSheet(k)}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13.5px] font-semibold ${on || k === 'priority' ? 'border-emerald text-navy' : 'border-line text-navy'} ${on ? 'bg-mint' : 'bg-surface'}`}>
-              {k === 'priority' && <SlidersHorizontal size={14} className="text-emerald" />}{l}<ChevronDown size={15} className="text-slate2" />
+        <div className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-2 no-scrollbar">
+          <button onClick={() => openSheet('companies')} className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald px-3.5 py-2 text-[13.5px] font-semibold text-navy ${filters.companies.length ? 'bg-mint' : 'bg-surface'}`}>
+            {filters.companies.length ? L.companies : `Following · ${following}`}<ChevronDown size={15} className="text-slate2" />
+          </button>
+          <button onClick={() => openSheet('window')} className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13.5px] font-semibold text-navy ${filters.window !== '24h' ? 'border-emerald bg-mint' : 'border-line bg-surface'}`}>
+            {L.window}<ChevronDown size={15} className="text-slate2" />
+          </button>
+          {filters.priority !== 'all' && (
+            <button onClick={() => openSheet('priority')} className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald bg-mint px-3.5 py-2 text-[13.5px] font-semibold text-navy">
+              {L.priority}<ChevronDown size={15} className="text-slate2" />
             </button>
-          ))}
+          )}
+          {filters.categories.length > 0 && (
+            <button onClick={() => openSheet('categories')} className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald bg-mint px-3.5 py-2 text-[13.5px] font-semibold text-navy">
+              {L.categories}<ChevronDown size={15} className="text-slate2" />
+            </button>
+          )}
+        </div>
+        <div className="pb-2 text-[12px] leading-snug text-slate2">
+          <span>FINN refreshed {data ? `${stamp(data.generated_at)} IST` : '…'}{loading && data ? ' · refreshing' : ''}</span>
+          <span className="block">{DISCLAIMER}</span>
         </div>
       </header>
 
-      <main className="space-y-3 px-3 pb-6">
+      <main className="space-y-2 px-3 pb-6">
         {err && (
           <div className="card flex items-center gap-3 p-3 text-[13px] text-hi-fg">
-            <AlertTriangle size={18} /> Couldn’t load the digest: {err}
-            <button onClick={load} className="ml-auto inline-flex items-center gap-1 font-semibold text-emerald"><RefreshCw size={14} />Retry</button>
+            <AlertTriangle size={18} /> Couldn’t load updates: {err}
+            <button onClick={() => reloadDigest()} className="ml-auto inline-flex items-center gap-1 font-semibold text-emerald"><RefreshCw size={14} />Retry</button>
           </div>
         )}
         {data?.data_mode === 'SIMULATED' && (
@@ -113,49 +120,39 @@ export default function Push() {
           </div>
         )}
 
-        <div className="flex items-center justify-between px-1 pt-1">
-          <div className="flex items-center gap-2 text-[13px] text-slate2">
-            {alerts.length > 0
-              ? <span className="inline-flex items-center gap-1 font-semibold text-[#C2410C]"><Zap size={14} />{alerts.length} triggered alert{alerts.length > 1 ? 's' : ''}</span>
-              : <span>{visible.length} update{visible.length === 1 ? '' : 's'}</span>}
-            <span className="text-[#B7C2BE]">·</span>
-            <span>Vol ≥{thresholds.volume_multiple}× · Price ±{thresholds.price_move_pct}%</span>
-          </div>
-          <button onClick={() => setThresholdsOpen(true)} className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-emerald">
-            <Settings2 size={14} /> Thresholds
-          </button>
-        </div>
+        {data && visible.length > 0 && (
+          <p className="px-1 text-[12.5px] text-slate2">
+            {visible.length} update{visible.length === 1 ? '' : 's'}
+            {filters.priority === 'all' && <> · <span className="font-semibold text-hi-fg">{counts.high} high</span> · <span className="font-semibold text-md-fg">{counts.medium} medium</span> · {counts.routine} routine</>}
+          </p>
+        )}
 
-        {!data && loading && [0, 1, 2].map((i) => <div key={i} className="card h-[132px] animate-pulse bg-surface" />)}
+        {!data && loading && [0, 1, 2, 3].map((i) => <div key={i} className="card h-[92px] animate-pulse bg-surface" />)}
 
         {data && !visible.length && (
-          <div className="card flex flex-col items-center px-6 py-8 text-center">
+          <div className="card flex flex-col items-center px-6 py-7 text-center">
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-mint text-emerald"><Inbox size={24} /></div>
-            <h3 className="mt-3 text-[16px] font-bold text-navy">Nothing matches these filters</h3>
-            <p className="mt-1 text-[13px] text-slate2">No filings or alerts in {L.window.toLowerCase()} for this selection. That’s good news, or try a wider window.</p>
-            <div className="mt-4 flex gap-2">
-              {filters.window !== '7d' && <button className="btn-ghost h-9 px-3 text-[13px]" onClick={() => setFilters({ ...filters, window: '7d' })}>Widen to 7 days</button>}
+            <h3 className="mt-3 text-[16px] font-bold text-navy">No matching updates</h3>
+            <p className="mt-1 text-[13px] text-slate2">Nothing from the companies you follow in {L.window.toLowerCase()} for this selection.</p>
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              {filters.window !== '7d' && filters.window !== '30d' && <button className="btn-ghost h-9 px-3 text-[13px]" onClick={() => setFilters({ ...filters, window: '7d' })}>Widen to 7 days</button>}
+              {filters.window !== '30d' && <button className="btn-ghost h-9 px-3 text-[13px]" onClick={() => setFilters({ ...filters, window: '30d' })}>Widen to 30 days</button>}
               {active && <button className="btn-primary h-9 px-3 text-[13px]" onClick={() => setFilters(DEFAULT_FILTERS)}>Clear filters</button>}
             </div>
           </div>
         )}
 
-        {shownMaterial.map((it) => <FeedCard key={it.id} it={it} compact={prefs.density === 'compact'} />)}
+        {shownMaterial.map((it) => <UpdateRow key={it.id} it={it} onOpen={remember} />)}
 
-        {material.length > 5 && (
-          <button onClick={() => setShowAll(!showAll)} className="flex w-full items-center justify-center gap-2 py-1.5 text-[16px] font-bold text-emerald">
-            {showAll ? 'Show fewer' : `View all ${visible.length} updates`} <ArrowRight size={18} className={showAll ? '-rotate-90' : ''} />
-          </button>
-        )}
-        {material.length <= 5 && material.length > 0 && routine.length > 0 && !routineOpen && (
-          <button onClick={() => { setRoutineOpen(true) }} className="flex w-full items-center justify-center gap-2 py-1 text-[15px] font-bold text-emerald">
-            View all {visible.length} updates <ArrowRight size={18} />
+        {material.length > PAGE && (
+          <button onClick={() => setShowAll(!showAll)} className="flex w-full items-center justify-center gap-2 py-1.5 text-[15px] font-bold text-emerald">
+            {showAll ? 'Show fewer' : `Show all ${material.length} material updates`} <ArrowRight size={17} className={showAll ? '-rotate-90' : ''} />
           </button>
         )}
 
         {routine.length > 0 && (
           <div className="card overflow-hidden">
-            <button onClick={() => setRoutineOpen(!routineOpen)} className="flex w-full items-center gap-3 px-3.5 py-3">
+            <button onClick={() => setRoutineOpen(!routineOpen)} aria-expanded={routineOpen} className="flex w-full items-center gap-3 px-3.5 py-3">
               <span className="grid h-8 w-8 place-items-center rounded-lg bg-rt-bg text-rt-fg"><Inbox size={16} /></span>
               <span className="flex-1 text-left">
                 <span className="block text-[14px] font-bold text-navy">{routine.length} routine update{routine.length > 1 ? 's' : ''}</span>
@@ -163,20 +160,21 @@ export default function Push() {
               </span>
               <ChevronRight size={18} className={`text-slate2 transition ${routineOpen ? 'rotate-90' : ''}`} />
             </button>
-            {routineOpen && <div className="divide-y divide-line border-t border-line">{routine.map((it) => <RoutineRow key={it.id} it={it} />)}</div>}
+            {routineOpen && <div className="space-y-1.5 border-t border-line bg-offwhite p-2">{routine.map((it) => <UpdateRow key={it.id} it={it} dense onOpen={remember} />)}</div>}
           </div>
         )}
 
-        <AskCard companies={companies} alerts={alerts.length ? alerts : material} />
+        <AskCard companies={companies} alerts={material} />
         <MarketGlance market={market} />
         <p className="px-2 pt-1 text-center text-[11px] leading-relaxed text-slate2">
-          Filings: {data ? [...new Set(Object.values(data.feeds || {}))].join(', ') || '—' : '…'} · Prices: Yahoo Finance EOD.
-          Not investment advice.
+          Filings: {data ? [...new Set(Object.values(data.feeds || {}))].join(', ') || '—' : '…'} · Prices: Yahoo Finance EOD ·
+          Alerts at Vol ≥{thresholds.volume_multiple}× · Price ±{thresholds.price_move_pct}%.
         </p>
       </main>
 
       <FilterSheet open={sheet.open} focus={sheet.focus} onClose={() => setSheet({ open: false, focus: null })}
-        applied={filters} onApply={setFilters} companies={portfolio.filter((c) => followedSet.has(c.symbol))} />
+        applied={filters} onApply={setFilters} companies={portfolio.filter((c) => followedSet.has(c.symbol))}
+        counts={counts} thresholds={thresholds} onEditThresholds={() => { setSheet({ open: false, focus: null }); setThresholdsOpen(true) }} />
     </div>
   )
 }
