@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>QuarterNote Product Brief</title>
+<style>
+@page { size: A4; margin: 11mm 12mm 10mm; }
+:root { --navy:#142B3A; --ink:#33475A; --muted:#6B7C88; --green:#0B7A55; --mint:#E6F3EC; --line:#D5E1DB; --blue:#1F6FD1; --amber:#8A5A00; --violet:#6B4FA0; --grey:#C3C8BE; }
+* { box-sizing: border-box; }
+body { margin:0; font-family: Inter, Arial, sans-serif; font-size: 8.4pt; line-height: 1.36; color: var(--ink); }
+.page { page-break-after: always; }
+.page:last-child { page-break-after: auto; }
+h1 { font-size: 17pt; margin: 0; color: var(--navy); letter-spacing: -0.2px; }
+h2 { font-size: 10.4pt; margin: 9px 0 3px; color: var(--navy); display:flex; gap:6px; align-items:baseline; border-top: 1.5px solid var(--navy); padding-top: 5px; }
+h2 .n { color: var(--green); }
+.action { font-weight: 700; color: var(--navy); margin: 0 0 4px; }
+p { margin: 0 0 4px; }
+a { color: var(--blue); text-decoration: none; }
+.top { display:flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid var(--green); padding-bottom: 5px; }
+.meta { font-size: 7.6pt; color: var(--muted); text-align: right; line-height: 1.45; }
+.lead { font-size: 9.2pt; font-weight: 600; color: var(--navy); margin: 6px 0 5px; }
+.quote { background: var(--mint); border-left: 3px solid var(--green); padding: 5px 9px; font-style: italic; color: var(--navy); margin-bottom: 4px; }
+.key { font-size: 7.4pt; color: var(--muted); }
+.t { font-weight: 700; font-size: 7pt; letter-spacing: .3px; white-space: nowrap; }
+.S { color: var(--green); } .A { color: var(--amber); } .T { color: var(--violet); }
+table { width: 100%; border-collapse: collapse; margin: 3px 0 5px; font-size: 7.7pt; }
+th { text-align: left; font-weight: 700; color: var(--navy); background: #EEF3F0; padding: 3px 5px; border-bottom: 1px solid var(--line); }
+td { padding: 3px 5px; border-bottom: 1px solid var(--line); vertical-align: top; }
+ul { margin: 2px 0 4px; padding-left: 13px; } li { margin-bottom: 2px; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.solgrid { display: grid; grid-template-columns: 1fr 172px; gap: 10px; align-items: start; }
+.shots { display:flex; gap:6px; }
+.shot { display:flex; flex-direction:column; align-items:center; gap:2px; }
+.shot img { width: 83px; height: 176px; object-fit: cover; object-position: top; border: 1px solid var(--line); border-radius: 7px; }
+.shot span { font-size: 6.6pt; color: var(--muted); text-align: center; }
+.two svg { max-height: 158px; }
+.cap { font-size: 6.8pt; color: var(--muted); margin-top: 1px; }
+svg text { font-family: Inter, Arial, sans-serif; }
+.box { border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+.foot { margin-top: 6px; font-size: 6.8pt; color: var(--muted); border-top: 1px solid var(--line); padding-top: 3px; display:flex; justify-content:space-between; }
+</style></head><body>
+
+<!-- PAGE 1 -->
+<div class="page">
+<div class="top">
+  <div><div class="key" style="font-weight:700;color:var(--green);letter-spacing:.6px">PRODUCT MANAGER ASSIGNMENT · OPTION B</div><h1>QuarterNote: explain a company announcement, and prove it</h1></div>
+  <div class="meta">Prototype: <a href="https://quarternote.onrender.com/updates">quarternote.onrender.com/updates</a><br>Code: <a href="https://github.com/Jhamusk18/QuarterNote">github.com/Jhamusk18/QuarterNote</a><br>Built on FINN, my earlier Indian equity research app · 27 Nov 2026</div>
+</div>
+<p class="lead">QuarterNote explains a company announcement in the format that event needs, and puts every figure one tap from its filing row. The next step is to test whether that gets investors to a correct answer faster.</p>
+<div class="quote">“When a company I follow makes an announcement, I want to understand what changed and find the evidence quickly. The details I need depend on the event. For earnings, I need to know which figures changed and whether they can be compared. For an acquisition, I need to know what has happened and what is still pending.”</div>
+<p class="key">Labels: <span class="t S">SOURCED</span> cited fact · <span class="t A">ASSUMPTION</span> planning estimate · <span class="t T">TEST</span> to be measured</p>
+
+<h2><span class="n">1</span> User and problem</h2>
+<p class="action">The work behind one update is real, and it changes by event.</p>
+<p><b>User:</b> a self-directed Indian equity investor with a 5–15 stock watchlist. They check a broker app most days and read results, but not full filings. When an alert arrives they open the exchange PDF, a screener table and the news, then decide whether to dig deeper.</p>
+<ul>
+<li><b>ITC results, Q1 FY27 (Apr–Jun 2026):</b> the filing says revenue and excise lines “are not strictly comparable with those of the previous periods”, and a newly consolidated subsidiary makes group results not comparable. A headline growth figure misleads unless the reader finds these notes. <span class="t S">SOURCED</span> <a href="https://nsearchives.nseindia.in/corporate/ITC_31072026162945_Results.pdf">ITC filing</a></li>
+<li><b>Tata Steel buying into APL Apollo Tubes (23 Nov 2026):</b> the deal and the completion of its first tranche (about 9.91%) came in separate filings; tranches 2–3 and the open offer still depend on approvals. <span class="t S">SOURCED</span> <a href="https://nsearchives.nseindia.in/corporate/NIDHIFADNAVIS_23112026073427_BSENSE.pdf">deal filing</a>, <a href="https://nsearchives.nseindia.in/corporate/NIDHIFADNAVIS_23112026201346_BSENSE_Reg30.pdf">completion filing</a></li>
+</ul>
+<p><b>Not yet proven:</b> how often investors struggle with this, and how much time QuarterNote saves. Both are hypotheses for the first test. <span class="t T">TEST</span></p>
+
+<h2><span class="n">2</span> Solution and design choices</h2>
+<p class="action">One journey; the layout changes with the investor’s question.</p>
+<div class="solgrid">
+<div>
+<p><b>Open update → understand what changed → verify the filing → ask a follow-up if needed.</b></p>
+<table>
+<tr><th style="width:17%">Event</th><th style="width:30%">Investor’s question</th><th>What the prototype shows</th></tr>
+<tr><td>ITC results</td><td>Which figures changed, and can they be compared?</td><td>Year-on-year changes, the filing’s comparability notes, and a filing-row view: each row as printed, its page (p.6), and how operating profit is calculated</td></tr>
+<tr><td>Tata Steel deal</td><td>What has happened, and what is still pending?</td><td>Deal facts with a status per step (completed, or approved but not completed), the conditions, and the page each fact comes from</td></tr>
+</table>
+<p><b>Evidence sits one tap behind every figure.</b> That interaction came from the clickable KPI tree I built during my internship, where tapping a number showed what it was built from. Figures are labelled verified, calculated from verified rows, or not verified. Follow-ups go to Research, which answers from company documents with page citations.</p>
+<p><b>Trading and recommendations are left out on purpose.</b> Recommendations could bring QuarterNote under SEBI’s investment advice and research rules, and both would dilute the one job I want to test.</p>
+</div>
+<div class="shots">
+<div class="shot"><img src="../docs/deck/assets/real-itc-row.png" alt="ITC filing row"><span>ITC: filing row, p.6</span></div>
+<div class="shot"><img src="../docs/deck/assets/real-ts-1.png" alt="Tata Steel deal facts"><span>Tata Steel: done vs pending</span></div>
+</div>
+</div>
+
+<h2><span class="n">3</span> Market and competitors</h2>
+<div class="two">
+<div>
+<p class="action">A large audience; a small, assumed first-year market.</p>
+<table>
+<tr><th>Level</th><th>Size</th><th>How I got it</th></tr>
+<tr><td>TAM <span class="t S">SOURCED</span></td><td><b>13.24 cr</b></td><td>Unique NSE-registered investors, 30 Jun 2026 (<a href="https://www.businesstoday.in/markets/ipo-corner/story/nse-ipo-26-crore-investor-accounts-and-3000-listed-companies-10-numbers-to-know-555977-2026-09-17">Business Today</a>). A broad audience proxy, not a market: many never pick stocks</td></tr>
+<tr><td>SAM <span class="t A">ASSUMPTION</span></td><td><b>66.2 lakh</b></td><td>13.24 cr × 5% who actively track individual stocks</td></tr>
+<tr><td>SOM yr 1 <span class="t A">ASSUMPTION</span></td><td><b>4,000 / 200</b></td><td>4 results seasons × 4,000 visits × 25% activation = 4,000 activated; 5% pay = 200</td></tr>
+</table>
+<p class="cap">Base still growing: ~2.1 cr new investors in FY26 (Apr 2025–Mar 2026), <a href="https://www.tribuneindia.com/news/business/despite-moderation-in-recent-months-stock-markets-added-2-1-cr-new-investors-in-fy26-nse-report">ANI / Tribune India</a>. <span class="t S">SOURCED</span></p>
+</div>
+<div>
+<p class="action">Same task today: “what changed in ITC’s results, and can it be compared?”</p>
+<table>
+<tr><th style="width:22%">Tool</th><th style="width:38%">How the investor does it</th><th>What is still left to them</th></tr>
+<tr><td><a href="https://www.screener.in/company/ITC/consolidated/">Screener.in</a></td><td>Compares standardised quarterly figures</td><td>Finding the comparability notes in the filing</td></tr>
+<tr><td><a href="https://www.nseindia.com/companies-listing/corporate-filings-announcements">NSE filings</a></td><td>Opens the original PDF</td><td>Locating the right rows and notes across pages</td></tr>
+<tr><td><a href="https://quartr.com">Quartr</a></td><td>Reads or hears the earnings call</td><td>Linking management’s words to filed figures</td></tr>
+</table>
+<p class="cap">Gaps are my judgment from using each tool. <b style="color:var(--navy)">Advantage to prove:</b> investors reach a correct, source-backed answer faster than with their usual tools. <span class="t T">TEST</span></p>
+</div>
+</div>
+<div class="foot"><span>QuarterNote Product Brief</span><span>Page 1 of 2</span></div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page">
+<h2 style="margin-top:0"><span class="n">4</span> First 1,000 users</h2>
+<div class="two">
+<div>
+<p class="action">Launch in a results season, so a first visit lands on a real update.</p>
+<p>Post real ITC-style analyses in investor communities, sponsor five finance newsletters, and add a share link to every update. <b>Activated</b> = reviewed one material update for a company they follow. <span class="t A">ASSUMPTION</span></p>
+<p>The biggest drop is activation (25%), so the first design work goes into making the first update easy to open and verify. Cash budget ₹25,000 → <b>₹25 per activated user</b>, <b>₹500 per paying user</b>.</p>
+</div>
+<svg viewBox="0 0 380 170" width="100%" role="img" aria-label="4,000 visits become about 50 paying users">
+  <text x="0" y="12" font-size="10.5" font-weight="700" fill="#142B3A">4,000 visits become about 50 paying users</text>
+  <text x="0" y="26" font-size="8" fill="#6B7C88">Planning estimates for the first results season (Jan 2027, proposed)</text>
+  <text x="0" y="50" font-size="8.5" fill="#33475A">Qualified visits</text>
+  <rect x="108" y="38" width="120" height="18" fill="#B9BFB3"/><text x="112" y="50" font-size="7.4" fill="#142B3A">Newsletters 2,000</text>
+  <rect x="229" y="38" width="72" height="18" fill="#CDD2C8"/><text x="232" y="50" font-size="6.8" fill="#142B3A">Communities 1,200</text>
+  <rect x="302" y="38" width="48" height="18" fill="#E0E3DC"/><text x="305" y="50" font-size="6.8" fill="#142B3A">Referral 800</text>
+  <text x="354" y="51" font-size="8.5" font-weight="700" fill="#142B3A">4,000</text>
+  <text x="0" y="82" font-size="8.5" font-weight="700" fill="#142B3A">Activated</text>
+  <rect x="108" y="70" width="60.5" height="18" fill="#1F6FD1"/><text x="174" y="83" font-size="8.5" font-weight="700" fill="#142B3A">1,000</text><text x="204" y="83" font-size="7.6" fill="#6B7C88">25% of visits</text>
+  <text x="0" y="114" font-size="8.5" fill="#33475A">Back next reporting cycle</text>
+  <rect x="108" y="102" width="18" height="18" fill="#B9BFB3"/><text x="132" y="115" font-size="8.5" font-weight="700" fill="#142B3A">300</text><text x="154" y="115" font-size="7.6" fill="#6B7C88">30% of activated</text>
+  <text x="0" y="146" font-size="8.5" fill="#33475A">Paying</text>
+  <rect x="108" y="134" width="3" height="18" fill="#B9BFB3"/><text x="117" y="147" font-size="8.5" font-weight="700" fill="#142B3A">50</text><text x="133" y="147" font-size="7.6" fill="#6B7C88">5% of activated</text>
+  <text x="0" y="166" font-size="7.2" fill="#6B7C88">Bar widths to scale against 4,000 visits · all inputs are assumptions</text>
+</svg>
+</div>
+
+<h2><span class="n">5</span> Revenue and unit economics</h2>
+<div class="two">
+<div>
+<p class="action">The core job stays free; depth is what someone might pay for.</p>
+<p><b>Free:</b> updates for followed companies, the event explanation and its filing evidence.<br><b>Pro, ₹199/month (proposed):</b> larger watchlist, more Research questions, guidance-vs-actuals tracking. <span class="t A">ASSUMPTION</span></p>
+<p><b>How the numbers fit (guesstimate):</b> ₹199 price − ₹50 AI and data cost = <b>₹149 a month</b> contribution. CAC per paying user = ₹25 ÷ paid conversion (5% → ₹500). Payback = ₹500 ÷ ₹149 ≈ <b>3.4 months</b>; it stays under six months unless conversion falls below ~3%. <span class="t A">ASSUMPTION</span></p>
+<p><b>How I would test them:</b> offer Pro at ₹149, ₹199 and ₹299 to users who return for a second reporting cycle and count paid sign-ups; log AI and data cost per active user for a month; measure conversion only after that second cycle. <span class="t T">TEST</span></p>
+</div>
+<svg viewBox="0 0 380 180" width="100%" role="img" aria-label="Payback in about 3.4 months at a 5% paid conversion">
+  <text x="0" y="12" font-size="10.5" font-weight="700" fill="#142B3A">Payback in about 3.4 months at 5% paid conversion</text>
+  <text x="0" y="26" font-size="8" fill="#6B7C88">Margin earned back per paying user (₹149 a month) vs cost to acquire one</text>
+  <g font-size="7.4" fill="#6B7C88">
+    <line x1="40" x2="270" y1="150" y2="150" stroke="#9AA6AE"/><text x="34" y="153" text-anchor="end">₹0</text>
+    <line x1="40" x2="270" y1="122" y2="122" stroke="#EDF1EF"/><text x="34" y="125" text-anchor="end">₹250</text>
+    <line x1="40" x2="270" y1="94" y2="94" stroke="#EDF1EF"/><text x="34" y="97" text-anchor="end">₹500</text>
+    <line x1="40" x2="270" y1="66" y2="66" stroke="#EDF1EF"/><text x="34" y="69" text-anchor="end">₹750</text>
+    <line x1="40" x2="270" y1="38" y2="38" stroke="#EDF1EF"/><text x="34" y="41" text-anchor="end">₹1,000</text>
+  </g>
+  <g fill="#C3C8BE">
+    <rect x="49" y="133.3" width="21" height="16.7"/><rect x="87" y="116.6" width="21" height="33.4"/><rect x="125" y="99.9" width="21" height="50.1"/>
+    <rect x="163" y="83.2" width="21" height="66.8"/><rect x="201" y="66.6" width="21" height="83.4"/><rect x="239" y="49.9" width="21" height="100.1"/>
+  </g>
+  <g font-size="7.4" fill="#6B7C88" text-anchor="middle"><text x="59.5" y="161">M1</text><text x="97.5" y="161">M2</text><text x="135.5" y="161">M3</text><text x="173.5" y="161">M4</text><text x="211.5" y="161">M5</text><text x="249.5" y="161">M6</text></g>
+  <line x1="40" x2="270" y1="56.7" y2="56.7" stroke="#9AA6AE" stroke-dasharray="3 3"/>
+  <line x1="40" x2="270" y1="94" y2="94" stroke="#1F6FD1" stroke-width="1.6"/>
+  <line x1="40" x2="270" y1="114.9" y2="114.9" stroke="#9AA6AE" stroke-dasharray="3 3"/>
+  <g font-size="7.6" fill="#142B3A">
+    <text x="276" y="56">3% pay · CAC ₹833</text><text x="276" y="65" fill="#6B7C88">payback 5.6 mo</text>
+    <text x="276" y="92" font-weight="700">5% pay · CAC ₹500</text><text x="276" y="101" font-weight="700" fill="#1F6FD1">payback 3.4 mo</text>
+    <text x="276" y="117">8% pay · CAC ₹313</text><text x="276" y="126" fill="#6B7C88">payback 2.1 mo</text>
+  </g>
+  <text x="0" y="176" font-size="7.2" fill="#6B7C88">Bars = cumulative margin per paying user · lines = CAC at each paid conversion · all assumptions</text>
+</svg>
+</div>
+
+<h2><span class="n">6</span> Regulation and risk</h2>
+<p class="action">The prototype already shows how it handles weak evidence; legal and data checks must happen before launch.</p>
+<table>
+<tr><th style="width:15%">Area</th><th style="width:40%">Already demonstrated in the prototype</th><th>Launch requirement</th></tr>
+<tr><td>SEBI rules</td><td>Facts and calculations only; no buy/sell calls</td><td>Qualified review of SEBI research and advice rules first</td></tr>
+<tr><td>Exchange data</td><td>Each update links to the original NSE filing</td><td>Check exchange terms; licence before commercial use</td></tr>
+<tr><td>Privacy, uploads</td><td>No sign-up; device-only preferences; PDF uploads</td><td>DPDP Act 2023 review; uploads private and deletable</td></tr>
+<tr><td>Missing evidence</td><td>Unchecked figures are labelled “not verified”</td><td>Keep the label; never fill a gap with an estimate</td></tr>
+<tr><td>Period mismatch</td><td>Shows “cannot compare” when periods differ</td><td>Extend the check to every event type</td></tr>
+<tr><td>AI errors</td><td>Research cites pages; facts kept apart from interpretation</td><td>Monthly audit of figure, period, units and basis</td></tr>
+</table>
+
+<h2><span class="n">7</span> Success metrics and next steps</h2>
+<p class="action">North star: weekly users who review a material update for a company they follow. It counts understanding of a real event, not app opens.</p>
+<div class="two">
+<table>
+<tr><th style="width:34%">Metric</th><th style="width:28%">Target</th><th>How measured</th></tr>
+<tr><td>Time to a correct, source-backed answer <span class="t T">TEST</span></td><td>Faster than usual tools; &lt;2 min</td><td>8 investors, comparable tasks in QuarterNote and their usual tools, order alternated</td></tr>
+<tr><td>Return at next reporting cycle <span class="t A">ASSUMPTION</span></td><td>30% of activated</td><td>Users back when the next results land</td></tr>
+<tr><td>Source opens <span class="t T">TEST</span></td><td>Tracked, no target</td><td>An open is not proof of understanding</td></tr>
+<tr><td>Audited accuracy <span class="t A">ASSUMPTION</span></td><td>98% of figures</td><td>Monthly audit against the cited row</td></tr>
+</table>
+<svg viewBox="-2 0 386 150" width="100%" role="img" aria-label="Each step must pass its gate before the next">
+  <text x="0" y="12" font-size="10.5" font-weight="700" fill="#142B3A">Each step must pass its gate before the next</text>
+  <g fill="none" stroke="#C9D3CF"><rect x="0" y="26" width="112" height="58" rx="6"/><rect x="134" y="26" width="112" height="58" rx="6"/><rect x="268" y="26" width="112" height="58" rx="6"/></g>
+  <g font-size="7.2" fill="#6B7C88"><text x="8" y="40">Dec 2026</text><text x="142" y="40">Jan–May 2027</text><text x="276" y="40">From May 2027</text></g>
+  <g font-size="9" font-weight="700" fill="#142B3A"><text x="8" y="55">Investor test</text><text x="142" y="55">Results-season pilot</text><text x="276" y="55">Test paid demand</text></g>
+  <g font-size="7.8" fill="#33475A"><text x="8" y="71">8 investors, timed tasks</text><text x="142" y="71">Return checked Apr–May</text><text x="276" y="71">₹149 / ₹199 / ₹299</text></g>
+  <g stroke="#9AA6AE"><line x1="112" x2="117" y1="55" y2="55"/><line x1="129" x2="134" y1="55" y2="55"/><line x1="246" x2="251" y1="55" y2="55"/><line x1="263" x2="268" y1="55" y2="55"/></g>
+  <polygon points="117,55 123,49 129,55 123,61" fill="#E1ECFA" stroke="#1F6FD1"/><polygon points="251,55 257,49 263,55 257,61" fill="#E1ECFA" stroke="#1F6FD1"/>
+  <g font-size="7.4" fill="#33475A" text-anchor="middle"><text x="123" y="100">Gate: faster</text><text x="123" y="110">and correct</text><text x="257" y="100">Gate: 30% return</text><text x="257" y="110">next cycle</text></g>
+  <text x="0" y="132" font-size="7.6" fill="#142B3A">Paid demand is tested only after users return at the next reporting cycle.</text>
+  <text x="0" y="144" font-size="7.6" fill="#142B3A">If fewer than 15% return after one season, I change the product before pricing it.</text>
+</svg>
+</div>
+<div class="foot"><span>Sources open beside each claim · prototype verified live on 27 Nov 2026</span><span>Page 2 of 2</span></div>
+</div>
+</body></html>
