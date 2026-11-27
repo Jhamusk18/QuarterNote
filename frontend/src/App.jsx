@@ -20,7 +20,7 @@ function Frame({ children }) {
 
 export default function App() {
   const loc = useLocation()
-  const showTabs = loc.pathname !== '/' && !loc.pathname.startsWith('/updates/')
+  const showTabs = loc.pathname !== '/'
   return (
     <AppProvider>
       <Frame>

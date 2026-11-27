@@ -1,6 +1,10 @@
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, FileText, Loader2 } from 'lucide-react'
 import { useApp } from '../lib/ctx'
+import { api } from '../lib/api'
+import EarningsReport from './EarningsReport'
+import DisclosureFacts from './DisclosureFacts'
 import { stamp } from '../lib/format'
 import { ModeBadge } from '../components/Badges'
 import { eventIcon } from './UpdateRow'
@@ -21,7 +25,7 @@ export function BackToUpdates() {
 }
 
 /** Shared header + timestamps + source actions for every update type. */
-export function DetailShell({ it, children, refreshedAt }) {
+export function DetailShell({ it, children, refreshedAt, verification }) {
   const Icon = eventIcon(it)
   const isMarket = it.kind === 'market'
   return (
@@ -37,6 +41,7 @@ export function DetailShell({ it, children, refreshedAt }) {
               <span className="text-slate2">{it.category_label}</span>
               {it.simulated && <span className="rounded-full bg-[#FFF1E6] px-1.5 text-[#B54708]">Simulated</span>}
               {it.historical && <span className="rounded-full bg-[#E8F1FF] px-1.5 text-[#1D4ED8]">Historical example · manually verified</span>}
+              {it.verified && !it.historical && <span className="rounded-full bg-rt-bg px-1.5 text-rt-fg">Manually verified</span>}
             </div>
             <h1 className="mt-1 text-[22px] font-extrabold leading-tight tracking-tight text-navy">{it.company}</h1>
             {it.period_label && <p className="text-[14px] font-semibold text-slate2">{it.period_label}</p>}
@@ -64,6 +69,7 @@ export function DetailShell({ it, children, refreshedAt }) {
             <div>Filed {stamp(it.datetime)} IST · via {it.feed}</div>
           )}
           {refreshedAt && <div>FINN refreshed {stamp(refreshedAt)} IST</div>}
+          {verification?.status === 'manually_verified' && <div className="text-navy/80">Checked: {verification.by}</div>}
           {!isMarket && it.title && it.title !== it.headline && <div className="text-navy/80">Filing title: {it.title}</div>}
           {it.url && it.url !== '#' && (
             <a href={it.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 pt-1 text-[14px] font-bold text-emerald">
@@ -80,18 +86,33 @@ export function DetailShell({ it, children, refreshedAt }) {
 export default function UpdateDetail() {
   const { id } = useParams()
   const { digest } = useApp()
-  const it = digest.data?.items?.find((x) => x.id === id)
+  const [res, setRes] = useState({ loading: true })
+  useEffect(() => {
+    let alive = true
+    setRes({ loading: true })
+    api.update(id).then((d) => alive && setRes({ d })).catch((e) => alive && setRes({ err: e.message }))
+    return () => { alive = false }
+  }, [id])
 
+  const d = res.d
+  const feedItem = digest.data?.items?.find((x) => x.id === id)
+  const it = d?.item || feedItem
   if (!it) {
     return (
       <div className="h-full overflow-y-auto">
         <header className="border-b border-line px-4 pb-2 pt-[max(12px,env(safe-area-inset-top))]"><BackToUpdates /></header>
         <div className="p-6 text-center text-[14px] text-slate2">
-          {digest.loading ? <span className="inline-flex items-center gap-2"><Loader2 size={16} className="animate-spin" />Loading update…</span>
-            : 'This update is not in the last 30 days of filings any more.'}
+          {res.loading ? <span className="inline-flex items-center gap-2"><Loader2 size={16} className="animate-spin" />Loading update…</span> : res.err}
         </div>
       </div>
     )
   }
-  return <DetailShell it={it} refreshedAt={digest.data?.generated_at} />
+  return (
+    <DetailShell it={it} refreshedAt={d?.refreshed_at || digest.data?.generated_at} verification={d?.earnings?.verification || d?.disclosure?.verification}>
+      {res.loading && <p className="inline-flex items-center gap-2 text-[13px] text-slate2"><Loader2 size={14} className="animate-spin" />Loading details…</p>}
+      {res.err && <p className="rounded-xl bg-[#EEF1F0] px-3 py-2 text-[13px] text-slate2"><span className="font-bold text-navy">Details unavailable.</span> {res.err} The original filing is linked below.</p>}
+      {d?.layout === 'earnings' && <EarningsReport d={d} />}
+      {d && d.layout !== 'earnings' && <DisclosureFacts d={d} />}
+    </DetailShell>
+  )
 }

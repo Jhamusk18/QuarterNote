@@ -408,7 +408,7 @@ def _resolved_url(item_id: str) -> tuple[str | None, str | None]:
     return None, None
 
 
-_AMOUNT = re.compile(r"(?:₹|rs\.?|inr)\s?[\d,]+(?:\.\d+)?\s*(?:crores?|cr\.?|lakhs?|million|billion)?", re.I)
+_AMOUNT = re.compile(r"(?<![a-z])(?:₹|rs\.|inr)\s?\d[\d,]*(?:\.\d+)?\s*(?:crores?|cr\.?|lakhs?|million|billion)?", re.I)
 _STATUS = re.compile(r"\b(completed|approved|proposed|executed|entered into|subject to|effective)\b", re.I)
 _NEXT = re.compile(r"\b(appeal|intends? to|will (?:file|challenge|take)|evaluating|next (?:date|hearing)|no material impact|impact)\b", re.I)
 
@@ -427,13 +427,19 @@ def passages(item_id: str, timeout: float = 20.0) -> dict:
     out = []
     for pno, txt in pages:
         flat = re.sub(r"\s+", " ", txt)
+        spans = []
         for kind, rx in (("amount", _AMOUNT), ("status", _STATUS), ("next_step", _NEXT)):
+            if sum(o["kind"] == kind for o in out) >= 3:
+                continue
             for m in rx.finditer(flat):
-                s = max(0, flat.rfind(". ", 0, m.start()) + 2)
+                if any(a <= m.start() < b for a, b in spans):
+                    continue
+                s = max(flat.rfind(". ", 0, m.start()) + 2, m.start() - 220, 0)
                 e = flat.find(". ", m.end())
-                snippet = flat[s: (e + 1 if e != -1 else min(len(flat), m.end() + 240))][:420]
-                if not any(o["excerpt"] == snippet for o in out):
-                    out.append({"kind": kind, "page": pno, "excerpt": snippet, "url": f"{url}#page={pno}"})
+                e = e + 1 if e != -1 and e - m.end() < 220 else min(len(flat), m.end() + 220)
+                snippet = ("…" if s > 0 and flat[s - 2: s] != ". " else "") + flat[s:e].strip() + ("" if flat[e - 1: e] == "." else "…")
+                spans.append((s, e))
+                out.append({"kind": kind, "page": pno, "excerpt": snippet, "url": f"{url}#page={pno}"})
                 if sum(o["kind"] == kind for o in out) >= 3:
                     break
     return {"state": "ok", "passages": out[:9], "pages": len(pages),

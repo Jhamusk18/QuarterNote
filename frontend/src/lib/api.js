@@ -20,6 +20,10 @@ export const api = {
     })
     return req(`/api/digest?${p}`)
   },
+  update: (id) => req(`/api/updates/${encodeURIComponent(id)}`),
+  historical: () => req('/api/updates/historical'),
+  passages: (id) => req(`/api/updates/${encodeURIComponent(id)}/passages`),
+  management: (id) => req(`/api/updates/${encodeURIComponent(id)}/management`),
   market: () => req('/api/market'),
   status: () => req('/api/status'),
   companies: () => req('/api/companies'),
