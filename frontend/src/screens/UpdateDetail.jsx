@@ -5,6 +5,7 @@ import { useApp } from '../lib/ctx'
 import { api } from '../lib/api'
 import EarningsReport from './EarningsReport'
 import DisclosureFacts from './DisclosureFacts'
+import TrendPanel from './TrendPanel'
 import { stamp } from '../lib/format'
 import { ModeBadge } from '../components/Badges'
 import { eventIcon } from './UpdateRow'
@@ -68,7 +69,7 @@ export function DetailShell({ it, children, refreshedAt, verification }) {
           ) : (
             <div>Filed {stamp(it.datetime)} IST · via {it.feed}</div>
           )}
-          {refreshedAt && <div>FINN refreshed {stamp(refreshedAt)} IST</div>}
+          {refreshedAt && <div>QuarterNote refreshed {stamp(refreshedAt)} IST</div>}
           {verification?.status === 'manually_verified' && <div className="text-navy/80">Checked: {verification.by}</div>}
           {!isMarket && it.title && it.title !== it.headline && <div className="text-navy/80">Filing title: {it.title}</div>}
           {it.url && it.url !== '#' && (
@@ -86,6 +87,7 @@ export function DetailShell({ it, children, refreshedAt, verification }) {
 export default function UpdateDetail() {
   const { id } = useParams()
   const { digest } = useApp()
+  const nav = useNavigate()
   const [res, setRes] = useState({ loading: true })
   useEffect(() => {
     let alive = true
@@ -111,6 +113,9 @@ export default function UpdateDetail() {
     <DetailShell it={it} refreshedAt={d?.refreshed_at || digest.data?.generated_at} verification={d?.earnings?.verification || d?.disclosure?.verification}>
       {res.loading && <p className="inline-flex items-center gap-2 text-[13px] text-slate2"><Loader2 size={14} className="animate-spin" />Loading details…</p>}
       {res.err && <p className="rounded-xl bg-[#EEF1F0] px-3 py-2 text-[13px] text-slate2"><span className="font-bold text-navy">Details unavailable.</span> {res.err} The original filing is linked below.</p>}
+      {d?.layout === 'earnings' && !it.simulated && (
+        <TrendPanel symbol={it.symbol} onAsk={(question) => nav('/research', { state: { symbol: it.symbol, name: it.company, question } })} />
+      )}
       {d?.layout === 'earnings' && <EarningsReport d={d} />}
       {d && d.layout !== 'earnings' && <DisclosureFacts d={d} />}
     </DetailShell>

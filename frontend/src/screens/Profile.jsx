@@ -16,8 +16,8 @@ const ROWS = [
   ['alerts', Bell, 'Alert preferences', 'Choose priority and category alerts'],
   ['saved', Bookmark, 'Saved research', 'Return to your saved questions and insights'],
   ['data', SlidersHorizontal, 'Appearance & data', 'Theme, EOD data and display settings'],
-  ['help', CircleHelp, 'Help & feedback', 'Get help using FINN'],
-  ['about', Info, 'About FINN', 'Version, sources and product information'],
+  ['help', CircleHelp, 'Help & feedback', 'Get help using QuarterNote'],
+  ['about', Info, 'About QuarterNote', 'Version, sources and product information'],
 ]
 
 function StatusRow({ ok, label, detail }) {
@@ -54,7 +54,7 @@ export default function Profile() {
       <header className="bg-[#E4F2EB] px-4 pb-14 pt-[max(16px,env(safe-area-inset-top))]">
         <BrandRow right={<span className="inline-flex items-center gap-2 rounded-full border border-[#BFE6D0] bg-mint px-3.5 py-1.5 text-[13px] font-semibold text-forest"><span className="h-2 w-2 rounded-full bg-emerald" />Guest</span>} />
         <h1 className="mt-6 text-[30px] font-extrabold text-navy">Profile</h1>
-        <p className="text-[14.5px] text-slate2">Your FINN preferences, saved on this device</p>
+        <p className="text-[14.5px] text-slate2">Your QuarterNote preferences, saved on this device</p>
       </header>
       <main className="-mt-10 space-y-4 px-3.5 pb-6">
         <section className="card flex items-center gap-4 p-5">
@@ -84,7 +84,7 @@ export default function Profile() {
 
         <section className="card p-4">
           <div className="section-label">Session</div>
-          <p className="mt-2 text-[14.5px] text-navy">You are exploring FINN as a guest.</p>
+          <p className="mt-2 text-[14.5px] text-navy">You are exploring QuarterNote as a guest.</p>
           <p className="text-[12.5px] text-slate2">Preferences are saved on this device only. No account, no cloud sync.</p>
         </section>
         <button onClick={() => nav('/')} className="h-12 w-full rounded-2xl border border-line bg-surface text-[15px] font-semibold text-forest shadow-card">Exit guest mode</button>
@@ -118,7 +118,7 @@ export default function Profile() {
 
       <Sheet open={panel === 'saved'} onClose={() => setPanel(null)} title="Saved research">
         <div className="space-y-2.5 px-5 py-3">
-          {!saved.length && <p className="py-6 text-center text-[13.5px] text-slate2">Nothing saved yet. Tap the bookmark on any FINN answer in Research.</p>}
+          {!saved.length && <p className="py-6 text-center text-[13.5px] text-slate2">Nothing saved yet. Tap the bookmark on any QuarterNote answer in Research.</p>}
           {saved.map((s) => (
             <div key={s.key} className="rounded-xl border border-line p-3">
               <div className="flex items-center justify-between text-[11.5px] text-slate2"><span className="pill bg-mint text-forest">{s.symbol}</span>{stamp(s.at)}</div>
@@ -147,7 +147,7 @@ export default function Profile() {
           </div>
           <div className="mt-5 section-label">Data sources · live status</div>
           {!st && <p className="py-3 text-[13px] text-slate2">Checking…</p>}
-          {st?.error && <p className="py-3 text-[13px] text-hi-fg">Couldn’t reach the FINN server.</p>}
+          {st?.error && <p className="py-3 text-[13px] text-hi-fg">Couldn’t reach the QuarterNote server.</p>}
           {st && !st.error && (
             <div className="mt-1 divide-y divide-line">
               <StatusRow ok={st.exchanges?.nse?.ok} label="NSE corporate announcements" detail={st.exchanges?.nse?.ok ? 'Live exchange feed (primary)' : st.exchanges?.nse?.detail} />
@@ -160,31 +160,31 @@ export default function Profile() {
             </div>
           )}
           <div className="mt-5 section-label">Device data</div>
-          <button onClick={() => { Object.keys(localStorage).filter((k) => k.startsWith('finn:')).forEach((k) => localStorage.removeItem(k)); window.location.href = '/' }} className="mt-2 text-[13.5px] font-semibold text-hi-fg">Clear all FINN data on this device</button>
+          <button onClick={() => { Object.keys(localStorage).filter((k) => k.startsWith('finn:')).forEach((k) => localStorage.removeItem(k)); window.location.href = '/' }} className="mt-2 text-[13.5px] font-semibold text-hi-fg">Clear all QuarterNote data on this device</button>
         </div>
       </Sheet>
 
       <Sheet open={panel === 'help'} onClose={() => { setPanel(null); setSent(false) }} title="Help & feedback">
         <div className="space-y-3 px-5 py-3 text-[13.5px] leading-relaxed text-navy">
           {[
-            ['How does FINN rank filings?', 'Every NSE filing is classified into 17 categories (rules first, a cheap AI model only for ambiguous ones). Results, M&A, senior management changes, litigation and fund raises are High; routine compliance paperwork is collapsed.'],
+            ['How does QuarterNote rank filings?', 'Every NSE filing is classified into 17 categories (rules first, a cheap AI model only for ambiguous ones). Results, M&A, senior management changes, litigation and fund raises are High; routine compliance paperwork is collapsed.'],
             ['What do EOD, LIVE and Simulated mean?', 'EOD = end-of-day close from the last completed session. LIVE = intraday index quotes during market hours (may be delayed). Simulated = demo data shown only if live feeds fail. It is always labelled.'],
             ['Where do Research answers come from?', 'Only the company’s own documents: annual reports, results, earnings-call transcripts and investor presentations, plus standardised financials compiled from exchange filings. Every claim links to its page.'],
-            ['What is Guidance vs Actuals?', 'FINN reads the last four earnings calls, extracts each numerical promise, and checks it against what was later reported: Delivered, Partially delivered, Missed or Pending.'],
+            ['What is Guidance vs Actuals?', 'QuarterNote reads the last four earnings calls, extracts each numerical promise, and checks it against what was later reported: Delivered, Partially delivered, Missed or Pending.'],
           ].map(([q, a]) => <details key={q} className="rounded-xl border border-line p-3"><summary className="cursor-pointer font-semibold">{q}</summary><p className="mt-1.5 text-slate2">{a}</p></details>)}
           <div className="section-label pt-2">Send feedback</div>
           {sent ? <p className="rounded-xl bg-mint p-3 text-forest">Thanks! Saved on this device ({fb.length} note{fb.length > 1 ? 's' : ''}). This prototype has no feedback server.</p> : (
             <>
-              <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={3} placeholder="What would make FINN more useful?" className="w-full rounded-xl border border-line p-3 outline-none focus:border-emerald" />
+              <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={3} placeholder="What would make QuarterNote more useful?" className="w-full rounded-xl border border-line p-3 outline-none focus:border-emerald" />
               <button disabled={!draft.trim()} onClick={() => { setFb([{ text: draft, at: new Date().toISOString() }, ...fb]); setDraft(''); setSent(true) }} className="btn-primary h-11 w-full">Save feedback</button>
             </>
           )}
         </div>
       </Sheet>
 
-      <Sheet open={panel === 'about'} onClose={() => setPanel(null)} title="About FINN">
+      <Sheet open={panel === 'about'} onClose={() => setPanel(null)} title="About QuarterNote">
         <div className="space-y-3 px-5 py-4 text-[13.5px] leading-relaxed text-navy">
-          <div><div className="text-[22px] font-black text-[#0B4A35]">FINN <span className="text-[13px] font-semibold text-slate2">v0.2.0 · prototype</span></div>
+          <div><div className="text-[22px] font-black text-[#0B4A35]">QuarterNote <span className="text-[13px] font-semibold text-slate2">v0.2.0 · prototype</span></div>
             <div className="font-semibold">Intelligence That Drives Informed Investment Decisions.</div></div>
           <p className="text-slate2">Updates filters the firehose of exchange filings and EOD moves down to what matters for your portfolio. Research answers research questions strictly from primary documents, and holds management accountable for what it guided.</p>
           <div className="section-label">Data sources</div>

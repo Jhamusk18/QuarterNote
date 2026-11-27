@@ -25,7 +25,7 @@ export default function Splash() {
       <Wave />
       <div className="relative z-10 flex flex-1 flex-col items-center px-6 pt-14 text-center">
         <LogoTile size={104} className="drop-shadow-lg" />
-        <h1 className="mt-4 text-[64px] font-black leading-none tracking-tight text-[#0B4A35]">FINN</h1>
+        <h1 className="mt-4 text-[64px] font-black leading-none tracking-tight text-[#0B4A35]">QuarterNote</h1>
         <p className="mt-3 text-[11px] font-bold tracking-[0.2em] whitespace-nowrap text-navy">FINANCIAL INVESTMENT INTELLIGENCE</p>
         <div className="mt-5 h-1.5 w-14 rounded-full bg-[#2FD08A]" />
         <h2 className="mt-5 text-[25px] font-extrabold leading-[1.18] text-navy">
@@ -49,9 +49,9 @@ export default function Splash() {
 
         <div className="mt-auto w-full pb-[118px] pt-8">
           <button onClick={() => nav('/updates')} className="btn-primary h-14 w-full text-[17px] shadow-[0_10px_24px_rgba(13,147,103,0.35)]">
-            Explore FINN <ArrowRight size={20} />
+            Explore QuarterNote <ArrowRight size={20} />
           </button>
-          <p className="mt-3 text-[12px] text-slate2">No sign-up needed · Guest mode · FINN v0.2.0</p>
+          <p className="mt-3 text-[12px] text-slate2">No sign-up needed · Guest mode · QuarterNote v0.2.0</p>
         </div>
       </div>
       <Wave flip />

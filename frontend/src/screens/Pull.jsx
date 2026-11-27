@@ -199,7 +199,7 @@ export default function Pull() {
   const setMsgs = (fn) => setThreads((t) => ({ ...t, [sym]: fn(t[sym] || []) }))
   const patch = (id, p) => setThreads((t) => ({ ...t, [sym]: (t[sym] || []).map((m) => (m.id === id ? { ...m, ...p } : m)) }))
 
-  // prefill from Updates (detail page / Ask FINN)
+  // prefill from Updates (detail page / Ask QuarterNote)
   useEffect(() => {
     const st = loc.state
     if (st?.symbol) {
@@ -356,7 +356,7 @@ export default function Pull() {
           </button>
           <div className="h-7 w-px bg-line" />
           <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && send()}
-            placeholder={msgs.length ? 'Ask FINN a follow-up…' : 'Ask FINN about this company…'} className="min-w-0 flex-1 bg-transparent px-1 text-[15px] outline-none placeholder:text-[#8A97A3]" />
+            placeholder={msgs.length ? 'Ask QuarterNote a follow-up…' : 'Ask QuarterNote about this company…'} className="min-w-0 flex-1 bg-transparent px-1 text-[15px] outline-none placeholder:text-[#8A97A3]" />
           <button disabled={!input.trim() || busy} onClick={() => send()} aria-label="Send" className="grid h-11 w-12 shrink-0 place-items-center rounded-2xl bg-forest text-white disabled:opacity-40">
             {busy ? <Loader2 size={19} className="animate-spin" /> : <Send size={19} />}
           </button>

@@ -32,7 +32,7 @@ export default function ThresholdsSheet() {
         <button className="btn-primary h-12 flex-[1.6]" onClick={() => { setThresholds(d); close() }}>Save thresholds</button>
       </div>}>
       <div className="space-y-5 px-5 py-4">
-        <p className="text-[12.5px] text-slate2">You decide what “unusual” means. FINN checks every portfolio stock’s completed end-of-day bar against these rules. Saved on this device.</p>
+        <p className="text-[12.5px] text-slate2">You decide what “unusual” means. QuarterNote checks every portfolio stock’s completed end-of-day bar against these rules. Saved on this device.</p>
         <div className="flex items-center justify-between">
           <div><div className="text-[15px] font-bold text-navy">Volume spike</div><div className="text-[12px] text-slate2">Day volume ≥ N× its 20-day average</div></div>
           <Stepper value={d.volume_multiple} step={0.5} min={1} max={10} suffix="×" onChange={(v) => setD({ ...d, volume_multiple: v })} />

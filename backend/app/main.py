@@ -1,4 +1,4 @@
-"""FINN API + static frontend (single service)."""
+"""QuarterNote API + static frontend (single service)."""
 import json
 import re
 from datetime import datetime
@@ -13,7 +13,7 @@ from . import config, llm, push, rag, research, updates
 from .companies import ADHOC, ALL_KNOWN, PORTFOLIO, as_dicts
 from .connectors import exchanges, prices, screener
 
-app = FastAPI(title="FINN API", version="0.2.0")
+app = FastAPI(title="QuarterNote API", version="0.2.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 

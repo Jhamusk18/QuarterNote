@@ -5,7 +5,7 @@ import { inr, pct } from '../lib/format'
 const KIND = {
   reported: ['Reported', 'bg-[#E8F1FF] text-[#1D4ED8]', Quote],
   calculated: ['Calculated', 'bg-[#F1ECFF] text-[#6D28D9]', Calculator],
-  interpretation: ['FINN view', 'bg-mint text-forest', Sparkles],
+  interpretation: ['QuarterNote view', 'bg-mint text-forest', Sparkles],
 }
 
 export function Cite({ id, sources }) {
@@ -51,7 +51,7 @@ export function AnswerBody({ r, onSave, saved }) {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <span className="text-[15px] font-extrabold text-forest">FINN:</span>
+        <span className="text-[15px] font-extrabold text-forest">QuarterNote:</span>
         <div className="flex items-center gap-1.5">
           <span className={`pill ${r.mode === 'ai' ? 'bg-mint text-forest' : 'bg-[#FFF6E0] text-md-fg'}`}>
             {r.mode === 'ai' ? 'AI · grounded' : r.mode === 'extractive' ? 'Evidence only · AI off' : 'No evidence'}

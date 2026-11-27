@@ -72,7 +72,7 @@ function FilingRowSheet({ metric, e, cmp, onClose }) {
               <dt className="text-slate2">Basis</dt><dd>{st.basis}</dd>
               {cols.map((c) => (<FragmentRow key={c} k={c === 'cur' ? 'This period' : 'Compared with'} v={`${st.columns[c].period} · “${st.columns[c].printed}”`} />))}
             </dl>
-            {metric.formula && <p className="text-[12.5px]"><span className="font-bold">How FINN calculates it:</span> {metric.formula}</p>}
+            {metric.formula && <p className="text-[12.5px]"><span className="font-bold">How QuarterNote calculates it:</span> {metric.formula}</p>}
             <div className="overflow-x-auto rounded-xl border border-line">
               <table className="w-full text-[12.5px] tabular-nums">
                 <caption className="sr-only">Rows as printed in the filing</caption>
@@ -149,7 +149,7 @@ function MetricRow({ m, cmp, open, onToggle, onFiling, unit, tracking, onTrack }
               {tracking ? <><PinOff size={15} />Stop tracking {m.label.toLowerCase()}</> : <><Pin size={15} />Track {m.label.toLowerCase()}</>}
             </button>
           )}
-          {onTrack && !tracking && <p className="text-[11.5px] text-slate2">FINN will show this figure next to the same metric in the next comparable release, with both sources.</p>}
+          {onTrack && !tracking && <p className="text-[11.5px] text-slate2">QuarterNote will show this figure next to the same metric in the next comparable release, with both sources.</p>}
         </div>
       )}
     </li>
