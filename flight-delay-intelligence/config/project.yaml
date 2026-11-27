@@ -1,0 +1,12 @@
+# Single source of truth for choices shared across phases.
+period: {start: "2022-01", end: "2023-12"}
+targets:
+  classification: "ArrDel15"        # arrival delay >= 15 min (BTS definition)
+  regression: "ArrDelay"            # minutes; scope decided in Phase 3
+prediction:
+  horizon_hours: 2                  # predictions are made at sched_dep - 2h
+  weather_tolerance_hours: 3        # max age of an as-of weather observation
+split:                              # chronological (proposed; finalised in Phase 3)
+  train: ["2022-01-01", "2023-06-30"]
+  validation: ["2023-07-01", "2023-09-30"]
+  test: ["2023-10-01", "2023-12-31"]

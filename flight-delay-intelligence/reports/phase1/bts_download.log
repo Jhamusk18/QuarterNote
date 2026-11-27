@@ -1,0 +1,16 @@
+[skip] bts_2022_01.parquet
+[ok]   bts_2022_02.parquet: 495,713 rows, 24.2 MB zip
+[ok]   bts_2022_03.parquet: 564,853 rows, 27.9 MB zip
+[ok]   bts_2022_04.parquet: 556,502 rows, 27.7 MB zip
+[ok]   bts_2022_05.parquet: 578,819 rows, 28.7 MB zip
+[ok]   bts_2022_06.parquet: 577,283 rows, 28.8 MB zip
+[ok]   bts_2022_07.parquet: 594,957 rows, 29.6 MB zip
+[ok]   bts_2022_08.parquet: 589,810 rows, 29.0 MB zip
+[ok]   bts_2022_09.parquet: 557,494 rows, 27.2 MB zip
+[ok]   bts_2022_10.parquet: 572,287 rows, 27.9 MB zip
+[ok]   bts_2022_11.parquet: 546,410 rows, 27.1 MB zip
+[ok]   bts_2022_12.parquet: 557,095 rows, 27.9 MB zip
+[ok]   bts_2023_01.parquet: 538,837 rows, 27.1 MB zip
+[ok]   bts_2023_02.parquet: 502,749 rows, 24.7 MB zip
+[ok]   bts_2023_03.parquet: 580,322 rows, 29.0 MB zip
+[ok]   bts_2023_04.parquet: 561,441 rows, 28.0 MB zip

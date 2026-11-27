@@ -1,0 +1,8 @@
+# Data is reproducible from src/ scripts; never commit it (GBs, and redistributable from source)
+data/raw/
+data/interim/
+data/processed/
+*.parquet
+*.zip
+__pycache__/
+.ipynb_checkpoints/

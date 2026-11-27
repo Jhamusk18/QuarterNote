@@ -1,0 +1,7 @@
+# Phase 1 (acquisition & integration)
+pandas>=2.2
+pyarrow>=15
+requests>=2.31
+timezonefinder>=6.5
+# Later phases (added as each stage is built)
+# scikit-learn, xgboost, shap, matplotlib, seaborn, streamlit

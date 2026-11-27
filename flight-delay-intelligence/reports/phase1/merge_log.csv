@@ -1,0 +1,2 @@
+file,rows,no_origin_tz,dst_ambiguous,dst_nonexistent,origin_wx_match_pct,dest_wx_match_pct,origin_obs_age_median_min
+bts_2022_07.parquet,594957,145,0,0,99.919,99.892,26.0
