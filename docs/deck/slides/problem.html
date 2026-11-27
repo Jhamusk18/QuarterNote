@@ -1,45 +1,65 @@
 <section id="problem" data-transition="fade">
 <div class="head" style="--i:0">
-<p class="eyebrow">QUARTERNOTE · THE PROBLEM, THE PRODUCT, THE MARKET · 1 / 2</p>
-<h2 class="title">When a company I follow announces something, I can’t quickly tell what changed, whether it matters, or where to check it.</h2>
+<p class="eyebrow">QUARTERNOTE · PROBLEM, PRODUCT, MARKET · 1 / 2</p>
+<h2 class="title">“A company I own just announced something. What changed?”</h2>
 </div>
-<div class="row">
-<div class="card" style="--i:1">
-<h3>The user and the pain</h3>
-<p class="t"><b>Self-directed investor, 5–15 NSE stocks.</b> Pieces each update together from PDFs, broker alerts, Screener and WhatsApp.</p>
-<div class="big"><p class="n">117</p><p class="l">filings a month for a 10-stock watchlist. Only <b>1 in 6</b> is material. <span class="d">Data</span></p></div>
-<p class="t"><b>Why now:</b> 13.24 cr NSE investors, 2.1 cr new in FY26 <span class="d">Data</span>, most with no research team.</p>
+<div class="g1">
+<div class="p" style="--i:1">
+<h3>117 filings a month. Only 19 matter.</h3>
+<svg width="560" height="168" viewBox="0 0 560 168" aria-label="Waffle chart: 117 filings a month for a 10-stock watchlist, 19 of them material"><defs><pattern id="wg" width="28" height="28" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="22" height="22" rx="4" fill="#0B7A55"/></pattern><pattern id="wl" width="28" height="28" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="22" height="22" rx="4" fill="#D6E3DD"/></pattern></defs><rect x="0" y="0" width="532" height="28" fill="url(#wg)"/><rect x="532" y="0" width="28" height="28" fill="url(#wl)"/><rect x="0" y="28" width="560" height="112" fill="url(#wl)"/><rect x="0" y="140" width="476" height="28" fill="url(#wl)"/></svg>
+<div class="legend"><p class="cap"><span class="gr">■</span> material (19)</p><p class="cap"><span style="color:#B9CCC4">■</span> routine (98)</p></div>
+<p class="cap">A 10-stock watchlist, from our live NSE pull: 210 filings, 18 companies, 30 days <span class="d">Data</span></p>
 </div>
-<div class="card" style="--i:2">
-<h3>The prototype</h3>
-<p class="flow">Update → read → chart → source page</p>
-<p class="t"><b>Format follows the question:</b> trends for results, a timeline for deals, sizing for legal orders.</p>
-<p class="t"><b>Every number is tagged</b> and one tap from its filing page.</p>
-<p class="t"><b>AI explains, code calculates.</b> Live on NSE data. <b>Left out:</b> buy/sell calls, trading.</p>
+<div class="p phone" style="--i:2">
+<img src="/_blob/66d492fd073cd8323dc0c0797b0e3ec7" alt="QuarterNote prototype: Infosys results analysis with QuarterNote’s read and an 8-quarter revenue, profit and margin chart" style="width:300px;height:640px;object-fit:contain;border-radius:22px">
+<p class="cap"><b>The prototype:</b> finding → chart → source</p>
 </div>
-<div class="card" style="--i:3">
+<div class="p" style="--i:3">
 <h3>Market</h3>
-<div class="kv">
-<p class="k">TAM</p><p class="v"><b>13.24 cr</b> unique NSE investors <span class="d">Data</span></p>
-<p class="k">SAM</p><p class="v"><b>66.2 lakh</b>, the 5% who track individual stocks <span class="a">Assumption</span></p>
-<p class="k">SOM</p><p class="v"><b>4,000</b> activated and <b>200</b> paying in year 1 <span class="a">Assumption</span></p>
+<div class="mk">
+<svg width="220" height="220" viewBox="0 0 220 220" aria-label="Nested circles for TAM, SAM and SOM"><circle cx="110" cy="110" r="108" fill="#E3F2EB"/><circle cx="110" cy="152" r="66" fill="#BFE3D1"/><circle cx="110" cy="192" r="26" fill="#0B7A55"/></svg>
+<div class="mk-l">
+<div class="mk-r"><p class="num">13.24 cr</p><p class="cap">TAM · NSE investors <span class="d">Data</span></p></div>
+<div class="mk-r"><p class="num">66.2 lakh</p><p class="cap">SAM · track stocks <span class="a">Assumption</span></p></div>
+<div class="mk-r"><p class="num">4,000 → 200</p><p class="cap">SOM · active → paid, yr 1</p></div>
 </div>
-<p class="t"><b>Trends:</b> 7.2 cr new SIP accounts in FY26; individuals own 18.7% of NSE market value <span class="d">Data</span>.</p>
 </div>
 </div>
-<div class="band" style="--i:4">
-<h3>Competitors: everyone gives data or opinions; nobody starts from my alert and shows the evidence</h3>
-<table>
-<tr><th style="width:24%;text-align:left">Player</th><th style="width:30%;text-align:left">Good at</th><th style="text-align:left">Where QuarterNote wins</th></tr>
-<tr><td>Screener.in, Trendlyne</td><td>Clean financial tables</td><td>Starts from the announcement and explains the change</td></tr>
-<tr><td>Broker apps (Zerodha, Groww)</td><td>Alerts where people trade</td><td>Analysis, not a link to a 40-page PDF</td></tr>
-<tr><td>ChatGPT, Perplexity</td><td>Fast, plain answers</td><td>Every figure traced to a filing page; no invented numbers</td></tr>
-<tr><td>WhatsApp, finfluencers</td><td>Speed and simple language</td><td>Verifiable, and not advice</td></tr>
-</table>
+<div class="p" style="--i:4">
+<h3>Why now</h3>
+<div class="stat">
+<p class="num">13.24 cr</p><p class="cap">unique NSE investors</p>
+<p class="num">+2.1 cr</p><p class="cap">new investors in FY26</p>
+<p class="num">7.2 cr</p><p class="cap">new SIP accounts in FY26</p>
+</div>
+<p class="cap"><b>More first-time investors, few with a research habit</b> <span class="d">Data</span></p>
+</div>
+<div class="p" style="--i:5">
+<h3>Competitors</h3>
+<div class="map">
+<div class="q"></div>
+<div class="vx"></div>
+<div class="hx"></div>
+<p class="ax" style="left:0;top:0">↑ Traced to the filing</p>
+<x-shape kind="ellipse" class="dot" style="left:40px;top:62px"></x-shape>
+<p class="lb" style="left:66px;top:52px">Screener.in</p>
+<x-shape kind="ellipse" class="dot" style="left:70px;top:168px"></x-shape>
+<p class="lb" style="left:96px;top:158px">Broker alerts</p>
+<x-shape kind="ellipse" class="dot" style="left:400px;top:170px"></x-shape>
+<p class="lb" style="left:426px;top:160px">ChatGPT</p>
+<x-shape kind="ellipse" class="dot" style="left:330px;top:212px"></x-shape>
+<p class="lb" style="left:356px;top:202px">WhatsApp tips</p>
+<x-shape kind="ellipse" class="dot me" style="left:470px;top:60px"></x-shape>
+<p class="lb me" style="left:330px;top:96px">QuarterNote</p>
+<p class="ax" style="left:0;top:250px">Raw data</p>
+<p class="ax" style="left:340px;top:250px">Explained for you →</p>
+</div>
+</div>
 </div>
 <div class="foot"><p><span class="d">Data</span> = cited source · <span class="a">Assumption</span> = planning estimate · <span class="x">Test</span> = to be measured</p><p>Prototype: claude.ai/artifact/XGUmSxmSuZuBtYMu89QPTe</p></div>
-<aside>Problem: retail investors following a handful of Indian stocks have to piece together each announcement from exchange PDFs, broker alerts, Screener and secondhand summaries. Evidence: QuarterNote’s live NSE pull for 18 companies, 29 Oct to 27 Nov 2026, returned 210 filings, of which 35 were classified high priority. That is about 117 filings a month for a 10-stock watchlist, roughly 1 in 6 material. ITC’s own Q1 FY27 filing warns that its revenue lines are not strictly comparable year on year, which shows why a headline number can mislead.
-Market sources: NSE unique registered investors 13.24 crore as of 30 June 2026 (Business Today, 17 Sep 2026). About 2.1 crore new investors in FY26 (ANI / Tribune India, 1 May 2026). 7.2 crore new SIP accounts in FY26 (NSE press release, 7 June 2026). Individuals own 18.7% of NSE-listed market value via direct and mutual fund holdings, 31 Mar 2026 (India CSR, 7 June 2026). SAM and SOM are my planning assumptions.
-Design choices: lead with one finding and a size-of-change meter; at most three key points; the chart matches the investor’s question; a Still unknown section says when each gap will close; long documents are read in the background. Deliberately left out: buy or sell calls, price targets, social features and trading, to stay on the research side of SEBI rules and keep the product focused.
-Competitor notes are judgment from using each product, not measured data.</aside>
+<aside>Problem: retail investors following a handful of Indian stocks have to piece together each announcement from exchange PDFs, broker alerts, Screener and secondhand summaries. They cannot quickly tell what changed, how much it matters, or where to verify it.
+Evidence: QuarterNote’s live NSE pull for 18 companies, 29 Oct to 27 Nov 2026, returned 210 filings, of which 35 were classified high priority. Scaled to a 10-stock watchlist that is about 117 filings a month, roughly 19 material (1 in 6). ITC’s own Q1 FY27 filing warns that its revenue lines are not strictly comparable year on year, which shows why a headline number can mislead.
+Prototype: every update leads with one finding and a size-of-change meter, then the chart that fits the question (trends for results, a timeline for deals, sizing for legal orders), at most three key points, a Still unknown section, and one-tap sources. Every number is tagged Company said, Calculated or Not known yet. AI reads and explains; code does the maths. Left out on purpose: buy or sell calls, price targets, social features and trading.
+Market sources: NSE unique registered investors 13.24 crore as of 30 June 2026 (Business Today, 17 Sep 2026). About 2.1 crore new investors in FY26 (ANI / Tribune India, 1 May 2026). 7.2 crore new SIP accounts in FY26 (NSE press release, 7 June 2026). SAM assumes 5% actively track individual stocks; SOM assumes 16,000 qualified visits × 25% activation = 4,000 activated, 5% paying = 200.
+Competitor map: placement is my judgment from using each product, not measured data. Screener has clean tables but starts from data, not your announcement. Broker alerts link to the PDF without analysis. ChatGPT and WhatsApp tips explain but cannot be traced to a filing page.</aside>
 </section>
