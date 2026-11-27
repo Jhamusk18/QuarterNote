@@ -141,6 +141,7 @@ export default function Updates() {
             </div>
           </div>
         )}
+        {data && !visible.length && <HistoricalExamples onOpen={remember} />}
 
         {shownMaterial.map((it) => <UpdateRow key={it.id} it={it} onOpen={remember} />)}
 
@@ -182,6 +183,27 @@ export default function Updates() {
 const SUGGEST = [
   [Bell, "Explain today's alert"], [BarChart3, 'Compare latest results'], [UserRound, 'Check management guidance'], [ShieldCheck, 'Identify financial risks'],
 ]
+
+function HistoricalExamples({ onOpen }) {
+  const [s, setS] = useState(null)
+  if (!s) {
+    return (
+      <button className="w-full py-1 text-center text-[13px] font-semibold text-emerald underline underline-offset-2"
+        onClick={() => { setS({ loading: true }); api.historical().then((r) => setS({ items: r.items })).catch((e) => setS({ err: e.message })) }}>
+        See a historical example
+      </button>
+    )
+  }
+  if (s.loading) return <p className="text-center text-[12.5px] text-slate2">Loading…</p>
+  if (s.err) return <p className="text-center text-[12.5px] text-slate2">Historical examples unavailable: {s.err}</p>
+  return (
+    <section aria-label="Historical examples" className="space-y-2">
+      <h3 className="px-1 pt-1 text-[14px] font-extrabold text-navy">Historical examples</h3>
+      <p className="px-1 text-[12px] text-slate2">Older filings FINN has checked by hand against the original PDF. They are not new.</p>
+      {s.items.map((it) => <UpdateRow key={it.id} it={it} onOpen={onOpen} />)}
+    </section>
+  )
+}
 
 function AskCard({ companies, alerts }) {
   const nav = useNavigate()

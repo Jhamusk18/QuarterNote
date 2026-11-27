@@ -33,13 +33,14 @@ export default function UpdateRow({ it, onOpen, dense = false }) {
       className={`card relative block w-full overflow-hidden pl-4 pr-2.5 text-left transition active:scale-[.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald ${dense ? 'py-2' : 'py-2.5'} before:absolute before:inset-y-0 before:left-0 before:w-[4px] ${BAR[it.priority]}`}>
       <div className="flex items-center gap-2.5">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 text-[11.5px] font-semibold">
-            <span className="truncate rounded-full bg-[#E3F1EA] px-2 py-[1px] text-forest">{it.symbol}</span>
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11.5px] font-semibold">
+            <span className="shrink-0 rounded-full bg-[#E3F1EA] px-2 py-[1px] text-forest">{it.symbol}</span>
             <span className="truncate text-slate2">{it.category_label}</span>
             <span className="text-[#B7C2BE]" aria-hidden>·</span>
             <span className={priCls}>{pri}</span>
             {it.simulated && <span className="rounded-full bg-[#FFF1E6] px-1.5 text-[#B54708]">Simulated</span>}
-            {it.historical && <span className="rounded-full bg-[#E8F1FF] px-1.5 text-[#1D4ED8]">Historical example</span>}
+            {it.historical && <span className="rounded-full bg-[#E8F1FF] px-1.5 text-[#1D4ED8]">Historical · verified</span>}
+            {it.verified && !it.historical && <span className="rounded-full bg-rt-bg px-1.5 text-rt-fg">Verified</span>}
           </div>
           <h3 className={`mt-0.5 font-bold leading-snug text-navy ${dense ? 'line-clamp-1 text-[14px]' : 'line-clamp-2 text-[15px]'}`}>{it.headline || it.title}</h3>
           {!dense && it.why && <p className="mt-0.5 line-clamp-1 text-[12px] text-slate2"><span className="font-semibold text-navy/80">Why flagged:</span> {it.why}</p>}
