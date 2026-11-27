@@ -29,7 +29,7 @@ export default function UpdateRow({ it, onOpen, dense = false }) {
   const [pri, priCls] = PRI_TXT[it.priority] || PRI_TXT.routine
   const open = () => { onOpen?.(); nav(`/updates/${encodeURIComponent(it.id)}`) }
   return (
-    <button type="button" onClick={open} aria-label={`${it.company}: ${it.headline || it.title}. ${pri} priority. Open update`}
+    <button type="button" onClick={open} aria-label={`${it.company}: ${(it.headline || it.title || '').replace(/[.…]+$/, '')}. ${pri} priority. Open update`}
       className={`card relative block w-full overflow-hidden pl-4 pr-2.5 text-left transition active:scale-[.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald ${dense ? 'py-2' : 'py-2.5'} before:absolute before:inset-y-0 before:left-0 before:w-[4px] ${BAR[it.priority]}`}>
       <div className="flex items-center gap-2.5">
         <div className="min-w-0 flex-1">

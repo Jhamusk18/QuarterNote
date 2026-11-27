@@ -136,3 +136,17 @@ def test_record_excerpts_are_on_cited_pages(rid):
         for s in srcs:
             text = page_text(urls[s.get("filing")], s["page"])
             assert _on_page(s["excerpt"], text), s
+
+
+def test_track_margin_from_q1_to_q2():
+    t = updates.track(ITC, "margin", ITC_Q1)
+    assert t["state"] == "ok" and t["change"]["kind"] == "pp"
+    assert t["baseline"]["figure"]["period"] == "Q1 FY27" and t["latest"]["figure"]["period"] == "Q2 FY27"
+    assert t["change"]["value"] == round(t["latest"]["figure"]["value"] - t["baseline"]["figure"]["value"], 1)
+    assert t["baseline"]["url"].endswith("#page=6") and t["latest"]["url"].endswith("#page=9")
+    assert not t["change"]["like_for_like"]
+
+
+def test_track_older_release_keeps_baseline():
+    assert updates.track(ITC_Q1, "margin", ITC)["state"] == "older"
+    assert updates.track(ITC, "margin", ITC)["state"] == "baseline"

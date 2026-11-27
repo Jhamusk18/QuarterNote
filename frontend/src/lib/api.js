@@ -23,6 +23,7 @@ export const api = {
   update: (id) => req(`/api/updates/${encodeURIComponent(id)}`),
   historical: () => req('/api/updates/historical'),
   passages: (id) => req(`/api/updates/${encodeURIComponent(id)}/passages`),
+  track: (id, metric, baseline) => req(`/api/updates/${encodeURIComponent(id)}/track?metric=${encodeURIComponent(metric)}&baseline=${encodeURIComponent(baseline)}`),
   management: (id) => req(`/api/updates/${encodeURIComponent(id)}/management`),
   market: () => req('/api/market'),
   status: () => req('/api/status'),

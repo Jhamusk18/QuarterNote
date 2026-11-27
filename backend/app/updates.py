@@ -394,6 +394,40 @@ def get_detail(item_id: str) -> dict | None:
     return None
 
 
+def track(item_id: str, metric_key: str, baseline_id: str) -> dict:
+    """Carry a tracked metric from the baseline release into this one. Both figures keep their own source."""
+    from .evidence import _parse_q, period_relation
+    cur, base = get_detail(item_id), get_detail(baseline_id)
+    if not cur or not base or cur["layout"] != "earnings" or base["layout"] != "earnings":
+        return {"state": "unavailable", "reason": "One of the two releases is no longer available."}
+
+    def pick(d):
+        m = next((x for x in d["earnings"]["metrics"] if x["key"] == metric_key), None)
+        if not m:
+            return None
+        st = d["earnings"].get("statement")
+        return {"update_id": d["item"]["id"], "figure": m["figures"]["cur"], "status": m["evidence"]["status"],
+                "url": st["url"] if st else d["item"].get("url"), "page": st["page"] if st else None,
+                "filed": d["item"]["datetime"], "label": m["label"], "like_for_like_qoq": m["changes"]["qoq"].get("like_for_like", True)}
+
+    a, b = pick(base), pick(cur)
+    if not a or not b:
+        return {"state": "unavailable", "reason": "This release does not report the tracked metric."}
+    pa, pb = _parse_q(a["figure"]["period"]), _parse_q(b["figure"]["period"])
+    if pa and pb and pa == pb:
+        return {"state": "baseline", "baseline": a}
+    if pa and pb and pb < pa:
+        return {"state": "older", "baseline": a, "latest": b,
+                "reason": f"This release ({b['figure']['period']}) is older than your baseline ({a['figure']['period']})."}
+    rel = period_relation(a["figure"]["period"], b["figure"]["period"])
+    caveat = None if b["like_for_like_qoq"] else "The company says the latest quarter is not comparable with previous periods."
+    ch = compare(a["figure"], b["figure"], rel or "qoq", percent_metric=a["figure"]["unit"] == "%", caveat=caveat)
+    if not rel:
+        ch["reason"] = (f"{a['figure']['period']} and {b['figure']['period']} are neither consecutive quarters "
+                        f"nor the same quarter a year apart. Your baseline is kept.")
+    return {"state": "ok" if ch["comparable"] else "cannot_compare", "baseline": a, "latest": b, "change": ch}
+
+
 def _resolved_url(item_id: str) -> tuple[str | None, str | None]:
     """Only URLs FINN itself resolved (verified records or the digest) are ever fetched."""
     if item_id in RECORDS:

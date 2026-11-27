@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BadgeCheck, Calculator, ChevronDown, ExternalLink, FileText, Loader2, MessageCircle, Quote, TriangleAlert } from 'lucide-react'
+import { BadgeCheck, Calculator, ChevronDown, ExternalLink, FileText, Loader2, MessageCircle, Pin, PinOff, Quote, TriangleAlert } from 'lucide-react'
 import Sheet from '../components/Sheet'
 import { api } from '../lib/api'
-import { num2 } from '../lib/format'
+import { num2, stamp } from '../lib/format'
+import { useLocal } from '../lib/store'
 
 const IN2F = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const printed = (v) => (v == null ? '—' : IN2F.format(v))
@@ -117,7 +118,7 @@ function FragmentRow({ k, v }) {
   return <><dt className="text-slate2">{k}</dt><dd>{v}</dd></>
 }
 
-function MetricRow({ m, cmp, open, onToggle, onFiling, unit }) {
+function MetricRow({ m, cmp, open, onToggle, onFiling, unit, tracking, onTrack }) {
   const ch = m.changes[cmp]
   const a = m.figures[cmp], b = m.figures.cur
   const u = m.key === 'margin' ? '%' : unit
@@ -143,9 +144,52 @@ function MetricRow({ m, cmp, open, onToggle, onFiling, unit }) {
             <StatusBadge status={m.evidence.status} />
             <button onClick={onFiling} className="inline-flex items-center gap-1 text-[14px] font-bold text-emerald">View filing row →</button>
           </div>
+          {onTrack && (
+            <button onClick={onTrack} className={`flex w-full items-center justify-center gap-1.5 rounded-xl border py-2 text-[13.5px] font-bold ${tracking ? 'border-line text-slate2' : 'border-emerald text-emerald'}`}>
+              {tracking ? <><PinOff size={15} />Stop tracking {m.label.toLowerCase()}</> : <><Pin size={15} />Track {m.label.toLowerCase()}</>}
+            </button>
+          )}
+          {onTrack && !tracking && <p className="text-[11.5px] text-slate2">FINN will show this figure next to the same metric in the next comparable release, with both sources.</p>}
         </div>
       )}
     </li>
+  )
+}
+
+function TrackedCard({ it, t, onStop }) {
+  const [r, setR] = useState(null)
+  useEffect(() => {
+    let alive = true
+    api.track(it.id, t.metric, t.baseline_id).then((x) => alive && setR(x)).catch((e) => alive && setR({ state: 'unavailable', reason: e.message }))
+    return () => { alive = false }
+  }, [it.id, t.metric, t.baseline_id])
+  if (!r || r.state === 'baseline') return null
+  const side = (x, label) => x && (
+    <div className="rounded-xl bg-surface p-2.5">
+      <div className="text-[11px] font-semibold text-slate2">{label} · {x.figure.period}</div>
+      <div className="text-[18px] font-extrabold tabular-nums text-navy">{fmtValue(x.figure.value, x.figure.unit)}</div>
+      <a href={x.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 text-[11.5px] font-bold text-emerald">Filing{x.page ? ` p.${x.page}` : ''}<ExternalLink size={11} /></a>
+      <div className="text-[10.5px] text-slate2">Filed {stamp(x.filed)} IST</div>
+    </div>
+  )
+  return (
+    <section aria-label="Tracked metric" className="rounded-2xl border border-emerald/40 bg-mint/50 p-3">
+      <div className="flex items-center gap-2">
+        <Pin size={15} className="text-emerald" />
+        <h3 className="flex-1 text-[14px] font-extrabold text-navy">Tracking {t.label.toLowerCase()}</h3>
+        <button onClick={onStop} className="text-[12.5px] font-semibold text-slate2 underline">Stop tracking</button>
+      </div>
+      {r.state === 'unavailable' ? <p className="mt-1 text-[12.5px] text-slate2">{r.reason}</p> : (
+        <>
+          <div className="mt-2 grid grid-cols-2 gap-2">{side(r.baseline, 'Baseline')}{side(r.latest, 'This release')}</div>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-[12.5px] text-navy">
+            {r.change && <ChangeChip c={r.change} />}
+            {r.state === 'ok' && <span>{r.change.from_period} → {r.change.to_period}{!r.change.like_for_like ? ' · reported, not like-for-like' : ''}</span>}
+            {(r.state === 'cannot_compare' || r.state === 'older') && <span className="text-slate2">{r.reason || r.change?.reason}</span>}
+          </div>
+        </>
+      )}
+    </section>
   )
 }
 
@@ -187,6 +231,14 @@ export default function EarningsReport({ d }) {
   const [cmp, setCmp] = useState('yoy')
   const [open, setOpen] = useState(e.metrics.find((m) => m.breakdown)?.key || null)
   const [filing, setFiling] = useState(null)
+  const [tracked, setTracked] = useLocal('tracked', [])
+  const trackOf = (key) => tracked.find((t) => t.symbol === it.symbol && t.metric === key)
+  const toggleTrack = (m) => {
+    if (trackOf(m.key)) setTracked(tracked.filter((t) => !(t.symbol === it.symbol && t.metric === m.key)))
+    else setTracked([...tracked, { symbol: it.symbol, metric: m.key, label: m.label, baseline_id: it.id, baseline_period: m.figures.cur.period,
+      value: m.figures.cur.value, unit: m.figures.cur.unit, basis: m.figures.cur.basis, at: new Date().toISOString() }])
+  }
+  const carried = tracked.filter((t) => t.symbol === it.symbol && t.baseline_id !== it.id)
   const op = e.metrics.find((m) => m.key === 'op')
   const question = op && op.changes.yoy.comparable && op.changes.yoy.value < 0
     ? `What drove the rise in operating costs in ${e.periods.cur.period}?`
@@ -206,6 +258,8 @@ export default function EarningsReport({ d }) {
           <span>Filing excerpt not verified. These numbers come from {e.numbers_source?.publisher || 'a third-party table'}; open the filing to check them.</span>
         </p>
       )}
+
+      {carried.map((t) => <TrackedCard key={t.metric} it={it} t={t} onStop={() => setTracked(tracked.filter((x) => x !== t))} />)}
 
       <section aria-label="Key changes">
         <div className="mb-1.5 flex items-center justify-between">
@@ -245,6 +299,7 @@ export default function EarningsReport({ d }) {
         <ul className="space-y-2">
           {e.metrics.map((m) => (
             <MetricRow key={m.key} m={m} cmp={cmp} unit={e.unit} open={open === m.key}
+              tracking={!!trackOf(m.key)} onTrack={m.trackable && verified ? () => toggleTrack(m) : null}
               onToggle={() => setOpen(open === m.key ? null : m.key)} onFiling={() => setFiling(m)} />
           ))}
         </ul>

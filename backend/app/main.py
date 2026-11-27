@@ -118,6 +118,11 @@ def update_passages(item_id: str):
     return updates.passages(item_id)
 
 
+@app.get("/api/updates/{item_id}/track")
+def update_track(item_id: str, metric: str, baseline: str):
+    return updates.track(item_id, metric, baseline)
+
+
 @app.get("/api/updates/{item_id}/management")
 def update_management(item_id: str):
     return updates.management_said(item_id)
