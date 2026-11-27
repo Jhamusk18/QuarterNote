@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Splash from './screens/Splash'
-import Updates from './screens/Updates'
+import Home from './screens/Home'
 import UpdateDetail from './screens/UpdateDetail'
 import Pull from './screens/Pull'
 import Profile from './screens/Profile'
@@ -27,7 +27,7 @@ export default function App() {
         <div className="relative flex-1 overflow-hidden">
           <Routes>
             <Route path="/" element={<Splash />} />
-            <Route path="/updates" element={<Updates />} />
+            <Route path="/updates" element={<Home />} />
             <Route path="/updates/:id" element={<UpdateDetail />} />
             <Route path="/research" element={<Pull />} />
             <Route path="/push" element={<Navigate to="/updates" replace />} />
