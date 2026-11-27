@@ -1,0 +1,63 @@
+{
+  "id": "8dccbd03b4cb",
+  "layout": "earnings",
+  "symbol": "ITC",
+  "company": "ITC Ltd",
+  "sector": "FMCG",
+  "category": "results",
+  "category_label": "Results",
+  "title": "ITC Limited has submitted to the Exchange, the financial results for the period ended September 30, 2026.",
+  "subject": "Outcome of Board Meeting",
+  "datetime": "2026-11-02T18:20:16+05:30",
+  "url": "https://nsearchives.nseindia.in/corporate/ITC_02112026181912_SE_Results_.pdf",
+  "feed": "NSE",
+  "publisher": "ITC Ltd (filed with NSE)",
+  "period_label": "Q2 FY27 · quarter ended 30 Sep 2026",
+  "basis": "Consolidated",
+  "unit": "₹ crore",
+  "statement": {
+    "page": 9,
+    "title": "Statement of Unaudited Consolidated Financial Results for the Quarter and Six Months ended 30th September, 2026",
+    "units_printed": "(₹ in Crores)"
+  },
+  "columns": {
+    "cur": {"period": "Q2 FY27", "printed": "3 Months ended 30.09.2026 (Unaudited)"},
+    "yoy": {"period": "Q2 FY26", "printed": "Corresponding 3 Months ended 30.09.2025 (Unaudited)"},
+    "qoq": {"period": "Q1 FY27", "printed": "Preceding 3 Months ended 30.06.2026 (Unaudited)"}
+  },
+  "rows": {
+    "revenue_from_operations": {"label": "REVENUE FROM OPERATIONS [(i)+(ii)]", "line": "1", "values": {"cur": 30578.40, "yoy": 21255.86, "qoq": 29523.30}},
+    "excise_duty": {"label": "Excise duty", "line": "4 d)", "values": {"cur": 10309.77, "yoy": 1754.23, "qoq": 10408.93}},
+    "finance_costs": {"label": "Finance costs", "line": "4 f)", "values": {"cur": 38.27, "yoy": 20.05, "qoq": 39.78}},
+    "depreciation": {"label": "Depreciation and amortization expense", "line": "4 g)", "values": {"cur": 490.60, "yoy": 434.80, "qoq": 427.73}},
+    "total_expenses": {"label": "TOTAL EXPENSES", "line": "4", "values": {"cur": 25462.44, "yoy": 15016.02, "qoq": 24809.95}},
+    "pbt": {"label": "PROFIT BEFORE TAX (6+7)", "line": "8", "values": {"cur": 5694.62, "yoy": 6978.68, "qoq": 5860.85}},
+    "pat": {"label": "PROFIT FOR THE PERIOD (8-9)", "line": "10", "values": {"cur": 4229.33, "yoy": 5186.55, "qoq": 4508.79},
+            "note": "The PDF's text layer reads the year-ago value as '51B6.55' (OCR). The page image shows 5186.55, which also equals PBT 6,978.68 minus tax 1,792.13."}
+  },
+  "notes": [
+    {"ref": "Note 7", "page": 10, "applies_to": ["revenue_from_operations", "excise_duty"],
+     "excerpt": "Gross Revenue from sale of products and services and Excise duty for the quarters ended 30th September, 2026, 30th June, 2026 and six months ended 30th September, 2026 reflect the impact of sharp increase in Excise duty and are not strictly comparable with those of the previous periods."},
+    {"ref": "Note 4", "page": 10, "applies_to": ["all"],
+     "excerpt": "the financial results of the Group and 'Paperboards, Paper & Packaging' segment include those of 'Century Pulp and Paper' from 1st August, 2026 and consequently are not comparable with previous periods."},
+    {"ref": "Note 5", "page": 10, "applies_to": ["all"],
+     "excerpt": "The financial results of the Group and 'FMCG-Others' segment include those of Sproutlife with effect from 1st April, 2026. Accordingly, results of the quarter and six months ended 30th September, 2026 are not comparable with previous periods."}
+  ],
+  "excise_regime": {
+    "effective": "2026-02-01",
+    "source": {"ref": "Note 7", "page": 10, "excerpt": "Consequent to expiry of the GST Compensation Cess, the Government of India increased GST and Central Excise duty on cigarettes with effect from 1st February, 2026."}
+  },
+  "verified_by": "Manual check of the original PDF (page images of p.9 and p.10), 27 Nov 2026: metric label, column period, units (₹ in Crores), basis (consolidated) and value for every row above.",
+  "third_party_check": {
+    "source": "screener.in standardised quarterly P&L (consolidated)",
+    "url": "https://www.screener.in/company/ITC/consolidated/",
+    "values": {
+      "Sales": {"cur": 20269, "yoy": 19502, "qoq": 19114},
+      "Expenses": {"cur": 14624, "yoy": 12807, "qoq": 13934},
+      "Operating Profit": {"cur": 5645, "yoy": 6695, "qoq": 5181},
+      "Profit before tax": {"cur": 5695, "yoy": 6979, "qoq": 5861},
+      "Net Profit": {"cur": 4229, "yoy": 5187, "qoq": 4509}
+    },
+    "retrieved": "2026-11-27"
+  }
+}

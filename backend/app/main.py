@@ -9,7 +9,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import config, llm, push, rag, research
+from . import config, llm, push, rag, research, updates
 from .companies import ADHOC, ALL_KNOWN, PORTFOLIO, as_dicts
 from .connectors import exchanges, prices, screener
 
@@ -98,6 +98,29 @@ def digest(vol: float | None = None, px: float | None = None, material: str | No
 def alerts(vol: float | None = None, px: float | None = None, material: str | None = None, overrides: str | None = None):
     d = push.digest(_thresholds(vol, px, material, overrides))
     return {"generated_at": d["generated_at"], "thresholds": d["thresholds"], "items": [i for i in d["items"] if i.get("alert")]}
+
+
+@app.get("/api/updates/historical")
+def updates_historical():
+    return {"items": updates.historical()}
+
+
+@app.get("/api/updates/{item_id}")
+def update_detail(item_id: str):
+    d = updates.get_detail(item_id)
+    if not d:
+        raise HTTPException(404, "This update is not in the last 30 days of filings any more.")
+    return {**d, "refreshed_at": datetime.now(push.IST).isoformat()}
+
+
+@app.get("/api/updates/{item_id}/passages")
+def update_passages(item_id: str):
+    return updates.passages(item_id)
+
+
+@app.get("/api/updates/{item_id}/management")
+def update_management(item_id: str):
+    return updates.management_said(item_id)
 
 
 @app.get("/api/market")

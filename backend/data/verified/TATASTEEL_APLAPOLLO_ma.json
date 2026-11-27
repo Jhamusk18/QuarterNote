@@ -1,0 +1,46 @@
+{
+  "id": "b4145d9c3838",
+  "layout": "ma",
+  "symbol": "TATASTEEL",
+  "company": "Tata Steel Ltd",
+  "sector": "Metals",
+  "category": "M&A",
+  "category_label": "M&A",
+  "title": "Acquisition of equity stake in APL Apollo Tubes Limited",
+  "subject": "Acquisition",
+  "datetime": "2026-11-23T07:35:27+05:30",
+  "url": "https://nsearchives.nseindia.in/corporate/NIDHIFADNAVIS_23112026073427_BSENSE.pdf",
+  "feed": "NSE",
+  "publisher": "Tata Steel Ltd (filed with NSE and BSE)",
+  "headline": "Tata Steel agrees to buy up to 26.38% of APL Apollo Tubes and will make an open offer for 26% more.",
+  "related_filings": [
+    {"id": "6531c3186690", "title": "Acquisition of equity stake in APL Apollo Tubes Limited (completion of Tranche 1)",
+     "datetime": "2026-11-23T20:14:09+05:30",
+     "url": "https://nsearchives.nseindia.in/corporate/NIDHIFADNAVIS_23112026201346_BSENSE_Reg30.pdf"}
+  ],
+  "facts": [
+    {"key": "status", "label": "Status", "items": [
+      {"state": "completed", "text": "Tranche 1 bought: 2,77,38,075 shares (about 9.91%) at ₹2,100 each, about ₹5,825 crore, on 23 Nov 2026.",
+       "source": {"filing": "6531c3186690", "page": 1, "excerpt": "has today i.e. on November 23, 2026, completed the acquisition of 2,77,38,075 equity shares of ₹2/- each of APL Apollo Tubes Limited (‘Target Company’) representing approximately 9.91% of the Expanded Voting Share Capital (on fully diluted basis), through an on-market purchase by way of a block deal ... at an aggregate consideration of approximately ₹5,825 crore"}},
+      {"state": "approved", "text": "Tranches 2 and 3 (about 11.90% and 4.57%) approved by the board; they still depend on conditions precedent, including regulatory approvals.",
+       "source": {"page": 2, "excerpt": "subject to the satisfaction (or waiver, where permitted) of the conditions precedent under the Share Purchase Agreement, including receipt of necessary approvals from regulatory authorities"}},
+      {"state": "approved", "text": "Mandatory open offer for up to 26% approved by the board; to be completed under SEBI takeover rules.",
+       "source": {"page": 2, "excerpt": "Considered and approved making a mandatory open offer under Regulation 3(1) and Regulation 4 of the Securities and Exchange Board of India (Substantial Acquisition of Shares and Takeovers) Regulations, 2011"}}
+    ]},
+    {"key": "what", "label": "What is being acquired", "value": "Up to 7,38,60,062 shares of APL Apollo Tubes Ltd (about 26.38% of expanded voting share capital) from S Gupta Holding Pvt Ltd, a promoter-group seller, in three tranches.",
+     "source": {"page": 1, "excerpt": "for acquiring of up to 7,38,60,062 (seven crore thirty eight lakh sixty thousand and sixty two) fully paid-up equity shares of face value INR 2 ... of the Target Company ... This Proposed Acquisition represents approximately 26.38% of Target Company’s total voting share capital on a fully diluted basis"}},
+    {"key": "value", "label": "Disclosed value", "value": "Up to about ₹15,510.61 crore in cash for the purchase-agreement shares (₹2,100 per share).",
+     "source": {"page": 1, "excerpt": "for a cash consideration aggregating up to approximately INR 15510,61,30,200 (Indian Rupees Fifteen Thousand Five Hundred and Ten Crores Sixty One Lakhs Thirty Thousand Two Hundred)"}},
+    {"key": "offer", "label": "Open offer", "value": "Up to 7,28,06,387 shares (26%) at ₹2,301.40 per share, up to about ₹16,755.66 crore if fully accepted.",
+     "source": {"page": 2, "excerpt": "for acquisition of up to 7,28,06,387 ... Equity Shares representing 26% of the Expanded Voting Share Capital ... at a price of INR 2,301.40 ... per Equity Share, for a total consideration of up to INR 16755,66,19,041.80 ... (assuming full acceptance), payable in cash"}},
+    {"key": "conditions", "label": "Conditions", "value": "Completion depends on approvals from regulators in India or abroad. The purchase triggers a mandatory open offer.",
+     "source": {"page": 4, "excerpt": "The completion of the transaction is subject to the approvals that may be required from any regulatory authorities in India or any jurisdiction outside India. The acquisition triggers a mandatory open offer to the public shareholders of the Target Company"}},
+    {"key": "next", "label": "Next step stated by the company", "value": "Tranches 2 and 3 expected no later than 31 Mar 2028; the open offer follows SEBI takeover rules.",
+     "source": {"page": 5, "excerpt": "is expected to be completed no later than March 31, 2028 (or such other date as may be mutually agreed between the parties to the Share Purchase Agreement). The Open Offer will be completed in accordance with the SEBI (SAST) Regulations."}},
+    {"key": "max_holding", "label": "Maximum stake if the offer is fully accepted", "value": "About 52.38% of expanded voting share capital.",
+     "source": {"page": 6, "excerpt": "the maximum shareholding of the Company in the Target Company will be approximately 52.38% (fifty two point three eight per cent) of the Expanded Voting Share Capital"}},
+    {"key": "related_party", "label": "Related-party transaction", "value": "No.",
+     "source": {"page": 4, "excerpt": "No. The proposed acquisition does not qualify as a related party transaction."}}
+  ],
+  "verified_by": "Manual check of both original PDFs, 27 Nov 2026: each fact matched to the quoted text on the stated page."
+}

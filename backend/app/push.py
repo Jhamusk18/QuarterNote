@@ -269,6 +269,14 @@ def plain_headline(it: dict) -> str:
     return _sentence(title, 140)
 
 
+ID_INDEX: dict[str, dict] = {}  # stable item id -> item, across every threshold set seen
+
+
+def _remember(d: dict) -> None:
+    for it in d.get("items", []):
+        ID_INDEX[it["id"]] = it
+
+
 def digest(thresholds: dict | None = None) -> dict:
     th = {**DEFAULT_THRESHOLDS, **(thresholds or {})}
     key = json.dumps(th, sort_keys=True)
@@ -278,6 +286,7 @@ def digest(thresholds: dict | None = None) -> dict:
         for k, v in (hit.get("exchanges") or {}).items():
             if exchanges.STATUS[k]["ok"] is None:
                 exchanges.STATUS[k] = v
+        _remember(hit)
         return hit
     items, feeds, failed = [], {}, []
     if not config.FORCE_SAMPLE:
@@ -305,8 +314,12 @@ def digest(thresholds: dict | None = None) -> dict:
         if it["kind"] == "announcement":
             it["alert"] = it["category"] in material and it["priority"] != "routine"
     items = [i for i in items if datetime.fromisoformat(i["datetime"]) >= cutoff]
+    from .updates import RECORDS
     for it in items:
         it["headline"] = plain_headline(it)
+        if it["id"] in RECORDS:
+            it["verified"] = True
+            it["headline"] = RECORDS[it["id"]].get("headline") or it["headline"]
     rank = {"high": 0, "medium": 1, "routine": 2}
     items.sort(key=lambda i: (rank[i["priority"]], -datetime.fromisoformat(i["datetime"]).timestamp()))
     mode = "SIMULATED" if simulated else ("PARTIAL" if failed else "LIVE_FEEDS")
@@ -321,6 +334,7 @@ def digest(thresholds: dict | None = None) -> dict:
     }
     SOURCES["announcements"] = {"ok": not simulated, "detail": f"{len(PORTFOLIO) - len(failed)}/{len(PORTFOLIO)} companies via {', '.join(sorted(set(feeds.values())))}"}
     out["sources"] = dict(SOURCES)
+    _remember(out)
     return cache.put("digest", key, out)
 
 
