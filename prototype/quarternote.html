@@ -11,7 +11,8 @@
   --bar:#BFE6D0; --hi-bg:#FDECEC; --hi-fg:#C81E1E; --hi-bd:#F5B5B5; --hi-bar:#E5484D;
   --md-bg:#FFF6E0; --md-fg:#A35F00; --md-bd:#F5D58A; --md-bar:#F2B01E;
   --rt-bg:#E9F7EF; --rt-fg:#0A7C57; --rt-bd:#BFE6D0;
-  --rep:#2C5A85; --rep-bg:#EAF1F8;
+  --rep:#2C5A85;
+  --c-past:#CFDCD7; --c-cur:#0B6B4F; --c-pos:#3A9A78; --c-neg:#C2554F; --c-total:#6B7F8E; --c-oneoff:#B07A1E; --c-oneoff-bg:#FBF3E2; --grid:#EDF1EF; --axis:#C9D3CF; --rep-bg:#EAF1F8;
   --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --shadow:0 1px 2px rgba(20,43,58,.04),0 4px 14px rgba(20,43,58,.05);
   color-scheme:light;
@@ -139,12 +140,12 @@ h1.page{font-size:24px;letter-spacing:-.02em;margin:16px 0 2px;line-height:1.15}
 .seg button{flex:1;padding:6px 4px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--slate)}
 .seg button.on{background:var(--surface);color:var(--forest);box-shadow:0 1px 3px rgba(20,43,58,.12)}
 svg.chart{width:100%;height:auto;display:block;margin-top:10px;overflow:visible}
-.sv-lab{font-size:9.5px;fill:var(--slate)}
+.sv-lab{font-size:9.5px;fill:var(--slate);letter-spacing:.01em}
 .sv-lab.b{fill:var(--navy);font-weight:700}
-.sv-val{font-size:10.5px;font-weight:700;fill:var(--navy)}
-.sv-note{font-size:9px;fill:var(--slate)}
+.sv-val{font-size:10px;font-weight:600;fill:var(--navy);font-variant-numeric:tabular-nums}
+.sv-note{font-size:8.5px;fill:#8A99A5;font-variant-numeric:tabular-nums}
 .hit{cursor:pointer}
-.hit:hover rect.b{opacity:.85}
+.hit:hover rect.b{filter:brightness(.92)}
 .detail{margin-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:var(--offwhite);border-radius:10px;padding:8px 10px;font-size:12.5px;line-height:1.4}
 .detail .src{margin-left:auto;color:var(--emerald);font-weight:600;font-size:12px;white-space:nowrap}
 .detail p{margin:0;flex-basis:100%;color:var(--slate)}
@@ -154,18 +155,18 @@ svg.chart{width:100%;height:auto;display:block;margin-top:10px;overflow:visible}
 /* horizontal compare bars */
 .hb{display:flex;flex-direction:column;gap:10px;margin-top:12px}
 .hb-r{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;font-size:12.5px;text-align:left;width:100%}
-.hb-r .tr{grid-column:1/-1;height:10px;border-radius:6px;background:var(--offwhite);overflow:hidden}
-.hb-r .fl{height:100%;border-radius:6px;background:var(--bar)}
-.hb-r.hl .fl{background:var(--emerald)}
-.hb-r.warn .fl{background:var(--md-bar)}
-.hb-r .v{font-weight:700}
+.hb-r .tr{grid-column:1/-1;height:6px;border-radius:1px;background:var(--grid);overflow:hidden}
+.hb-r .fl{height:100%;border-radius:1px;background:var(--c-past)}
+.hb-r.hl .fl{background:var(--c-cur)}
+.hb-r.warn .fl{background:var(--c-oneoff)}
+.hb-r .v{font-weight:600;font-variant-numeric:tabular-nums}
 /* range */
 .rng{margin-top:14px}
 .rng-h{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:600}
 .rng-tr{position:relative;height:28px;margin-top:6px}
-.rng-tr .ax{position:absolute;left:0;right:0;top:12px;height:4px;border-radius:2px;background:var(--line)}
-.rng-tr .band{position:absolute;top:6px;height:16px;border-radius:6px;background:var(--mint-2);border:1px solid var(--bar)}
-.rng-tr .mk{position:absolute;top:0;width:4px;height:28px;margin-left:-2px;border-radius:2px;background:var(--forest)}
+.rng-tr .ax{position:absolute;left:0;right:0;top:13px;height:2px;background:var(--grid)}
+.rng-tr .band{position:absolute;top:8px;height:12px;border-radius:1px;background:var(--c-past)}
+.rng-tr .mk{position:absolute;top:3px;width:2px;height:22px;margin-left:-1px;background:var(--c-cur)}
 .rng-tr .mk span{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;white-space:nowrap;color:var(--forest)}
 .rng-sc{display:flex;justify-content:space-between;font-size:10.5px;color:var(--slate)}
 /* checks */
@@ -195,9 +196,9 @@ svg.chart{width:100%;height:auto;display:block;margin-top:10px;overflow:visible}
 .ba-h{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;gap:8px}
 .ba-tr{position:relative;height:18px;margin-top:4px}
 .ba-tr .ax{position:absolute;left:0;right:0;top:8px;height:2px;background:var(--line)}
-.ba-tr .seg2{position:absolute;top:7px;height:4px;background:var(--emerald-2);border-radius:2px}
+.ba-tr .seg2{position:absolute;top:7px;height:4px;background:var(--c-pos)}
 .ba-tr .p{position:absolute;top:2px;width:14px;height:14px;margin-left:-7px;border-radius:50%;border:2px solid var(--surface)}
-.ba-tr .p.a{background:#9AB0BF}.ba-tr .p.b{background:var(--forest)}
+.ba-tr .p.a{background:var(--c-total)}.ba-tr .p.b{background:var(--c-cur)}
 .ba-l{display:flex;justify-content:space-between;font-size:11px;color:var(--slate)}
 /* facts */
 .facts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
@@ -215,8 +216,8 @@ svg.chart{width:100%;height:auto;display:block;margin-top:10px;overflow:visible}
 .hist{margin-top:12px;display:flex;flex-direction:column;gap:8px}
 .hs{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;font-size:13px}
 .hs .y{font-weight:700;color:var(--slate)}
-.hs .tr{height:8px;border-radius:4px;background:var(--offwhite);overflow:hidden}
-.hs .tr div{height:100%;border-radius:4px}
+.hs .tr{height:6px;border-radius:1px;background:var(--grid);overflow:hidden}
+.hs .tr div{height:100%;border-radius:1px}
 /* calc */
 .calc{margin-top:12px;background:var(--offwhite);border-radius:12px;padding:12px}
 .calc label{font-size:12.5px;font-weight:600;display:flex;justify-content:space-between}
@@ -476,57 +477,63 @@ const PRL = {hi:'High', md:'Medium', rt:'Routine'};
 const TYPES = [['All','All types'],['Results','Results'],['Deal','Deals'],['Legal','Legal'],['Leadership','Leadership'],['Buyback','Buybacks']];
 
 /* ---------- small vizzes ---------- */
-function hatchDefs(){return `<defs><pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="#FFF0C2"/><rect width="2.2" height="5" fill="#F2B01E"/></pattern></defs>`}
+function hatchDefs(){return `<defs><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="var(--c-oneoff-bg)"/><rect width="1" height="4" fill="var(--c-oneoff)"/></pattern></defs>`}
+function niceTicks(lo,hi,n=3){const st=Math.pow(10,Math.floor(Math.log10((hi-lo)/n)));const step=[1,2,2.5,5,10].map(m=>m*st).find(x=>Math.ceil(hi/x-1e-9)-Math.floor(lo/x+1e-9)<=n+1)||st*10;const t=[];const a=Math.floor(lo/step+1e-9)*step,b=Math.ceil(hi/step-1e-9)*step;for(let v=a;v<=b+1e-9;v+=step)t.push(+v.toFixed(6));return t}
+const kfmt=v=>v>=1000?(v/1000).toFixed(v%1000?1:0)+'k':String(v);
 
 function barChart({key, vals, sel, fmt, oneOff}){
-  const W=340,H=160,pt=22,pb=22,n=vals.length,max=Math.max(...vals)*1.1,bw=W/n,ch=H-pt-pb;
-  let g=`<line x1="0" x2="${W}" y1="${pt+ch}" y2="${pt+ch}" stroke="var(--line)"/>`;
+  const W=340,H=168,pt=20,pb=22,pl=30,n=vals.length,ch=H-pt-pb;
+  const ticks=niceTicks(0,Math.max(...vals)*1.05,3),max=ticks[ticks.length-1],bw=(W-pl)/n;
+  const y=v=>pt+ch-v/max*ch;
+  let g=ticks.map(t=>`<line x1="${pl}" x2="${W}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)" ${t?'':'stroke="var(--axis)"'}/><text x="${pl-6}" y="${y(t)+3}" text-anchor="end" class="sv-note">${kfmt(t)}</text>`).join('');
   vals.forEach((v,i)=>{
-    const h=v/max*ch,x=i*bw,y=pt+ch-h,on=i===sel;
-    const fill=on?'var(--forest)':(i===n-1?'var(--emerald)':'var(--bar)');
+    const x=pl+i*bw,on=i===sel,bx=x+bw*.27,bwid=bw*.46;
     g+=`<g class="hit" data-act="sel" data-k="${key}" data-i="${i}" tabindex="0" role="button" aria-label="${QF[i]}: ${fmt(v)}">
       <rect x="${x}" y="0" width="${bw}" height="${H}" fill="transparent"/>
-      <rect class="b" x="${x+bw*.18}" y="${y}" width="${bw*.64}" height="${h}" rx="3" fill="${fill}"/>`;
-    if(oneOff&&i===n-1){const oh=oneOff/max*ch;g+=`<rect x="${x+bw*.18}" y="${y}" width="${bw*.64}" height="${oh}" rx="2" fill="url(#hatch)"/>`}
-    if(on)g+=`<text x="${x+bw/2}" y="${y-6}" text-anchor="middle" class="sv-val">${fmt(v)}</text>`;
+      <rect class="b" x="${bx}" y="${y(v)}" width="${bwid}" height="${pt+ch-y(v)}" rx="1" fill="${on?'var(--c-cur)':'var(--c-past)'}"/>`;
+    if(oneOff&&i===n-1){g+=`<rect x="${bx}" y="${y(v)}" width="${bwid}" height="${oneOff/max*ch}" rx="1" fill="url(#hatch)" stroke="var(--c-oneoff)" stroke-width=".8"/>`}
+    if(on)g+=`<text x="${x+bw/2}" y="${y(v)-6}" text-anchor="middle" class="sv-val">${fmt(v)}</text>`;
     g+=`<text x="${x+bw/2}" y="${H-6}" text-anchor="middle" class="sv-lab${on?' b':''}">${Q[i]}</text></g>`;
   });
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${hatchDefs()}${g}</svg>`;
 }
 
 function lineChart({key, vals, sel, lo, hi}){
-  const W=340,H=160,pt=22,pb=22,pl=26,n=vals.length,ch=H-pt-pb,bw=(W-pl)/n;
+  const W=340,H=168,pt=20,pb=22,pl=30,n=vals.length,ch=H-pt-pb,bw=(W-pl)/n;
   const y=v=>pt+ch-(v-lo)/(hi-lo)*ch, x=i=>pl+i*bw+bw/2;
   const avg=vals.reduce((a,b)=>a+b,0)/n;
   let g='';
-  [lo,(lo+hi)/2,hi].forEach(t=>{g+=`<line x1="${pl}" x2="${W}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="0" y="${y(t)+3}" class="sv-note">${t.toFixed(0)}%</text>`});
-  g+=`<line x1="${pl}" x2="${W}" y1="${y(avg)}" y2="${y(avg)}" stroke="var(--md-bar)" stroke-dasharray="4 3"/><text x="${W}" y="${y(avg)-4}" text-anchor="end" class="sv-note">8-qtr avg ${avg.toFixed(1)}%</text>`;
-  g+=`<polyline fill="none" stroke="var(--emerald)" stroke-width="2.2" points="${vals.map((v,i)=>x(i)+','+y(v)).join(' ')}"/>`;
+  niceTicks(lo,hi,4).forEach(t=>{g+=`<line x1="${pl}" x2="${W}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)"/><text x="${pl-6}" y="${y(t)+3}" text-anchor="end" class="sv-note">${t}%</text>`});
+  g+=`<line x1="${pl}" x2="${W}" y1="${y(avg)}" y2="${y(avg)}" stroke="var(--c-total)" stroke-dasharray="3 3" stroke-width=".8"/><text x="${W}" y="${y(avg)-5}" text-anchor="end" class="sv-note">8-qtr avg ${avg.toFixed(1)}%</text>`;
+  g+=`<polyline fill="none" stroke="var(--c-cur)" stroke-width="1.6" stroke-linejoin="round" points="${vals.map((v,i)=>x(i)+','+y(v)).join(' ')}"/>`;
   vals.forEach((v,i)=>{const on=i===sel;
     g+=`<g class="hit" data-act="sel" data-k="${key}" data-i="${i}" tabindex="0" role="button" aria-label="${QF[i]}: ${v}%"><rect x="${x(i)-bw/2}" y="0" width="${bw}" height="${H}" fill="transparent"/>
-    <circle cx="${x(i)}" cy="${y(v)}" r="${on?5.5:3.5}" fill="${on?'var(--forest)':'#fff'}" stroke="var(--emerald)" stroke-width="2"/>
-    ${on?`<text x="${x(i)}" y="${y(v)-10}" text-anchor="middle" class="sv-val">${v}%</text>`:''}
+    ${on?`<line x1="${x(i)}" x2="${x(i)}" y1="${pt}" y2="${pt+ch}" stroke="var(--axis)"/>`:''}
+    <circle cx="${x(i)}" cy="${y(v)}" r="${on?4:2.5}" fill="${on?'var(--c-cur)':'var(--surface)'}" stroke="var(--c-cur)" stroke-width="1.4"/>
+    ${on?`<text x="${x(i)}" y="${y(v)-9}" text-anchor="middle" class="sv-val">${v}%</text>`:''}
     <text x="${x(i)}" y="${H-6}" text-anchor="middle" class="sv-lab${on?' b':''}">${Q[i]}</text></g>`});
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${g}</svg>`;
 }
 
 function waterfall({key, steps, sel, base}){
-  const W=340,H=180,pt=24,pb=30,n=steps.length,bw=W/n,ch=H-pt-pb;
+  const W=340,H=184,pt=22,pb=34,pl=30,n=steps.length,bw=(W-pl)/n,ch=H-pt-pb;
   let run=0,top=0;const bars=steps.map(s=>{let a,b;if(s.t==='total'){a=base;b=s.v;run=s.v}else{a=run;b=run+s.v;run=b}top=Math.max(top,a,b);return [a,b]});
-  top*=1.015;const y=v=>pt+ch-(v-base)/(top-base)*ch;
-  let g=`<line x1="0" x2="${W}" y1="${pt+ch}" y2="${pt+ch}" stroke="var(--line)"/>`;
+  const ticks=niceTicks(base,top*1.01,3),tmax=ticks[ticks.length-1];
+  const y=v=>pt+ch-(v-base)/(tmax-base)*ch;
+  let g=ticks.map(t=>`<line x1="${pl}" x2="${W}" y1="${y(t)}" y2="${y(t)}" stroke="${t===base?'var(--axis)':'var(--grid)'}"/><text x="${pl-6}" y="${y(t)+3}" text-anchor="end" class="sv-note">${kfmt(t)}</text>`).join('');
   steps.forEach((s,i)=>{
-    const [a,b]=bars[i],x=i*bw,on=i===sel,y1=y(Math.max(a,b)),h=Math.max(2,Math.abs(y(a)-y(b)));
-    let fill=s.t==='total'?(i===n-1?'var(--emerald)':'#9AB0BF'):s.one?'url(#hatch)':s.v>=0?'var(--emerald-2)':'var(--hi-bar)';
-    if(i<n-1){g+=`<line x1="${x+bw*.82}" x2="${x+bw*1.18}" y1="${y(b)}" y2="${y(b)}" stroke="var(--slate)" stroke-dasharray="2 2"/>`}
+    const [a,b]=bars[i],x=pl+i*bw,on=i===sel,y1=y(Math.max(a,b)),h=Math.max(1.5,Math.abs(y(a)-y(b))),bx=x+bw*.22,bwid=bw*.56;
+    const fill=s.t==='total'?(i===n-1?'var(--c-cur)':'var(--c-total)'):s.one?'url(#hatch)':s.v>=0?'var(--c-pos)':'var(--c-neg)';
+    const col=s.t==='total'?'var(--navy)':s.one?'var(--c-oneoff)':s.v>=0?'var(--c-pos)':'var(--c-neg)';
+    if(i<n-1){g+=`<line x1="${bx+bwid}" x2="${x+bw+bw*.22}" y1="${y(b)}" y2="${y(b)}" stroke="var(--axis)" stroke-width=".8"/>`}
     const lab=s.t==='total'?inr(s.v):sg(s.v,0);
-    g+=`<g class="hit" data-act="sel" data-k="${key}" data-i="${i}" tabindex="0" role="button" aria-label="${s.l}: ${lab}">
+    g+=`<g class="hit" data-act="sel" data-k="${key}" data-i="${i}" tabindex="0" role="button" aria-label="${s.l}: ${lab}" opacity="${sel==null||on?1:.45}">
       <rect x="${x}" y="0" width="${bw}" height="${H}" fill="transparent"/>
-      <rect class="b" x="${x+bw*.18}" y="${y1}" width="${bw*.64}" height="${h}" rx="3" fill="${fill}" ${on?'stroke="var(--navy)" stroke-width="2"':''}/>
-      <text x="${x+bw/2}" y="${y1-6}" text-anchor="middle" class="sv-val" style="font-size:${s.t==='total'?9.5:10.5}px">${lab}</text>
-      <text x="${x+bw/2}" y="${H-14}" text-anchor="middle" class="sv-lab${on?' b':''}">${s.l}</text></g>`;
+      <rect class="b" x="${bx}" y="${y1}" width="${bwid}" height="${h}" rx="1" fill="${fill}" ${s.one?'stroke="var(--c-oneoff)" stroke-width=".8"':''}/>
+      <text x="${x+bw/2}" y="${y1-5}" text-anchor="middle" class="sv-val" style="fill:${col}">${lab}</text>
+      <text x="${x+bw/2}" y="${H-20}" text-anchor="middle" class="sv-lab${on?' b':''}">${s.l}</text></g>`;
   });
-  g+=`<text x="0" y="${H-1}" class="sv-note">₹ Cr · axis starts at ₹${inr(base)} Cr so the changes are visible</text>`;
+  g+=`<text x="${pl}" y="${H-2}" class="sv-note">₹ Cr · axis starts at ${inr(base)} so changes are visible</text>`;
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${hatchDefs()}${g}</svg>`;
 }
 
@@ -577,7 +584,7 @@ const BODY = {
         `<div class="seg" role="tablist">${[['rev','Revenue'],['pat','Profit'],['mar','Margin']].map(o=>`<button role="tab" aria-selected="${m===o[0]}" class="${m===o[0]?'on':''}" data-act="set" data-k="infyM" data-v="${o[0]}">${o[1]}</button>`).join('')}</div>
         ${chart}${det}<p class="take">${take}</p>`),
       block('Why did profit move?','From last year’s ₹7,364 Cr to ₹8,248 Cr',
-        waterfall({key:'infy-wf',steps:WF,sel:w,base:7000})+detail(ws.l, ws.t==='total'?cr(ws.v):sg(ws.v,0)+' Cr', ws.tg, ws.s, 'Source', ws.note)+
+        waterfall({key:'infy-wf',steps:WF,sel:S.sel['infy-wf'],base:7000})+detail(ws.l, ws.t==='total'?cr(ws.v):sg(ws.v,0)+' Cr', ws.tg, ws.s, 'Source', ws.note)+
         `<p class="take">The biggest single push came from the <b>one-off tax refund</b>, not from operations.</p>`),
       block('Are they delivering on guidance?','FY27 ranges given on the earnings call',
         range({l:'Revenue growth',lo:6,hi:12,a:8,b:10,act:8.9,unit:'%',verdict:'On track',cls:'p-ok',s:'infy_call'})+
@@ -630,10 +637,10 @@ const BODY = {
         {l:'Tribunal outcome',d:'No date',st:'',more:'Tax appeals can take years. QuarterNote will alert you on any new filing.'}])),
       block('Has this happened before?','Similar tax demands, last 5 years',
         `<div class="hist">
-          <div class="hs"><span class="y">FY22</span><div class="tr"><div style="width:53%;background:var(--bar)"></div></div><span class="pill p-ok">Set aside</span></div>
-          <div class="hs"><span class="y">FY24</span><div class="tr"><div style="width:36%;background:var(--bar)"></div></div><span class="pill p-ok">Set aside</span></div>
-          <div class="hs"><span class="y">FY26</span><div class="tr"><div style="width:65%;background:var(--md-bar)"></div></div><span class="pill p-watch">Pending</span></div>
-          <div class="hs"><span class="y">Now</span><div class="tr"><div style="width:100%;background:var(--hi-bar)"></div></div><span class="pill p-bad">₹398 Cr</span></div>
+          <div class="hs"><span class="y">FY22</span><div class="tr"><div style="width:53%;background:var(--c-past)"></div></div><span class="pill p-ok">Set aside</span></div>
+          <div class="hs"><span class="y">FY24</span><div class="tr"><div style="width:36%;background:var(--c-past)"></div></div><span class="pill p-ok">Set aside</span></div>
+          <div class="hs"><span class="y">FY26</span><div class="tr"><div style="width:65%;background:var(--c-total)"></div></div><span class="pill p-watch">Pending</span></div>
+          <div class="hs"><span class="y">Now</span><div class="tr"><div style="width:100%;background:var(--c-oneoff)"></div></div><span class="pill p-bad">₹398 Cr</span></div>
         </div>`+detail('Track record','2 of 3 set aside','calc','itc_hist','History'))
     ];
   },
@@ -730,11 +737,11 @@ const EVBYCO = {INFY:'infy',TATASTEEL:'tatasteel',ITC:'itc',HDFCBANK:'hdfcbank',
 
 /* ---------- mini previews on Updates cards ---------- */
 const MINI = {
-  infy:()=>`<svg width="52" height="30" viewBox="0 0 52 30">${INFY.pat.map((v,i)=>{const h=(v-6000)/2400*26;return `<rect x="${i*6.5}" y="${30-h}" width="4.5" height="${h}" rx="1" fill="${i===7?'#0D9367':'#BFE6D0'}"/>`}).join('')}<rect x="45.5" y="${30-(8248-6000)/2400*26}" width="4.5" height="${420/2400*26}" fill="#F2B01E"/></svg>`,
+  infy:()=>`<svg width="52" height="30" viewBox="0 0 52 30">${INFY.pat.map((v,i)=>{const h=(v-6000)/2400*26;return `<rect x="${i*6.5}" y="${30-h}" width="4.5" height="${h}" rx="1" fill="${i===7?'#0B6B4F':'#B9CCC4'}"/>`}).join('')}<rect x="45.5" y="${30-(8248-6000)/2400*26}" width="4.5" height="${420/2400*26}" fill="#B07A1E"/></svg>`,
   tatasteel:()=>`<svg width="54" height="14" viewBox="0 0 54 14"><line x1="5" x2="49" y1="7" y2="7" stroke="#BFE6D0" stroke-width="2"/>${[0,1,2,3,4].map(i=>`<circle cx="${5+i*11}" cy="7" r="4.5" fill="${i<3?'#0D9367':i===3?'#FFF6E0':'#fff'}" stroke="${i<3?'#0D9367':i===3?'#F2B01E':'#BFE6D0'}" stroke-width="1.5"/>`).join('')}</svg>`,
-  itc:()=>`<svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="16" fill="none" stroke="#fff" stroke-width="6"/><circle cx="22" cy="22" r="16" fill="none" stroke="#F2B01E" stroke-width="6" stroke-dasharray="${0.08*100.5} 100.5" transform="rotate(-90 22 22)"/><text x="22" y="26" text-anchor="middle" font-size="10" font-weight="800" fill="#142B3A">8%</text></svg>`,
+  itc:()=>`<svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="16" fill="none" stroke="#fff" stroke-width="6"/><circle cx="22" cy="22" r="16" fill="none" stroke="#B07A1E" stroke-width="6" stroke-dasharray="${0.08*100.5} 100.5" transform="rotate(-90 22 22)"/><text x="22" y="26" text-anchor="middle" font-size="10" font-weight="800" fill="#142B3A">8%</text></svg>`,
   hdfcbank:()=>`<svg width="48" height="30" viewBox="0 0 24 24" fill="none" stroke="#0D9367" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 11h6M19 8l3 3-3 3"/></svg>`,
-  tcs:()=>`<svg width="48" height="32" viewBox="0 0 48 32"><rect x="6" y="${32-4050/4800*28}" width="14" height="${4050/4800*28}" rx="2" fill="#BFE6D0"/><rect x="26" y="${32-4500/4800*28}" width="14" height="${4500/4800*28}" rx="2" fill="#0D9367"/></svg>`
+  tcs:()=>`<svg width="48" height="32" viewBox="0 0 48 32"><rect x="6" y="${32-4050/4800*28}" width="14" height="${4050/4800*28}" rx="2" fill="#B9CCC4"/><rect x="26" y="${32-4500/4800*28}" width="14" height="${4500/4800*28}" rx="1" fill="#0B6B4F"/></svg>`
 };
 
 /* ---------- screens ---------- */
