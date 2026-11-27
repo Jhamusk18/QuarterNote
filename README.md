@@ -1,62 +1,46 @@
-# FINN — Financial Investment Intelligence
+# QuarterNote
 
-> **Intelligence That Drives Informed Investment Decisions.**
+> **What changed, and where can I verify it?**
 
-**FINN** is a mobile-first AI-powered investment intelligence platform for Indian equities, developed for the ENAM Holdings AI Engineer Build Challenge.
+QuarterNote explains a company announcement in the format that event needs, and puts every figure one tap from its filing row. It is built on FINN, my earlier Indian equity research app, for a Product Manager assignment (Option B).
 
-It helps investors monitor portfolio developments, investigate companies using primary-source documents, and evaluate management's stated guidance against reported financial performance.
+**Live app:** [quarternote.onrender.com/updates](https://quarternote.onrender.com/updates) (free server: the first load after it sleeps can take up to a few minutes)
 
-## Product Overview
+## Submission
 
-### PUSH — Portfolio Intelligence
-A prioritised digest of corporate announcements and material developments across an 18-company demo portfolio. Includes:
-- Corporate announcements classified into 17 categories.
-- High, medium and routine priority levels.
-- End-of-day price movement and unusual-volume alerts based on configurable thresholds.
-- Financial results summaries with Revenue, EBITDA, PBT and PAT, including QoQ and YoY comparisons where available.
-- Management-change summaries using company disclosures.
+| File | What it is |
+|---|---|
+| [`submission/QuarterNote_PM_Deck.pdf`](submission/QuarterNote_PM_Deck.pdf) | Two-slide deck: problem, prototype, market, competitors, funnel, metric tree, unit economics, risks, next steps |
+| [`submission/QuarterNote_PM_Assignment.pdf`](submission/QuarterNote_PM_Assignment.pdf) | Two-page written brief covering all eight areas, with sources beside each claim |
+| [`prototype/quarternote.html`](prototype/quarternote.html) | Early clickable concept with sample data (open in any browser) |
 
-### PULL — AI-Powered Company Research
-Research any supported listed company using retrieved primary-source documents, including annual reports, earnings-call transcripts, investor presentations and exchange filings.
+## The problem
 
-- Conversational research with follow-up context.
-- Page-level source references for retrieved evidence.
-- Financial snapshots covering growth, margins, balance sheet and cash flow.
-- **Management Guidance vs Actuals:** compares extracted management commitments with subsequently reported performance.
-- Clear distinction between reported facts, calculated metrics and FINN's interpretation.
+> “When a company I follow makes an announcement, I want to understand what changed and find the evidence quickly. For earnings, I need to know which figures changed and whether they can be compared. For an acquisition, I need to know what has happened and what is still pending.”
 
-### PROFILE — Investor Preferences
-Guest-mode profile with device-local preferences, portfolio settings, alert preferences and data information. No account registration is required.
+Two real examples in the app: ITC’s Q1 FY27 results filing says some periods are not strictly comparable, and Tata Steel disclosed its APL Apollo Tubes deal and the first completed tranche in separate filings.
 
-**Getting started:** Open FINN and select **Explore FINN**.
+## What the app does
 
-## Live Demo
+### Updates
+- Live NSE filings for an 18-company watchlist, ranked High, Medium and Routine, with price and volume alerts.
+- **Investigate** opens an analysis page built for the event:
+  - **QuarterNote’s read:** one finding and a size-of-change meter.
+  - **Is the growth real?** Overview (revenue and profit bars with a margin line), Growth % and Profit tabs over 8 quarters.
+  - **Why did profit move?** A year-on-year profit bridge: sales, margin, other income, interest, depreciation, tax.
+  - **Quality checks:** other income share, tax rate, cash conversion.
+  - **Filing evidence:** each figure labelled verified, calculated or not verified, with the filing row and page one tap away.
+- Deals show completed and pending steps with their conditions.
 
-https://finn-investment-intelligence-production.up.railway.app/profile
+### Research
+- Ask about any listed company. Answers come from annual reports, earnings calls and filings, with page citations.
+- **Financial results** shows the same charts, profit bridge and checks; **Guidance vs Actuals** compares what management promised with what was reported.
 
-> The demo uses end-of-day market data where applicable. Data mode and timestamps are displayed in the application. Simulated fallback scenarios are explicitly labelled.
+### Profile
+- Guest mode, followed companies, alert thresholds and theme, stored on the device.
 
-## Screenshots
-
-### 1. FINN — Welcome Screen
-Introduction to FINN and its three core modules.
-
-![FINN Splash Screen](assets/screenshots/Screenshot%202026-11-13%20181951.png)
-
-### 2. PUSH — Portfolio Intelligence
-Prioritised portfolio alerts, corporate announcements and market developments.
-
-![FINN PUSH Dashboard](assets/screenshots/Screenshot%202026-11-13%20182007.png)
-
-### 3. PULL — AI-Powered Company Research
-Conversational company research with financial insights and primary-source evidence.
-
-![FINN PULL Research](assets/screenshots/Screenshot%202026-11-13%20182026.png)
-
-### 4. PROFILE — Investor Preferences
-Guest-mode profile and investor preference settings.
-
-![FINN Profile](assets/screenshots/Screenshot%202026-11-13%20182035.png)
+## Deliberately left out
+Trading and buy or sell recommendations. QuarterNote explains and shows evidence; it does not advise.
 
 ## Technology Stack
 
@@ -130,7 +114,7 @@ For the complete parameter definitions, refer to the backend implementation.
 
 ## Model Routing and Cost Efficiency
 
-FINN uses a tiered approach to reduce unnecessary model calls.
+QuarterNote uses a tiered approach to reduce unnecessary model calls.
 
 | Task | Approach |
 |---|---|
@@ -144,11 +128,11 @@ FINN uses a tiered approach to reduce unnecessary model calls.
 
 Frequently repeated operations use caching where implemented.
 
-Cost figures are estimates and depend on input/output token usage, document length, caching and current provider pricing. On the Groq free tier the AI layer costs $0; FINN retries automatically when the free-tier tokens-per-minute limit is reached. With a paid provider, check usage against the application's cost ledger and the provider account.
+Cost figures are estimates and depend on input/output token usage, document length, caching and current provider pricing. On the Groq free tier the AI layer costs $0; QuarterNote retries automatically when the free-tier tokens-per-minute limit is reached. With a paid provider, check usage against the application's cost ledger and the provider account.
 
 ## Data Sources and Transparency
 
-FINN uses:
+QuarterNote uses:
 - NSE corporate announcements as the primary corporate-filings feed.
 - BSE announcements as a fallback where accessible.
 - Screener.in for company information, financial tables and document discovery.
@@ -214,7 +198,7 @@ Do not commit API keys or `.env` files to GitHub.
 
 ## Deployment
 
-FINN is deployed as a Docker-based service on Railway.
+QuarterNote is deployed as a Docker-based service on Railway.
 
 To reproduce the deployment:
 1. Connect the GitHub repository to a Railway project.
@@ -263,4 +247,4 @@ WRITEUP.md
 
 ## Disclaimer
 
-FINN is a prototype developed for the ENAM Holdings AI Engineer Build Challenge. It is an informational research and monitoring tool, not investment advice or a recommendation to buy or sell securities.
+QuarterNote is a prototype developed for the ENAM Holdings AI Engineer Build Challenge. It is an informational research and monitoring tool, not investment advice or a recommendation to buy or sell securities.
