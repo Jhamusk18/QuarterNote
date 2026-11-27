@@ -143,13 +143,13 @@ export default function Pull() {
   const setMsgs = (fn) => setThreads((t) => ({ ...t, [sym]: fn(t[sym] || []) }))
   const patch = (id, p) => setThreads((t) => ({ ...t, [sym]: (t[sym] || []).map((m) => (m.id === id ? { ...m, ...p } : m)) }))
 
-  // prefill from PUSH (Investigate / Ask FINN)
+  // prefill from Updates (detail page / Ask FINN)
   useEffect(() => {
     const st = loc.state
     if (st?.symbol) {
       setCompany({ symbol: st.symbol, name: st.name || st.symbol })
       pendingQ.current = st.question || null
-      nav('/pull', { replace: true, state: null })
+      nav('/research', { replace: true, state: null })
     }
   }, [loc.state]) // eslint-disable-line
 

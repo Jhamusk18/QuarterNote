@@ -93,7 +93,7 @@ export default function Profile() {
       <Sheet open={panel === 'portfolio'} onClose={() => setPanel(null)} title="Portfolio preferences"
         right={<button className="text-[14px] font-semibold text-emerald" onClick={() => setFollowed(null)}>Follow all</button>}>
         <div className="px-5 py-3">
-          <p className="text-[12.5px] text-slate2">PUSH shows filings and alerts only for companies you follow.</p>
+          <p className="text-[12.5px] text-slate2">Updates shows filings and alerts only for companies you follow.</p>
           <div className="mt-2 divide-y divide-line">
             {portfolio.map((c) => {
               const on = followedSet.has(c.symbol)
@@ -110,7 +110,7 @@ export default function Profile() {
           <div className="mt-4 section-label">Research ideas (outside portfolio)</div>
           <div className="mt-2 flex flex-wrap gap-2">
             {companies.adhoc.map((c) => (
-              <button key={c.symbol} onClick={() => nav('/pull', { state: { symbol: c.symbol, name: c.name } })} className="chip-opt chip-off">{c.symbol} →</button>
+              <button key={c.symbol} onClick={() => nav('/research', { state: { symbol: c.symbol, name: c.name } })} className="chip-opt chip-off">{c.symbol} →</button>
             ))}
           </div>
         </div>
@@ -118,14 +118,14 @@ export default function Profile() {
 
       <Sheet open={panel === 'saved'} onClose={() => setPanel(null)} title="Saved research">
         <div className="space-y-2.5 px-5 py-3">
-          {!saved.length && <p className="py-6 text-center text-[13.5px] text-slate2">Nothing saved yet. Tap the bookmark on any FINN answer in PULL.</p>}
+          {!saved.length && <p className="py-6 text-center text-[13.5px] text-slate2">Nothing saved yet. Tap the bookmark on any FINN answer in Research.</p>}
           {saved.map((s) => (
             <div key={s.key} className="rounded-xl border border-line p-3">
               <div className="flex items-center justify-between text-[11.5px] text-slate2"><span className="pill bg-mint text-forest">{s.symbol}</span>{stamp(s.at)}</div>
               <div className="mt-1.5 text-[14px] font-semibold text-navy">{s.question}</div>
               <p className="mt-1 line-clamp-3 text-[12.5px] text-slate2">{s.answer?.answer}</p>
               <div className="mt-2 flex gap-3 text-[13px] font-semibold">
-                <button className="text-emerald" onClick={() => nav('/pull', { state: { symbol: s.symbol, question: s.question } })}>Re-run in PULL →</button>
+                <button className="text-emerald" onClick={() => nav('/research', { state: { symbol: s.symbol, question: s.question } })}>Re-run in Research →</button>
                 <button className="ml-auto text-slate2" onClick={() => setSaved(saved.filter((x) => x.key !== s.key))}><Trash2 size={15} /></button>
               </div>
             </div>
@@ -152,11 +152,11 @@ export default function Profile() {
             <div className="mt-1 divide-y divide-line">
               <StatusRow ok={st.exchanges?.nse?.ok} label="NSE corporate announcements" detail={st.exchanges?.nse?.ok ? 'Live exchange feed (primary)' : st.exchanges?.nse?.detail} />
               <StatusRow ok={st.exchanges?.bse?.ok ?? null} label="BSE announcements API" detail={st.exchanges?.bse?.ok === null ? 'Fallback · not needed while NSE works' : st.exchanges?.bse?.detail} />
-              <StatusRow ok={st.sources?.announcements?.ok ?? null} label="Filings digest" detail={st.sources?.announcements?.detail || 'Builds when PUSH loads'} />
-              <StatusRow ok={st.sources?.prices?.ok ?? null} label="Prices & volume (Yahoo Finance)" detail={`EOD bars · ${st.sources?.prices?.detail || 'loads with PUSH'} · market ${st.market_open ? 'open (index tiles LIVE, quotes may be delayed)' : 'closed (EOD)'}`} />
+              <StatusRow ok={st.sources?.announcements?.ok ?? null} label="Filings digest" detail={st.sources?.announcements?.detail || 'Builds when Updates loads'} />
+              <StatusRow ok={st.sources?.prices?.ok ?? null} label="Prices & volume (Yahoo Finance)" detail={`EOD bars · ${st.sources?.prices?.detail || 'loads with Updates'} · market ${st.market_open ? 'open (index tiles LIVE, quotes may be delayed)' : 'closed (EOD)'}`} />
               <StatusRow ok label="Fundamentals & documents (screener.in → BSE/NSE PDFs)" detail="Annual reports, call transcripts, investor presentations, standardised financials" />
-              <StatusRow ok={st.llm?.enabled} label="AI layer" detail={st.llm?.enabled ? `${{ groq: 'Groq (free tier)', gemini: 'Google Gemini (free tier)' }[st.llm.provider] || 'Anthropic Claude'} · Fast: ${st.llm.fast_model} · Strong: ${st.llm.strong_model} · ${st.llm.calls} calls${st.llm.provider === 'anthropic' ? ` · $${st.llm.usd.toFixed(4)}` : ' · $0'} since ${stamp(st.llm.since)}` : 'Not configured (no API key): PULL shows evidence passages; Guidance vs Actuals is off'} />
-              {st.force_sample && <StatusRow ok={false} label="Sample mode forced" detail="All PUSH items are SIMULATED" />}
+              <StatusRow ok={st.llm?.enabled} label="AI layer" detail={st.llm?.enabled ? `${{ groq: 'Groq (free tier)', gemini: 'Google Gemini (free tier)' }[st.llm.provider] || 'Anthropic Claude'} · Fast: ${st.llm.fast_model} · Strong: ${st.llm.strong_model} · ${st.llm.calls} calls${st.llm.provider === 'anthropic' ? ` · $${st.llm.usd.toFixed(4)}` : ' · $0'} since ${stamp(st.llm.since)}` : 'Not configured (no API key): Research shows evidence passages; Guidance vs Actuals is off'} />
+              {st.force_sample && <StatusRow ok={false} label="Sample mode forced" detail="All Updates items are SIMULATED" />}
             </div>
           )}
           <div className="mt-5 section-label">Device data</div>
@@ -169,7 +169,7 @@ export default function Profile() {
           {[
             ['How does FINN rank filings?', 'Every NSE filing is classified into 17 categories (rules first, a cheap AI model only for ambiguous ones). Results, M&A, senior management changes, litigation and fund raises are High; routine compliance paperwork is collapsed.'],
             ['What do EOD, LIVE and Simulated mean?', 'EOD = end-of-day close from the last completed session. LIVE = intraday index quotes during market hours (may be delayed). Simulated = demo data shown only if live feeds fail. It is always labelled.'],
-            ['Where do PULL answers come from?', 'Only the company’s own documents: annual reports, results, earnings-call transcripts and investor presentations, plus standardised financials compiled from exchange filings. Every claim links to its page.'],
+            ['Where do Research answers come from?', 'Only the company’s own documents: annual reports, results, earnings-call transcripts and investor presentations, plus standardised financials compiled from exchange filings. Every claim links to its page.'],
             ['What is Guidance vs Actuals?', 'FINN reads the last four earnings calls, extracts each numerical promise, and checks it against what was later reported: Delivered, Partially delivered, Missed or Pending.'],
           ].map(([q, a]) => <details key={q} className="rounded-xl border border-line p-3"><summary className="cursor-pointer font-semibold">{q}</summary><p className="mt-1.5 text-slate2">{a}</p></details>)}
           <div className="section-label pt-2">Send feedback</div>
@@ -186,7 +186,7 @@ export default function Profile() {
         <div className="space-y-3 px-5 py-4 text-[13.5px] leading-relaxed text-navy">
           <div><div className="text-[22px] font-black text-[#0B4A35]">FINN <span className="text-[13px] font-semibold text-slate2">v0.2.0 · prototype</span></div>
             <div className="font-semibold">Intelligence That Drives Informed Investment Decisions.</div></div>
-          <p className="text-slate2">PUSH filters the firehose of exchange filings and EOD moves down to what matters for your portfolio. PULL answers research questions strictly from primary documents, and holds management accountable for what it guided.</p>
+          <p className="text-slate2">Updates filters the firehose of exchange filings and EOD moves down to what matters for your portfolio. Research answers research questions strictly from primary documents, and holds management accountable for what it guided.</p>
           <div className="section-label">Data sources</div>
           <ul className="list-disc space-y-1 pl-5 text-slate2">
             <li>NSE corporate announcements (fallback: BSE API, then screener.in feed)</li>
@@ -194,7 +194,7 @@ export default function Profile() {
             <li>screener.in for document links and standardised financials; PDFs from BSE/NSE</li>
           </ul>
           <div className="section-label">AI & cost</div>
-          <p className="text-slate2">Rules before models. A fast, cheap model classifies ambiguous filings and extracts guidance; a stronger model is used only for PULL reasoning and guidance verdicts. Retrieval is BM25 (no embedding cost); classifications, documents and answers are cached.</p>
+          <p className="text-slate2">Rules before models. A fast, cheap model classifies ambiguous filings and extracts guidance; a stronger model is used only for Research reasoning and guidance verdicts. Retrieval is BM25 (no embedding cost); classifications, documents and answers are cached.</p>
           <div className="section-label">Disclaimer</div>
           <p className="text-slate2">For research and demonstration only. Not investment advice. Data may be delayed or incomplete; verify against the original filing before acting.</p>
           <a href="https://www.nseindia.com/companies-listing/corporate-filings-announcements" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-emerald">NSE filings <ExternalLink size={13} /></a>

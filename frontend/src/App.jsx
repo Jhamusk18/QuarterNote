@@ -26,8 +26,10 @@ export default function App() {
         <div className="relative flex-1 overflow-hidden">
           <Routes>
             <Route path="/" element={<Splash />} />
-            <Route path="/push" element={<Push />} />
-            <Route path="/pull" element={<Pull />} />
+            <Route path="/updates" element={<Push />} />
+            <Route path="/research" element={<Pull />} />
+            <Route path="/push" element={<Navigate to="/updates" replace />} />
+            <Route path="/pull" element={<Navigate to="/research" replace />} />
             <Route path="/profile/*" element={<Profile />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

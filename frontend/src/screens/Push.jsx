@@ -22,9 +22,8 @@ const PCARDS = [
 ]
 
 export default function Push() {
-  const { thresholds, followedSet, portfolio, companies, setThresholdsOpen, prefs } = useApp()
-  const [data, setData] = useState(null)
-  const [err, setErr] = useState(null)
+  const { thresholds, followedSet, portfolio, companies, setThresholdsOpen, prefs, digest, reloadDigest } = useApp()
+  const { data, err, loading } = digest
   const [market, setMarket] = useState(null)
   const [filters, setFilters] = useLocal('filters', DEFAULT_FILTERS)
   const [sheet, setSheet] = useState({ open: false, focus: null })
@@ -32,13 +31,7 @@ export default function Push() {
   const [routineOpen, setRoutineOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [text, setText] = useState('')
-  const [loading, setLoading] = useState(true)
-
-  const load = () => {
-    setLoading(true); setErr(null)
-    api.digest(thresholds).then(setData).catch((e) => setErr(e.message)).finally(() => setLoading(false))
-  }
-  useEffect(load, [thresholds]) // eslint-disable-line react-hooks/exhaustive-deps
+  const load = () => reloadDigest()
   useEffect(() => { api.market().then(setMarket).catch(() => setMarket({ tiles: [], error: true })) }, [])
   useEffect(() => { setShowAll(false); setRoutineOpen(filters.priority === 'routine') }, [filters])
 
@@ -203,7 +196,7 @@ function AskCard({ companies, alerts }) {
     if (!s && qq === "Explain today's alert" && alerts[0]) s = alerts[0].symbol
     if (qq === "Explain today's alert" && alerts.find((a) => a.symbol === s)) qq = `Explain this development and why it matters: "${alerts.find((a) => a.symbol === s).title}"`
     if (qq === 'Check management guidance') qq = 'GUIDANCE'
-    nav('/pull', { state: { symbol: s || 'INFY', name: all.find((c) => c.symbol === (s || 'INFY'))?.name, question: qq } })
+    nav('/research', { state: { symbol: s || 'INFY', name: all.find((c) => c.symbol === (s || 'INFY'))?.name, question: qq } })
   }
   return (
     <section className="card p-4">
@@ -242,7 +235,7 @@ function AskCard({ companies, alerts }) {
         ))}
       </div>
       <button onClick={() => go()} className="btn-primary mt-3 h-12 w-full bg-forest text-[16px]">
-        <Search size={18} /> Investigate in PULL <ArrowRight size={18} />
+        <Search size={18} /> Investigate in Research <ArrowRight size={18} />
       </button>
     </section>
   )

@@ -3,9 +3,9 @@ import { ArrowRight, Bell, Search, User } from 'lucide-react'
 import { LogoTile } from '../components/Logo'
 
 const TILES = [
-  { Icon: Bell, title: 'PUSH', text: 'Key developments in your portfolio.' },
-  { Icon: Search, title: 'PULL', text: 'Evidence-based company research.' },
-  { Icon: User, title: 'PROFILE', text: 'Your account and preferences.' },
+  { Icon: Bell, title: 'Updates', text: 'What changed at companies you follow.' },
+  { Icon: Search, title: 'Research', text: 'Evidence-based company research.' },
+  { Icon: User, title: 'Profile', text: 'Your account and preferences.' },
 ]
 
 function Wave({ flip = false }) {
@@ -48,7 +48,7 @@ export default function Splash() {
         </div>
 
         <div className="mt-auto w-full pb-[118px] pt-8">
-          <button onClick={() => nav('/push')} className="btn-primary h-14 w-full text-[17px] shadow-[0_10px_24px_rgba(13,147,103,0.35)]">
+          <button onClick={() => nav('/updates')} className="btn-primary h-14 w-full text-[17px] shadow-[0_10px_24px_rgba(13,147,103,0.35)]">
             Explore FINN <ArrowRight size={20} />
           </button>
           <p className="mt-3 text-[12px] text-slate2">No sign-up needed · Guest mode · FINN v0.2.0</p>

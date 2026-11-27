@@ -115,7 +115,7 @@ export default function FeedCard({ it, compact = false }) {
   const nav = useNavigate()
   const Icon = it.category === 'price_movement' ? ((it.details?.change_pct ?? 0) >= 0 ? TrendingUp : TrendingDown) : (ICONS[it.category] || FileText)
   const sub = subline(it)
-  const investigate = () => nav('/pull', {
+  const investigate = () => nav('/research', {
     state: {
       symbol: it.symbol, name: it.company,
       question: it.category === 'results' ? `What drove the ${it.details?.quarter || 'latest'} results, and how do they compare with management guidance?`
