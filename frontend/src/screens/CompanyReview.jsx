@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ArrowRight, ExternalLink } from 'lucide-react'
 import { api } from '../lib/api'
 import { inr, num2 } from '../lib/format'
+import TrendPanel from './TrendPanel'
 
 function QuarterChart({ periods, values, label }) {
   const points = periods.map((period, i) => ({ period, value: values[i] })).slice(-5)
@@ -43,7 +44,12 @@ export default function CompanyReview({ symbol, onAsk }) {
     return () => { active = false }
   }, [symbol])
 
-  if (review.data) return <ReviewCard data={review.data} symbol={symbol} onAsk={onAsk} />
+  if (review.data) return (
+    <div className="space-y-3">
+      <ReviewCard data={review.data} symbol={symbol} onAsk={onAsk} />
+      <TrendPanel symbol={symbol} onAsk={(question) => onAsk({ symbol, name: review.data.name || symbol, question })} />
+    </div>
+  )
 
   return (
     <section className="rounded-2xl border border-line bg-surface p-4" aria-live="polite">
