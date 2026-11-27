@@ -35,7 +35,7 @@ export default function Profile() {
   const nav = useNavigate()
   const { portfolio, companies, followed, setFollowed, followedSet, thresholds, setThresholdsOpen, saved, setSaved, prefs, setPrefs } = useApp()
   const [panel, setPanel] = useState(null)
-  const [themePref, setThemePref] = useLocal('theme', 'system')
+  const [themePref, setThemePref] = useLocal('theme', 'light')
   const [st, setSt] = useState(null)
   const [fb, setFb] = useLocal('feedback', [])
   const [draft, setDraft] = useState('')

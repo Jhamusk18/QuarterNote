@@ -1,7 +1,7 @@
 // Theme choice is stored on this device only (same as the other preferences).
 // Applied before the first render so there is no flash of the wrong theme.
 export function applyTheme(choice) {
-  const pref = choice || readStored() || 'system'
+  const pref = choice || readStored() || 'light'
   const dark = pref === 'dark' || (pref === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches)
   document.documentElement.classList.toggle('dark', dark)
 }
