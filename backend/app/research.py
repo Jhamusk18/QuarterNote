@@ -69,7 +69,7 @@ def _extractive(question: str, sources: list[dict], chunks: list[dict] | None = 
         findings.append({"text": txt, "kind": "reported", "sources": [s["id"]]})
     return {
         "mode": "extractive",
-        "answer": "AI reasoning is not configured on this server, so FINN is showing the most relevant passages "
+        "answer": "AI reasoning is not configured on this server, so QuarterNote is showing the most relevant passages "
                   "from the company's primary documents instead of a synthesised answer.",
         "findings": findings, "verdict": None, "not_found": [], "terms": terms,
     }

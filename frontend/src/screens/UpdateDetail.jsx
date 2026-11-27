@@ -68,7 +68,7 @@ export function DetailShell({ it, children, refreshedAt, verification }) {
           ) : (
             <div>Filed {stamp(it.datetime)} IST · via {it.feed}</div>
           )}
-          {refreshedAt && <div>FINN refreshed {stamp(refreshedAt)} IST</div>}
+          {refreshedAt && <div>QuarterNote refreshed {stamp(refreshedAt)} IST</div>}
           {verification?.status === 'manually_verified' && <div className="text-navy/80">Checked: {verification.by}</div>}
           {!isMarket && it.title && it.title !== it.headline && <div className="text-navy/80">Filing title: {it.title}</div>}
           {it.url && it.url !== '#' && (

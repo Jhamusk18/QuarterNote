@@ -93,7 +93,7 @@ export default function FilterSheet({ open, onClose, applied, onApply, focus, co
               <label className="text-[12px] font-medium text-slate2">To
                 <input type="date" min={d.from} max={today} value={d.to} onChange={(e) => setD({ ...d, to: e.target.value })} className="mt-1 w-full rounded-lg border border-line px-2 py-2 text-[14px] text-navy" />
               </label>
-              <p className="col-span-2 text-[11.5px] text-slate2">FINN keeps the last 30 days of filings.</p>
+              <p className="col-span-2 text-[11.5px] text-slate2">QuarterNote keeps the last 30 days of filings.</p>
             </div>
           )}
         </section>

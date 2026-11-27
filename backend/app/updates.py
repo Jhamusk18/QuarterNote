@@ -1,7 +1,7 @@
 """Update detail: one endpoint per feed item, built on demand.
 
 The digest stays the feed summary. Details are assembled here from (a) manually verified
-records in data/verified/ and (b) the live digest item plus data FINN already holds
+records in data/verified/ and (b) the live digest item plus data QuarterNote already holds
 (screener.in tables, appointee extraction, EOD stats). PDF reads happen only in the lazy
 /passages and /management calls, so a slow or missing document never blocks a detail page.
 Every number is reported (with source) or computed in evidence.py from reported inputs."""
@@ -73,7 +73,7 @@ def _earnings_from_record(r: dict) -> dict:
         for c in ("cur", "yoy", "qoq"):
             v = round(fn({k: rows[k]["values"][c] for k in inputs}), 2)
             figs[c] = figure(metric, v, unit, cols[c]["period"], basis, None, definition=definition, verified=False,
-                             verify_note="Calculated by FINN from verified filing rows (see formula).")
+                             verify_note="Calculated by QuarterNote from verified filing rows (see formula).")
         return figs
 
     general = [n for n in r["notes"] if "all" in n["applies_to"]]
@@ -91,10 +91,10 @@ def _earnings_from_record(r: dict) -> dict:
                          "Total expenses minus excise duty, finance costs and depreciation"),
     }
     F["op"] = {c: figure("Operating profit", round(F["sales"][c]["value"] - F["costs"][c]["value"], 2), unit, cols[c]["period"], basis,
-                         None, definition="Sales (net of excise) minus operating costs", verify_note="Calculated by FINN from verified filing rows (see formula).")
+                         None, definition="Sales (net of excise) minus operating costs", verify_note="Calculated by QuarterNote from verified filing rows (see formula).")
                for c in ("cur", "yoy", "qoq")}
     F["margin"] = {c: figure("Operating margin", round(F["op"][c]["value"] / F["sales"][c]["value"] * 100, 2), "%", cols[c]["period"], basis,
-                             None, definition="Operating profit ÷ sales (net of excise)", verify_note="Calculated by FINN from verified filing rows (see formula).")
+                             None, definition="Operating profit ÷ sales (net of excise)", verify_note="Calculated by QuarterNote from verified filing rows (see formula).")
                    for c in ("cur", "yoy", "qoq")}
     F["pbt"] = reported("pbt", "Profit before tax")
     F["pat"] = reported("pat", "Net profit (profit for the period)")
@@ -140,7 +140,7 @@ def _earnings_from_record(r: dict) -> dict:
          "formula": "Revenue from operations (line 1) − Excise duty (line 4 d)",
          "evidence": {"status": "calculated_from_verified", "statement": stmt, "rows": row_ev(["revenue_from_operations", "excise_duty"]),
                       "third_party": tp_check("sales", "Sales"),
-                      "note": "FINN uses sales net of excise so periods before and after the 1 Feb 2026 excise increase can be compared."}},
+                      "note": "QuarterNote uses sales net of excise so periods before and after the 1 Feb 2026 excise increase can be compared."}},
         {"key": "costs", "label": "Operating costs", "kind": "calculated", "figures": F["costs"], "changes": costs_ch,
          "formula": "Total expenses (line 4) − Excise duty (4 d) − Finance costs (4 f) − Depreciation (4 g)",
          "evidence": {"status": "calculated_from_verified", "statement": stmt,
@@ -256,7 +256,7 @@ def _screener_earnings(it: dict) -> dict | None:
             v = vals[i] if vals and 0 <= i < len(vals) else None
             out[k] = figure(metric, v, "%" if pct_metric else unit, plabel[k], basis,
                             source(pub, c.get("url"), None, "Quarterly results table", None, None),
-                            verify_note="Not verified: from screener.in's standardised table. FINN has not matched it to a row in this filing.")
+                            verify_note="Not verified: from screener.in's standardised table. QuarterNote has not matched it to a row in this filing.")
         return out
 
     def ch(f, pct_metric=False):
@@ -265,7 +265,7 @@ def _screener_earnings(it: dict) -> dict | None:
                 "qoq": compare(f["qoq"], f["cur"], "qoq", percent_metric=pct_metric)}
 
     ev = {"status": "not_verified", "note": "These numbers come from screener.in's standardised table, which is compiled from exchange filings. "
-                                            "FINN has not matched them to a row in this filing. Open the filing to check."}
+                                            "QuarterNote has not matched them to a row in this filing. Open the filing to check."}
     metrics = []
     sales_key = "Sales" if rows.get("Sales") else "Revenue"
     S = figs("Sales" if sales_key == "Sales" else "Revenue", rows.get(sales_key))
@@ -275,7 +275,7 @@ def _screener_earnings(it: dict) -> dict | None:
         C = figs("Operating costs", rows.get("Expenses"))
         O = figs("Operating profit", rows.get("Operating Profit"))
         M = {k: figure("Operating margin", round(O[k]["value"] / S[k]["value"] * 100, 2) if O[k]["value"] is not None and S[k]["value"] else None,
-                       "%", plabel[k], basis, None, verify_note="Calculated by FINN from screener.in figures.") for k in cols}
+                       "%", plabel[k], basis, None, verify_note="Calculated by QuarterNote from screener.in figures.") for k in cols}
         oc, sc, mc = ch(O), ch(S), ch(M, True)
         metrics += [
             {"key": "costs", "label": "Operating costs", "kind": "reported", "figures": C, "changes": ch(C), "evidence": ev},
@@ -318,7 +318,7 @@ def _facts_live(it: dict) -> list[dict]:
     sum_src = source("NSE announcement summary" if it.get("feed") == "NSE" else it.get("summary_source") or it.get("feed"),
                      it.get("url"), None, "Exchange announcement text", summary, it.get("datetime")) if summary else None
 
-    def unavailable(label, why="FINN has not read this detail from the filing. Open the original to check."):
+    def unavailable(label, why="QuarterNote has not read this detail from the filing. Open the original to check."):
         return {"label": label, "state": "unavailable", "value": "Evidence unavailable", "note": why}
 
     if cat == "management_change":
@@ -332,7 +332,7 @@ def _facts_live(it: dict) -> list[dict]:
              "value": (it.get("title") if change else "Evidence unavailable"), "source": sum_src or source(it.get("feed"), it.get("url"), None, "Filing title", it.get("title"), it.get("datetime"))},
             {"label": "Effective date", "state": "candidate" if d.get("effective_date") else "unavailable", "value": d.get("effective_date") or "Evidence unavailable", "source": msrc},
             {"label": "Background", "state": "candidate" if ok else "unavailable", "value": d.get("background") if ok else (d.get("note") or "Evidence unavailable"), "source": msrc},
-            unavailable("Successor", "FINN does not extract successors yet. Open the filing to check whether one is named."),
+            unavailable("Successor", "QuarterNote does not extract successors yet. Open the filing to check whether one is named."),
         ]
     if cat == "litigation":
         return [
@@ -429,11 +429,11 @@ def track(item_id: str, metric_key: str, baseline_id: str) -> dict:
 
 
 def _resolved_url(item_id: str) -> tuple[str | None, str | None]:
-    """Only URLs FINN itself resolved (verified records or the digest) are ever fetched."""
+    """Only URLs QuarterNote itself resolved (verified records or the digest) are ever fetched."""
     if item_id in RECORDS:
         return RECORDS[item_id]["url"], RECORDS[item_id]["symbol"]
     it = find_item(item_id)
-    if it and it.get("kind") == "announcement" and str(it.get("url", "")).startswith(("https://nsearchives.nseindia.in/", "https://www.bseindia.com/")):
+    if it and it.get("kind") == "announcement" and str(it.get("url", "")).startswith(("https://nsearchives.nseindia.com/", "https://nsearchives.nseindia.in/", "https://www.bseindia.com/")):
         return it["url"], it["symbol"]
     return None, None
 
@@ -473,11 +473,11 @@ def passages(item_id: str, timeout: float = 20.0) -> dict:
                 if sum(o["kind"] == kind for o in out) >= 3:
                     break
     return {"state": "ok", "passages": out[:9], "pages": len(pages),
-            "note": "Located by text search in the filing. Candidate passages, not verified by FINN."}
+            "note": "Located by text search in the filing. Candidate passages, not verified by QuarterNote."}
 
 
 def management_said(item_id: str) -> dict:
-    """Transcript excerpt for the same period, if FINN has indexed one. Never blocks."""
+    """Transcript excerpt for the same period, if QuarterNote has indexed one. Never blocks."""
     det = get_detail(item_id)
     if not det or det["layout"] != "earnings":
         return {"state": "unavailable", "reason": "Not an earnings update."}
@@ -495,11 +495,11 @@ def management_said(item_id: str) -> dict:
     want = [datetime(end_year + (end_month + k > 12), (end_month + k - 1) % 12 + 1, 1).strftime("%b %Y") for k in (1, 2)]
     docs = [d for d in idx["docs"].values() if d["kind"] == "transcript" and d.get("period") in want]
     if not docs:
-        return {"state": "unavailable", "reason": f"No earnings-call transcript for {period} in FINN's sources for {sym}."}
+        return {"state": "unavailable", "reason": f"No earnings-call transcript for {period} in QuarterNote's sources for {sym}."}
     hits = rag.search(idx, "operating margin costs profit growth demand outlook", k=2, doc_ids={docs[0]["id"]}, per_doc=2)
     if not hits:
         return {"state": "unavailable", "reason": "The transcript had no passage about costs or margins."}
     return {"state": "ok", "statements": [
         {"text": re.sub(r"\s+", " ", h["text"])[:600], "speaker": None,
          "source": source(f"{sym} earnings call transcript", f"{docs[0]['url']}#page={h['page']}", h["page"], docs[0]["title"], None, None)}
-        for h in hits], "note": "Excerpt retrieved by search. FINN has not interpreted it."}
+        for h in hits], "note": "Excerpt retrieved by search. QuarterNote has not interpreted it."}

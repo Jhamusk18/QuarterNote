@@ -102,7 +102,7 @@ export default function Updates() {
           )}
         </div>
         <div className="pb-2 text-[12px] leading-snug text-slate2">
-          <span>FINN refreshed {data ? `${stamp(data.generated_at)} IST` : '…'}{loading && data ? ' · refreshing' : ''}</span>
+          <span>QuarterNote refreshed {data ? `${stamp(data.generated_at)} IST` : '…'}{loading && data ? ' · refreshing' : ''}</span>
           <span className="block">{DISCLAIMER}</span>
         </div>
       </header>
@@ -199,7 +199,7 @@ function HistoricalExamples({ onOpen }) {
   return (
     <section aria-label="Historical examples" className="space-y-2">
       <h3 className="px-1 pt-1 text-[14px] font-extrabold text-navy">Historical examples</h3>
-      <p className="px-1 text-[12px] text-slate2">Older filings FINN has checked by hand against the original PDF. They are not new.</p>
+      <p className="px-1 text-[12px] text-slate2">Older filings QuarterNote has checked by hand against the original PDF. They are not new.</p>
       {s.items.map((it) => <UpdateRow key={it.id} it={it} onOpen={onOpen} />)}
     </section>
   )
@@ -224,7 +224,7 @@ function AskCard({ companies, alerts }) {
         <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-mint text-emerald"><Sparkles size={22} /></div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="text-[18px] font-extrabold text-navy">Ask FINN for the Evidence</h3>
+            <h3 className="text-[18px] font-extrabold text-navy">Ask QuarterNote for the Evidence</h3>
             <span className="pill shrink-0 bg-mint text-forest"><ShieldCheck size={12} />Evidence-backed</span>
           </div>
           <p className="text-[12.5px] text-slate2">Research with primary sources (annual reports, results, earnings calls)</p>

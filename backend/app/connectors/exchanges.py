@@ -1,7 +1,7 @@
 """Direct NSE / BSE corporate-announcement APIs.
 
 Both sit behind Akamai bot protection. From cloud/datacenter IPs they answer 403
-(verified 13 Nov 2026), so FINN tries them first, remembers the failure for an hour,
+(verified 13 Nov 2026), so QuarterNote tries them first, remembers the failure for an hour,
 and falls back to screener.in's announcement feed (which links to the same BSE filing PDFs)."""
 import re
 import time
